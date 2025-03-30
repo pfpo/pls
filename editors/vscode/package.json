@@ -1,0 +1,101 @@
+{
+	"name": "pls",
+	"description": "Prolog Language Server",
+	"author": "Martim Vidiera",
+	"license": "MIT",
+	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/MartimVideira/pls"
+	},
+	"engines": {
+		"vscode": "^1.75.0"
+	},
+	 "categories": [
+    "Programming Languages",
+    "Linters",
+    "Snippets",
+    "Formatters",
+    "Other"
+  ],
+    "keywords": [
+    "prolog",
+    "pls",
+    "lsp"
+  ],
+  "activationEvents": [
+    "onLanguage:prolog"
+  ],
+   "main": "./out/extension",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "pls",
+      "properties": {
+        "pls.executablePath": {
+          "scope": "machine",
+          "type": "string",
+          "default": "",
+          "description": "Specifies an absolute path to the yls executable. If empty pls is expected to be in $PATH variable. (example: /home/user/pls/env/bin/pls)"
+        }
+    }
+	},
+    "configurationDefaults": {
+      "[prolog]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": false,
+        "editor.detectIndentation": false
+      }
+    },
+    "languages": [
+      {
+        "id": "prolog",
+        "extensions": [
+          ".pl"
+        ],
+        "aliases": [
+          "prolog",
+          "sicstus",
+          "swipl",
+          "swi",
+          "pl"
+        ],
+        "configuration": "./language/config.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "prolog",
+        "scopeName": "source.prolog",
+        "path": "./language/prolog.tmLanguage.json"
+      }
+    ]
+  },	
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"lint": "eslint",
+		"test": "sh ./scripts/e2e.sh"
+	},
+	"dependencies":{
+		"glob": "^11.0.0",
+		"vscode-languageclient": "^9.0.1"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.13.0",
+		"@stylistic/eslint-plugin": "^2.9.0",
+		"@types/mocha": "^10.0.6",
+		"@types/node": "^20",
+		"eslint": "^9.13.0",
+		"mocha": "^10.3.0",
+		"typescript": "^5.8.2",
+		"typescript-eslint": "^8.26.0",
+		"glob": "^11.0.0",
+		"vscode-languageclient": "^9.0.1",
+		"@types/vscode": "^1.75.1",
+		"@vscode/test-electron": "^2.3.9"
+		
+	}
+}
+
