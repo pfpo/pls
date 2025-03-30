@@ -1,0 +1,2 @@
+# pls
+Prolog Language Server
