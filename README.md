@@ -1,6 +1,10 @@
 # pls
 Prolog Language Server
 
+```console
+$ python3 -m venv .venv
+```
+
 ## Roadmap
 
 
