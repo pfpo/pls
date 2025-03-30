@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pls"
+version = "0.0.1"
+authors = [
+  { name="Martim Videira", email="mitram790@gmail.com" },
+]
+description = "pls: Prolog Language Server"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/MartimVideira/pls"
+Issues = "https://github.com/MartimVideira/pls/issues"
