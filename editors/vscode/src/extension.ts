@@ -1,4 +1,4 @@
-import { ExtensionContext, workspace } from "vscode";
+import { ExtensionContext, workspace, window } from "vscode";
 import {
   Executable,
   LanguageClient,
@@ -6,9 +6,10 @@ import {
 } from "vscode-languageclient/node";
 
 let client: LanguageClient;
+let log = window.createOutputChannel("pls");
 
 export function activate(_context: ExtensionContext) {
-  console.log("PLS Activation Event");
+  log.appendLine("PLS Activation Event");
 
   workspace.onDidChangeConfiguration((event) => {
     let langServerAffected = event.affectsConfiguration("pls.executablePath");
@@ -21,21 +22,21 @@ export function activate(_context: ExtensionContext) {
 }
 
 async function restartLanguageClient(): Promise<void> {
-  console.log("Restarting language client");
+  log.appendLine("Restarting language client");
 
   // Deactivate previously launched client.
   deactivate();
 
   // Get the editor configuration
   const config = workspace.getConfiguration("pls");
-  console.log("PLS configuration ", config);
+  log.appendLine(`PLS configuration ${config}`);
 
   let execPath: string =
     process.env.PLS_EXECUTABLE_PATH|| config.get("executablePath") || "pls";
    let execArgs: Array<string> = ["-vv"];
 
-  console.log("Exec path: ", execPath);
-  console.log("Exec args: ", execArgs);
+  log.appendLine(`Exec path: ${execPath}`);
+  log.appendLine(`Exec args: ${execArgs}`);
 
   // Configure how to start the server
   const serverExecutable: Executable = {
