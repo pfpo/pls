@@ -1,0 +1,36 @@
+name: VSCode Extension
+run-name: Release VSCode Extension  🚀
+on:
+  push:
+    tags:
+      - "*.*.*"
+jobs:
+  vscode-extension-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install VSCE (VS Code Extension CLI)
+        run: npm install -g @vscode/vsce
+      
+      - name: Package Extension
+        run: ./scripts/package_extension.sh
+      
+      - name: Upload Extension as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pls-vscode-extension
+          path: ./dist/pls-vscode-extension.vsix
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/pls-vscode-extension.vsix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

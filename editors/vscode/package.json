@@ -4,6 +4,7 @@
 	"author": "Martim Vidiera",
 	"license": "MIT",
 	"version": "0.0.1",
+  "publisher":"MartimVideira",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/MartimVideira/pls"
