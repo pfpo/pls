@@ -1,6 +1,9 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: push
+name: VSCode Extension
+run-name: Release VSCode Extension  🚀
+on:
+  push:
+    tags:
+      - "*.*.*"
 jobs:
   vscode-extension-release:
     runs-on: ubuntu-latest
