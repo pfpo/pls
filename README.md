@@ -1,6 +1,21 @@
 # pls
 Prolog Language Server
 
+## Installing the Language Server
+
+- Clone, or download this repository
+- Ensure you have python and pip installed
+```
+cd pls
+pip install .
+``` 
+
+- pls  is now installed, and you may need to add the following line to your `bashrc` in order to make pip installables visible from your `$PATH`
+
+```
+echo 'PATH=#$HOME/.local/bin/:$PATH' >> ~/.bashrc
+```
+
 ## Installing VS Code Extension
 
 - Download the extension (`.vsix`) from the github release.
@@ -28,9 +43,9 @@ code-insiders --install-extension pls-vscode-extension.vsix
 - [x] Vscode Extension
 - [ ] CI/CD
     - [x] Automatic release of vscode extension
-- [ ] Treesitter Inclusion
+- [x] Treesitter Inclusion
+- [x] Using Treesitter to Parse Prolog Files
 - [ ] Neovim Extension
-- [ ] Using Treesitter to Parse Prolog Files
 - [ ] Parsing Diagnostics
 - [ ] Parsing Tests
 - [ ] Go to definition

@@ -1,1 +1,3 @@
 pygls
+tree-sitter
+./tree-sitter-prolog
