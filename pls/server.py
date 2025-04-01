@@ -123,7 +123,8 @@ def completions(params: types.CompletionParams):
         types.CompletionItem(label="friend"),
     ]
 
-
-if __name__ == "__main__":
+def main():
     logging.basicConfig(filename='pygls.log', filemode='w', level=logging.DEBUG)
     server.start_io()
+if __name__ == "__main__":
+    main()

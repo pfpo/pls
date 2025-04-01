@@ -2,6 +2,9 @@
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [project]
 name = "pls"
 version = "0.0.1"
@@ -17,7 +20,15 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+dependencies = [
+  "tree-sitter",
+  "pygls",
+   "tree-sitter-prolog @ {root:uri}/tree-sitter-prolog",
+]
 
 [project.urls]
 Homepage = "https://github.com/MartimVideira/pls"
 Issues = "https://github.com/MartimVideira/pls/issues"
+
+[project.scripts]
+pls = "pls.server:main"
