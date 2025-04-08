@@ -8,7 +8,7 @@ import re
 
 from lsprotocol import types
 
-from tree_sitter import Language, Parser,Node
+from tree_sitter import Language, Parser,Node,Tree
 from tree_sitter_prolog import prolog
 
 PROLOG = Language(prolog())
@@ -21,6 +21,26 @@ def node_to_range(node:Node):
                             start=types.Position(line=node.start_point.row,character=node.start_point.column),
                             end=types.Position(line=node.end_point.row,character=node.end_point.column),
                         )
+class Term:
+    def __init__(self,name):
+        self.name : str = name
+
+class Predicate(Term):
+    def __init__(self,name,arity):
+        super().__init__(name)
+        self.arity : int = arity
+        self.definitions: list[types.Position] = []
+
+
+class Functor(Term):
+    def __init__(self,name,args):
+        super().__init__(name)
+        self.args: list= args
+
+class Operator(Term):
+    def __init__(self,operator:str,operands:list[Term]):
+        super().__init__(operator)
+        self.operands = operands
 
 
 class PLS(LanguageServer):
@@ -29,20 +49,25 @@ class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.diagnostics = {}
+        self.visit_map  = {}
+        self.predicates = []
+
+    def add_visit(self,node_type:str,f):
+        self.visit_map[node_type] = f
+    
+    def visit(self,node:Node):
+        if node.type in self.visit_map:
+            return self.visit_map[node.type](node)
+        raise TypeError(f"There is no registered visitor for: {node.type}\n{node}")
 
     def parse(self, document: TextDocument):
         diagnostics = self._parse(document.source)
 
         self.diagnostics[document.uri] = (document.version, diagnostics)
         logging.info("%s", self.diagnostics)
-
-    def _parse(self, doc:str):
-        diagnostics = []
-
-        tree = parser.parse(bytes(doc,"utf-8"))
-
+    def visit_errors(self,tree:Tree):
         severity = types.DiagnosticSeverity.Error
-
+        diagnostics = []
         may_contain_errors :list[Node] = [tree.root_node]
         while len(may_contain_errors) > 0:
             node = may_contain_errors.pop()
@@ -65,8 +90,96 @@ class PLS(LanguageServer):
             elif node.has_error:
                 for child in node.children:
                     may_contain_errors.append(child)
-
         return diagnostics
+
+    def visit_atom(self,node:Node)-> str:
+        assert node.type == 'atom'
+        return Term(bytes.decode(node.text,"utf-8"))
+
+    def text_visit(self,node:Node)-> str:
+        return Term(bytes.decode(node.text,"utf-8"))
+    def visit_arg_list(self,node:Node):
+        assert node.type == 'arg_list'
+        args= []
+        for i in range(len(node.children)):
+            if i % 2 == 0:
+                args.append(node.children[i])
+            else:
+                assert node.children[i].type =='arg_list_separator'
+        parsed_args = []
+        for arg in args:
+            parsed_args.append(self.visit(arg))
+        return parsed_args
+
+    def visit_functional_notation(self,node:Node):
+        assert node.type =='functional_notation'
+        match node.children:
+            case [atom,_,arg_list,_]:
+                name = self.visit_atom(atom)
+                args = self.visit_arg_list(arg_list)
+                return Functor(name,args)
+            case x:
+                raise TypeError(f"Invalid shape of argument list: {x}")
+        return
+
+    def visit_variable_term(self,node:Node):
+        assert node.type == 'variable_term'
+        return self.text_visit(node)
+
+    def visit_operator_notation(self,node:Node):
+        assert node.type == 'operator_notation'
+        print(node)
+        print(node.children)    
+        match node.children:
+            case [head,op,body]:
+                head = self.visit(head)
+                body = self.visit(body)
+                return head
+            case x:
+                raise TypeError(f"Unhandeled operator notation:{x}")
+    def visit_clause_term(self,parent:Node):
+        node= parent.children[0]
+        predicate : Predicate | None = None
+        match node.type:
+            case 'atom':
+                name = self.visit_atom(node)
+                predicate = Predicate(name,0)
+            case 'functional_notation':
+                f = self.visit_functional_notation(node)
+                predicate  = Predicate(f.name,len(f.args))
+            case 'operator_notation':
+                f = self.visit_operator_notation(node)
+                arity = 0
+                if type(f) == Functor:
+                    arity = len(f.args)
+                predicate = Predicate(f.name,arity)
+            case x:
+                raise TypeError(f"Clause term with type {x}")
+        if predicate:
+            predicate.definitions.append(parent.start_point)
+            self.predicates.append(predicate)
+        return
+    def visit_directive(self,node:Node):
+        print(node)
+        return
+    def _parse(self, doc:str):
+
+        tree = parser.parse(bytes(doc,"utf-8"))
+
+        self.add_visit('clause_term',self.visit_clause_term)
+        self.add_visit('directive_term',self.visit_directive)
+        self.add_visit('atom',self.visit_atom)
+        self.add_visit('functional_notation',self.visit_functional_notation)
+        self.add_visit('operator_notation',self.visit_operator_notation)
+        self.add_visit('integer',self.text_visit)
+        self.add_visit('variable_term',self.visit_variable_term)
+
+        for child in tree.root_node.children:
+            self.visit(child)
+        
+
+         
+        return self.visit_errors(tree)
 
 
 server = PLS("diagnostic-server", "v1")
@@ -105,6 +218,68 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
         #     )
         # )
 
+@server.feature(types.TEXT_DOCUMENT_TYPE_DEFINITION)
+def goto_type_definition(ls:PLS, params: types.TypeDefinitionParams):
+    """Jump to an object's type definition."""
+    doc = ls.workspace.get_text_document(params.text_document.uri)
+    index = ls.index.get(doc.uri)
+    if index is None:
+        return
+
+    try:
+        line = doc.lines[params.position.line]
+    except IndexError:
+        line = ""
+
+    word = doc.word_at_position(params.position)
+
+    # for match in ARGUMENT.finditer(line):
+    #     if match.group("name") == word:
+    #         if (range_ := index["types"].get(match.group("type"), None)) is not None:
+    #             return types.Location(uri=doc.uri, range=range_)
+
+
+@server.feature(types.TEXT_DOCUMENT_DEFINITION)
+def goto_definition(ls:PLS, params: types.DefinitionParams):
+    """Jump to an object's definition."""
+    doc = ls.workspace.get_text_document(params.text_document.uri)
+    index = ls.index.get(doc.uri)
+    if index is None:
+        return
+
+    word = doc.word_at_position(params.position)
+
+    # Is word a type?
+    # if (range_ := index["types"].get(word, None)) is not None:
+    #     return types.Location(uri=doc.uri, range=range_)
+
+
+@server.feature(types.TEXT_DOCUMENT_DECLARATION)
+def goto_declaration(ls:PLS, params: types.DeclarationParams):
+    """Jump to an object's declaration."""
+    doc = ls.workspace.get_text_document(params.text_document.uri)
+    index = ls.index.get(doc.uri)
+    if index is None:
+        return
+
+    try:
+        line = doc.lines[params.position.line]
+    except IndexError:
+        line = ""
+
+    word = doc.word_at_position(params.position)
+
+    # for match in ARGUMENT.finditer(line):
+    #     if match.group("name") == word:
+    #         linum = params.position.line
+    #         return types.Location(
+    #             uri=doc.uri,
+    #             range=types.Range(
+    #                 start=types.Position(line=linum, character=match.start()),
+    #                 end=types.Position(line=linum, character=match.end()),
+    #             ),
+    #         )
+
 
 @server.feature(
     types.TEXT_DOCUMENT_COMPLETION,
@@ -127,4 +302,9 @@ def main():
     logging.basicConfig(filename='pygls.log', filemode='w', level=logging.DEBUG)
     server.start_io()
 if __name__ == "__main__":
-    main()
+    # main()
+    s = open("teste.pl").read()
+    t : Tree = parser.parse(bytes(s,"utf-8"))
+    print(t.root_node)
+    server._parse(s)
+    
