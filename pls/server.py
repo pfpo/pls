@@ -51,6 +51,7 @@ class PLS(LanguageServer):
         self.diagnostics = {}
         self.visit_map  = {}
         self.predicates = []
+        self.trees = {}
 
     def add_visit(self,node_type:str,f):
         self.visit_map[node_type] = f
@@ -61,10 +62,14 @@ class PLS(LanguageServer):
         raise TypeError(f"There is no registered visitor for: {node.type}\n{node}")
 
     def parse(self, document: TextDocument):
-        diagnostics = self._parse(document.source)
 
+        self.predicates = []
+        tree = self._parse(document.source)
+        diagnostics = self.visit_errors(tree)
         self.diagnostics[document.uri] = (document.version, diagnostics)
+        self.trees[document.uri] = tree
         logging.info("%s", self.diagnostics)
+
     def visit_errors(self,tree:Tree):
         severity = types.DiagnosticSeverity.Error
         diagnostics = []
@@ -139,25 +144,14 @@ class PLS(LanguageServer):
                 raise TypeError(f"Unhandeled operator notation:{x}")
     def visit_clause_term(self,parent:Node):
         node= parent.children[0]
-        predicate : Predicate | None = None
-        match node.type:
-            case 'atom':
-                name = self.visit_atom(node)
-                predicate = Predicate(name,0)
-            case 'functional_notation':
-                f = self.visit_functional_notation(node)
-                predicate  = Predicate(f.name,len(f.args))
-            case 'operator_notation':
-                f = self.visit_operator_notation(node)
-                arity = 0
-                if type(f) == Functor:
-                    arity = len(f.args)
-                predicate = Predicate(f.name,arity)
-            case x:
-                raise TypeError(f"Clause term with type {x}")
-        if predicate:
-            predicate.definitions.append(parent.start_point)
-            self.predicates.append(predicate)
+
+        f = self.visit(node)
+        arity = 0
+        if type(f) == Functor:
+            arity = len(f.args)
+        predicate = Predicate(f.name,arity)
+        predicate.definitions.append(parent.start_point)
+        self.predicates.append(predicate)
         return
     def visit_directive(self,node:Node):
         print(node)
@@ -176,10 +170,8 @@ class PLS(LanguageServer):
 
         for child in tree.root_node.children:
             self.visit(child)
-        
 
-         
-        return self.visit_errors(tree)
+        return tree
 
 
 server = PLS("diagnostic-server", "v1")
@@ -243,15 +235,30 @@ def goto_type_definition(ls:PLS, params: types.TypeDefinitionParams):
 def goto_definition(ls:PLS, params: types.DefinitionParams):
     """Jump to an object's definition."""
     doc = ls.workspace.get_text_document(params.text_document.uri)
-    index = ls.index.get(doc.uri)
-    if index is None:
+    tree = ls.trees.get(doc.uri)
+    if tree is None:
         return
+
 
     word = doc.word_at_position(params.position)
 
     # Is word a type?
     # if (range_ := index["types"].get(word, None)) is not None:
     #     return types.Location(uri=doc.uri, range=range_)
+
+def node_at_position(node:Node,p : types.Position):
+    after_start = (node.start_point.column <= p.character and node.start_point.row <= p.line) 
+    before_end = (node.end_point.column >= p.character and node.end_point.row >= p.line)
+    contained = after_start and before_end
+    if not contained:
+        return None
+    current = node
+    for child in node.children:
+        possible = node_at_position(child,p)
+        if possible:
+            current = possible
+    return current
+    
 
 
 @server.feature(types.TEXT_DOCUMENT_DECLARATION)
