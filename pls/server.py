@@ -79,6 +79,7 @@ class PLS(LanguageServer):
         self.add_visit('operator_notation',self.visit_operator_notation)
         self.add_visit('integer',self.text_visit)
         self.add_visit('variable_term',self.visit_variable_term)
+
     
     def parse(self, document: TextDocument):
 
@@ -101,7 +102,7 @@ class PLS(LanguageServer):
                 message = "Syntax Error"
                 diagnostics.append(
                     types.Diagnostic(
-                        message=message,
+                        message=message + bytes.decode(node.text,"utf-8"),
                         severity=severity,
                         range= node_to_range(node))
                 )
@@ -109,7 +110,7 @@ class PLS(LanguageServer):
                 message = "Syntax Error"
                 diagnostics.append(
                     types.Diagnostic(
-                        message=message,
+                        message=message + bytes.decode(node.text,"utf-8"),
                         severity=severity,
                         range= node_to_range(node))
                 )
@@ -184,13 +185,6 @@ class PLS(LanguageServer):
 
         tree = parser.parse(bytes(doc,"utf-8"))
 
-        self.add_visit('clause_term',self.visit_clause_term)
-        self.add_visit('directive_term',self.visit_directive)
-        self.add_visit('atom',self.visit_atom)
-        self.add_visit('functional_notation',self.visit_functional_notation)
-        self.add_visit('operator_notation',self.visit_operator_notation)
-        self.add_visit('integer',self.text_visit)
-        self.add_visit('variable_term',self.visit_variable_term)
 
         for child in tree.root_node.children:
             self.visit(child)
@@ -211,7 +205,14 @@ class PLS(LanguageServer):
             predicates = self.search(functor)
             if predicates is None:
                 return None
-
+            return types.Location(uri=predicates[0].uri,range=predicates[0].definitions[0])
+        else:
+            functor = Functor(bytes.decode(node.text),[])
+            print("Here")
+            print(self.predicate_index) 
+            predicates = self.search(functor)
+            if predicates is None:
+                return None
             return types.Location(uri=predicates[0].uri,range=predicates[0].definitions[0])
     def search(self,functor:Functor):
         return self.predicate_index.get(functor.key())
@@ -219,7 +220,6 @@ class PLS(LanguageServer):
 
 server = PLS("diagnostic-server", "v1")
 
-print = logging.debug
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
@@ -229,13 +229,6 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
         ls.publish_diagnostics(uri,diagnostics)
-        # ls.text_document_publish_diagnostics(
-        #     types.PublishDiagnosticsParams(
-        #         uri=uri,
-        #         version=version,
-        #         diagnostics=diagnostics,
-        #     )
-        # )
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
@@ -246,13 +239,6 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
         ls.publish_diagnostics(uri,diagnostics)
-        # ls.text_document_publish_diagnostics(
-        #     types.PublishDiagnosticsParams(
-        #         uri=uri,
-        #         version=version,
-        #         diagnostics=diagnostics,
-        #     )
-        # )
 
 
 @server.feature('textDocument/definition')
@@ -311,14 +297,16 @@ def main():
     logging.basicConfig(filename='/home/martim/Desktop/pls/pygls.log', filemode='w', level=logging.DEBUG)
     server.start_io()
 def debug():
-    s = open("teste.pl").read()
+    s = open("go_to_definition.pl").read()
     t : Tree = parser.parse(bytes(s,"utf-8"))
     print(t.root_node)
     server._parse(s)
-    server.go_to_definition(t,types.Position(character=19,line=3))
+    print(server.go_to_definition(t,types.Position(character=56,line=6)))
+    
 
 if __name__ == "__main__":
     if True:
+        print = logging.debug
         main()
     else:
         debug()
