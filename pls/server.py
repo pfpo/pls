@@ -27,15 +27,16 @@ class PLS(LanguageServer):
         self.trees = {}
         self.current_uri = ""
 
+    def tree_diagnostics(self, tree: Tree):
+        syntax_error_visitor = SyntaxErrorVisitor()
+        return syntax_error_visitor.visit(tree.root_node)
+
     def parse(self, document: TextDocument):
         self.predicate_index = {}
         self.current_uri = document.uri
         tree = self._parse(document.source)
 
-        syntax_error_visitor = SyntaxErrorVisitor()
-        diagnostics = syntax_error_visitor.visit(tree.root_node)
-
-        self.diagnostics[document.uri] = (document.version, diagnostics)
+        self.diagnostics[document.uri] = (document.version, self.tree_diagnostics(tree))
         self.trees[document.uri] = tree
         logging.info("%s", self.diagnostics)
 
@@ -56,7 +57,7 @@ class PLS(LanguageServer):
             return None
         print(position)
         print(f"Node: {node}")
-        print("Node: {node.text}")
+        print(f"Node: {node.text}")
         print(f"{node.start_point, node.end_point}")
         if (
             node.parent.type == "functional_notation"
@@ -146,11 +147,12 @@ def main():
 
 
 def debug():
-    s = open("./examples/go_to_definition.pl").read()
+    s = open("./examples/lists.pl").read()
     t: Tree = parser.parse(bytes(s, "utf-8"))
     print(f"{t.root_node}")
     server._parse(s)
     print(server.go_to_definition(t, types.Position(character=23, line=6)))
+    print(server.tree_diagnostics(t))
 
 
 if __name__ == "__main__":

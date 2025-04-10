@@ -11,18 +11,18 @@ class SyntaxErrorVisitor(TreeVisitor):
 
     def handle_error_node(self, node: Node):
         severity = types.DiagnosticSeverity.Error
-        message = "Syntax Error"
+        message = "Syntax Error "
         return types.Diagnostic(
-            message=message + bytes.decode(node.text, "utf-8"),
+            message=message + str(node),
             severity=severity,
             range=node_to_range(node),
         )
 
     def handle_missing_node(self, node: Node):
         severity = types.DiagnosticSeverity.Error
-        message = "Syntax Error"
+        message = "Syntax Error "
         return types.Diagnostic(
-            message=message + bytes.decode(node.text, "utf-8"),
+            message=message + str(node),
             severity=severity,
             range=node_to_range(node),
         )
