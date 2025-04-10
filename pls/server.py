@@ -62,9 +62,9 @@ class PLS(LanguageServer):
             print("Didn't found any node")
             return None
         print(position)
-        print("Node: ",node)
-        print("Node: ",node.text)
-        print(node.start_point,node.end_point)
+        print(f"Node: {node}")
+        print("Node: {node.text}")
+        print(f"{node.start_point,node.end_point}")
         if node.parent.type == "functional_notation" and node.parent.children[0] == node:
             functor = PrologVisitor("").visit(node.parent)
             predicates = self.search(functor)
@@ -147,7 +147,7 @@ def main():
 def debug():
     s = open("./examples/go_to_definition.pl").read()
     t : Tree = parser.parse(bytes(s,"utf-8"))
-    print(t.root_node)
+    print(f"{t.root_node}")
     server._parse(s)
     print(server.go_to_definition(t,types.Position(character=23,line=6)))
     
