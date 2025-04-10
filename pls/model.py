@@ -30,3 +30,13 @@ class Operator(Term):
         super().__init__(operator)
         self.operands = operands
         self.arity = len(operands)
+
+
+class Variable(Term):
+
+    def __init__(self, name,definition):
+        super().__init__(name)
+        self.arity = 0
+        self.definition = definition
+        self.references = []
+

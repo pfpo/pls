@@ -7,7 +7,7 @@ from tree_sitter import Language, Parser, Tree
 from tree_sitter_prolog import prolog
 
 from .model import Functor
-from .utils import node_at_position
+from .utils import node_at_position,position_inside_node
 
 from .prolog_visitor import PrologVisitor
 from .syntax_error_visitor import SyntaxErrorVisitor
@@ -24,6 +24,7 @@ class PLS(LanguageServer):
         super().__init__(*args, **kwargs)
         self.diagnostics = {}
         self.predicate_index = {}
+        self.scopes = {}
         self.trees = {}
         self.current_uri = ""
 
@@ -46,6 +47,7 @@ class PLS(LanguageServer):
         prolog_visitor = PrologVisitor(self.current_uri)
         prolog_visitor.visit(tree.root_node)
         self.predicate_index = prolog_visitor.predicate_index
+        self.scopes = prolog_visitor.scopes
 
         return tree
 
@@ -57,13 +59,22 @@ class PLS(LanguageServer):
             return None
         print(position)
         print(f"Node: {node}")
+        print(f"Node: {node.parent}")
         print(f"Node: {node.text}")
         print(f"{node.start_point, node.end_point}")
-        if (
-            node.parent.type == "functional_notation"
+        if node.type =='variable_term':
+            for key, scope in self.scopes.items():
+                if position_inside_node(scope.node,position):
+                    return types.Location(uri=self.current_uri,range=scope.variables[bytes.decode(node.text,"utf-8")].references[0])
+        elif (
+            node.parent and node.parent.type == "functional_notation"
             and node.parent.children[0] == node
         ):
-            functor = PrologVisitor("").visit(node.parent)
+            p = PrologVisitor("")
+            p.new_scope(node.parent)
+
+            functor = p.visit(node.parent)
+            print(functor.key())
             predicates = self.search(functor)
             if predicates is None:
                 return None
@@ -147,11 +158,14 @@ def main():
 
 
 def debug():
-    s = open("./examples/lists.pl").read()
+    s = open("./examples/go_to_definition.pl").read()
     t: Tree = parser.parse(bytes(s, "utf-8"))
     print(f"{t.root_node}")
     server._parse(s)
-    print(server.go_to_definition(t, types.Position(character=23, line=6)))
+    print(server.predicate_index)
+    print(server.scopes)
+
+    print(server.go_to_definition(t, types.Position(character=10, line=9)))
     print(server.tree_diagnostics(t))
 
 
