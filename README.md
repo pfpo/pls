@@ -45,7 +45,17 @@ code-insiders --install-extension pls-vscode-extension.vsix
     - [x] Automatic release of vscode extension
 - [x] Treesitter Inclusion
 - [x] Using Treesitter to Parse Prolog Files
-- [ ] Neovim Extension
-- [ ] Parsing Diagnostics
-- [ ] Parsing Tests
+- [x] Parsing Diagnostics
 - [ ] Go to definition
+    - [x] Working on predicates
+    - [ ] Variables
+- [ ] Handling Lists
+- [ ] Find References
+- [ ] Call Hierarchy
+- [ ] Neovim Extension
+- [ ] Syntax highlighting 
+- [ ] Parsing Tests
+- [ ] Rename
+- [ ] Parsing comments
+- [ ] Hover information
+- [ ] Completion
