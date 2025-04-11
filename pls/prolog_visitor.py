@@ -38,9 +38,14 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("list_notation",self.visit_list_notation)
 
+        self.add_visit("comment",self.visit_comment)
+
     def visit_atom(self, node: Node) -> str:
         assert node.type == "atom"
-        return Term(bytes.decode(node.text, "utf-8"))
+        t = Term(bytes.decode(node.text, "utf-8"))
+        p = self.get_predicate(t)
+        p.add_reference(node)
+        return t
 
     def text_visit(self, node: Node) -> str:
         return Term(bytes.decode(node.text, "utf-8"))
@@ -64,7 +69,10 @@ class PrologVisitor(TreeVisitor):
             case [atom, _, arg_list, _]:
                 name = self.visit_atom(atom)
                 args = self.visit_arg_list(arg_list)
-                return Functor(name.name, args)
+                f = Functor(name.name, args)
+                p = self.get_predicate(f)
+                p.add_reference(node)
+                return f
             case x:
                 raise TypeError(f"Invalid shape of argument list: {x}")
         return
@@ -89,31 +97,24 @@ class PrologVisitor(TreeVisitor):
                 body = self.visit(body)
                 return head
             case x:
-                raise TypeError(f"Unhandeled operator notation:{x}")
+                raise TypeError(f"Unhandeled operator notation:{node}")
 
     def visit_clause_term(self, parent: Node):
+        self.new_scope(parent)
 
         node = parent.children[0]
-        self.new_scope(parent)
         f = self.visit(node)
         arity = 0
         if type(f) is Functor:
             arity = len(f.args)
-        predicate = Predicate(f.name, arity)
-        predicate.definitions.append(node_to_range(parent))
+        predicate = self.get_predicate(f)
+        predicate.add_definition(parent)
         predicate.uri = self.current_uri
         key = predicate.key()
-        def_count = 0
-        if key in self.predicate_index:
-            # TODO: check definition location
-            def_count = len(self.predicate_index[key])
-            self.predicate_index[key].append(predicate)
-        else:
-            self.predicate_index[key] = [predicate]
 
-        self.current_scope.name = f"{key}_{def_count}"
+        self.current_scope.name = f"{key}_{len(predicate.definitions)}"
         self.save_scope()
-        return
+        return predicate
 
     def new_scope(self,node:Node):
         scope = None
@@ -138,3 +139,10 @@ class PrologVisitor(TreeVisitor):
             if item.type != 'list_notation_separator':
                 self.visit(item)
         
+    def visit_comment(self,node:Node):
+        return
+    def get_predicate(self,t : Term):
+        key = t.key()
+        if key not in self.predicate_index:
+            self.predicate_index[key] = Predicate(t.name,t.arity)
+        return self.predicate_index[key]

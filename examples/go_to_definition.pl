@@ -13,6 +13,7 @@ test(X):- list( [p,p(1,2,3),p(1,2)] ),
           list([
             list([p,p(1,2,3),p(1,2)]),
                   list([main])
-               ]), list(1,X),Z.
+               ]), list(1,X),Z,
+			   a,a,a,a,aa,a,a,a,a,Z.
 
 hello:- list(1),list(1,2),test(X).

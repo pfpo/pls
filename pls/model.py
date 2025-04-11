@@ -1,4 +1,6 @@
 from lsprotocol import types
+from .utils import node_to_range
+from tree_sitter import Node
 
 
 class Term:
@@ -15,7 +17,24 @@ class Predicate(Term):
         super().__init__(name)
         self.arity: int = arity
         self.definitions: list[types.Range] = []
+        self.clauses: list[Clause] =[]
         self.uri = ""
+        self.references = []
+    def add_reference(self,node:Node):
+        self.references.append(node_to_range(node))
+
+    def add_definition(self,node:Node):
+        r = node_to_range(node)
+        self.definitions.append(r)
+        # self.references.append(r)
+
+class Clause(Term):
+    def __init__(self,name,arity):
+        super().__init__(name)
+        self.arity: int = arity
+        self.head = None
+        self.body = None
+        self.variables = None
 
 
 class Functor(Term):

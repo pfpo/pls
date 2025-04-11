@@ -75,20 +75,68 @@ class PLS(LanguageServer):
 
             functor = p.visit(node.parent)
             print(functor.key())
-            predicates = self.search(functor)
-            if predicates is None:
+            predicate = self.search(functor)
+            if predicate is None:
                 return None
-            return types.Location(
-                uri=predicates[0].uri, range=predicates[0].definitions[0]
-            )
+            return types.Location(uri=self.current_uri,range=predicate.definitions[0])
         else:
             functor = Functor(bytes.decode(node.text), [])
-            predicates = self.search(functor)
-            if predicates is None:
+            print(functor.key())
+            predicate = self.search(functor)
+            print(self.predicate_index)
+            print(predicate)
+            if predicate is None:
+                print("No Definition found")
                 return None
-            return types.Location(
-                uri=predicates[0].uri, range=predicates[0].definitions[0]
-            )
+            return types.Location(uri=self.current_uri,range=predicate.definitions[0])
+
+    def find_references(self, tree, position: types.Position):
+        print(position)
+        node = node_at_position(tree.root_node, position)
+        if node is None:
+            print("Didn't found any node")
+            return None
+        print(position)
+        print(f"Node: {node}")
+        print(f"Node: {node.parent}")
+        print(f"Node: {node.text}")
+        print(f"{node.start_point, node.end_point}")
+        if node.type =='variable_term':
+            for key, scope in self.scopes.items():
+                if position_inside_node(scope.node,position):
+                    variable = scope.variables[bytes.decode(node.text,"utf-8")] 
+                    locations = []
+                    for reference in variable.references:
+                        locations.append(types.Location(uri=self.current_uri,range=reference))
+                    return locations
+        elif (
+            node.parent and node.parent.type == "functional_notation"
+            and node.parent.children[0] == node
+        ):
+            p = PrologVisitor("")
+            p.new_scope(node.parent)
+
+            functor = p.visit(node.parent)
+            print(functor.key())
+            predicate = self.search(functor)
+            if predicate is None:
+                return None
+            locations = []
+            for reference in predicate.references:
+                locations.append(types.Location(uri=self.current_uri,range=reference))
+            return locations
+        else:
+            functor = Functor(bytes.decode(node.text), [])
+            predicate = self.search(functor)
+            print(functor.key())
+            if predicate is None:
+                return None
+            print(predicate.definitions)
+            print(predicate.references)
+            locations = []
+            for reference in predicate.references:
+                locations.append(types.Location(uri=self.current_uri,range=reference))
+            return locations
 
     def search(self, functor: Functor):
         return self.predicate_index.get(functor.key())
@@ -149,6 +197,19 @@ def completions(params: types.CompletionParams):
         types.CompletionItem(label="Elsa"),
     ]
 
+@server.feature(types.TEXT_DOCUMENT_REFERENCES)
+def find_references(ls: PLS, params: types.ReferenceParams):
+    """Find references of an object."""
+    doc = ls.workspace.get_text_document(params.text_document.uri)
+    tree = ls.trees.get(doc.uri)
+    logging.log(logging.DEBUG, str(params.position))
+    if tree is None:
+        return []
+    references = ls.find_references(tree, params.position)
+    logging.log(logging.DEBUG, references)
+
+    return references
+
 
 def main():
     logging.basicConfig(
@@ -162,8 +223,12 @@ def debug():
     t: Tree = parser.parse(bytes(s, "utf-8"))
     print(f"{t.root_node}")
     server._parse(s)
+    for key, predicate in server.predicate_index.items():
+        print(key)
+        print(predicate.definitions)
+        print(predicate.references)
+        print("========")
     print(server.predicate_index)
-    print(server.scopes)
 
     print(server.go_to_definition(t, types.Position(character=10, line=9)))
     print(server.tree_diagnostics(t))
