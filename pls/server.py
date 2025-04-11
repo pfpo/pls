@@ -6,8 +6,8 @@ from pygls.workspace import TextDocument
 from tree_sitter import Language, Parser, Tree
 from tree_sitter_prolog import prolog
 
-from .model import Functor
-from .utils import node_at_position,position_inside_node
+from .model import Functor, Variable, Predicate
+from .utils import node_at_position, position_inside_node
 
 from .prolog_visitor import PrologVisitor
 from .syntax_error_visitor import SyntaxErrorVisitor
@@ -51,92 +51,51 @@ class PLS(LanguageServer):
 
         return tree
 
-    def go_to_definition(self, tree, position: types.Position):
-        print(position)
+    def discover_node(self, tree, position: types.Position) -> Variable | Predicate:
         node = node_at_position(tree.root_node, position)
         if node is None:
-            print("Didn't found any node")
             return None
-        print(position)
-        print(f"Node: {node}")
-        print(f"Node: {node.parent}")
-        print(f"Node: {node.text}")
-        print(f"{node.start_point, node.end_point}")
-        if node.type =='variable_term':
-            for key, scope in self.scopes.items():
-                if position_inside_node(scope.node,position):
-                    return types.Location(uri=self.current_uri,range=scope.variables[bytes.decode(node.text,"utf-8")].references[0])
-        elif (
-            node.parent and node.parent.type == "functional_notation"
-            and node.parent.children[0] == node
-        ):
-            p = PrologVisitor("")
-            p.new_scope(node.parent)
-
-            functor = p.visit(node.parent)
-            print(functor.key())
-            predicate = self.search(functor)
-            if predicate is None:
-                return None
-            return types.Location(uri=self.current_uri,range=predicate.definitions[0])
+        if node.type == "variable_term":
+            for _key, scope in self.scopes.items():
+                if position_inside_node(scope.node, position):
+                    return scope.variables[bytes.decode(node.text, "utf-8")]
         else:
-            functor = Functor(bytes.decode(node.text), [])
-            print(functor.key())
-            predicate = self.search(functor)
-            print(self.predicate_index)
-            print(predicate)
-            if predicate is None:
-                print("No Definition found")
-                return None
-            return types.Location(uri=self.current_uri,range=predicate.definitions[0])
+            functor = None
+            if (
+                node.parent
+                and node.parent.type == "functional_notation"
+                and node.parent.children[0] == node
+            ):
+                p = PrologVisitor("")
+                p.new_scope(node.parent)
+                functor = p.visit(node.parent)
+            else:
+                functor = Functor(bytes.decode(node.text), [])
+
+            return self.search(functor)
+
+    def go_to_definition(self, tree, position: types.Position):
+        element: Variable | Predicate | None = self.discover_node(tree, position)
+
+        if type(element) is Variable:
+            return types.Location(uri=self.current_uri, range=element.references[0])
+        elif type(element) is Predicate:
+            return types.Location(uri=self.current_uri, range=element.definitions[0])
+        elif element is None:
+            return None
+        return None
 
     def find_references(self, tree, position: types.Position):
-        print(position)
-        node = node_at_position(tree.root_node, position)
-        if node is None:
-            print("Didn't found any node")
-            return None
-        print(position)
-        print(f"Node: {node}")
-        print(f"Node: {node.parent}")
-        print(f"Node: {node.text}")
-        print(f"{node.start_point, node.end_point}")
-        if node.type =='variable_term':
-            for key, scope in self.scopes.items():
-                if position_inside_node(scope.node,position):
-                    variable = scope.variables[bytes.decode(node.text,"utf-8")] 
-                    locations = []
-                    for reference in variable.references:
-                        locations.append(types.Location(uri=self.current_uri,range=reference))
-                    return locations
-        elif (
-            node.parent and node.parent.type == "functional_notation"
-            and node.parent.children[0] == node
-        ):
-            p = PrologVisitor("")
-            p.new_scope(node.parent)
+        element: Variable | Predicate | None = self.discover_node(tree, position)
 
-            functor = p.visit(node.parent)
-            print(functor.key())
-            predicate = self.search(functor)
-            if predicate is None:
-                return None
-            locations = []
-            for reference in predicate.references:
-                locations.append(types.Location(uri=self.current_uri,range=reference))
+        locations = []
+        if element is None:
             return locations
-        else:
-            functor = Functor(bytes.decode(node.text), [])
-            predicate = self.search(functor)
-            print(functor.key())
-            if predicate is None:
-                return None
-            print(predicate.definitions)
-            print(predicate.references)
-            locations = []
-            for reference in predicate.references:
-                locations.append(types.Location(uri=self.current_uri,range=reference))
-            return locations
+
+        for reference in element.references:
+            locations.append(types.Location(uri=self.current_uri, range=reference))
+
+        return locations
 
     def search(self, functor: Functor):
         return self.predicate_index.get(functor.key())
@@ -196,6 +155,7 @@ def completions(params: types.CompletionParams):
         types.CompletionItem(label="friend"),
         types.CompletionItem(label="Elsa"),
     ]
+
 
 @server.feature(types.TEXT_DOCUMENT_REFERENCES)
 def find_references(ls: PLS, params: types.ReferenceParams):

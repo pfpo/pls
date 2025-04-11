@@ -26,4 +26,6 @@ class TreeVisitor(ABC):
             return self.visit_map[node.type](node)
         if self.default_visitor:
             return self.default_visitor(node)
-        raise TypeError(f"There is no registered visitor for: {node.type}\n{node}{node.parent if node.parent else ''}")
+        raise TypeError(
+            f"There is no registered visitor for: {node.type}\n{node}{node.parent if node.parent else ''}"
+        )

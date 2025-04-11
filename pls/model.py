@@ -17,19 +17,21 @@ class Predicate(Term):
         super().__init__(name)
         self.arity: int = arity
         self.definitions: list[types.Range] = []
-        self.clauses: list[Clause] =[]
+        self.clauses: list[Clause] = []
         self.uri = ""
         self.references = []
-    def add_reference(self,node:Node):
+
+    def add_reference(self, node: Node):
         self.references.append(node_to_range(node))
 
-    def add_definition(self,node:Node):
+    def add_definition(self, node: Node):
         r = node_to_range(node)
         self.definitions.append(r)
         # self.references.append(r)
 
+
 class Clause(Term):
-    def __init__(self,name,arity):
+    def __init__(self, name, arity):
         super().__init__(name)
         self.arity: int = arity
         self.head = None
@@ -52,10 +54,8 @@ class Operator(Term):
 
 
 class Variable(Term):
-
-    def __init__(self, name,definition):
+    def __init__(self, name, definition):
         super().__init__(name)
         self.arity = 0
         self.definition = definition
         self.references = []
-

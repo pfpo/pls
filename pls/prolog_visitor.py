@@ -1,14 +1,15 @@
 from tree_sitter import Node
-from .model import Term, Functor, Predicate,Variable
+from .model import Term, Functor, Predicate, Variable
 from .utils import node_to_range
 from .tree_visitor import TreeVisitor
+
 
 class Scope:
     def __init__(self):
         self.name = ""
         self.variables = {}
         self.node = None
-    
+
 
 class PrologVisitor(TreeVisitor):
     def __init__(self, current_uri):
@@ -20,10 +21,11 @@ class PrologVisitor(TreeVisitor):
         self.scopes = {}
         self.directive_counter = 0
 
-    def set_current_scope(self,scope):
+    def set_current_scope(self, scope):
         if self.current_scope is not None:
             self.save_scope()
         self.current_scope = scope
+
     def save_scope(self):
         self.scopes[self.current_scope.name] = self.current_scope
 
@@ -36,9 +38,9 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("operator_notation", self.visit_operator_notation)
         self.add_visit("integer", self.text_visit)
         self.add_visit("variable_term", self.visit_variable_term)
-        self.add_visit("list_notation",self.visit_list_notation)
+        self.add_visit("list_notation", self.visit_list_notation)
 
-        self.add_visit("comment",self.visit_comment)
+        self.add_visit("comment", self.visit_comment)
 
     def visit_atom(self, node: Node) -> str:
         assert node.type == "atom"
@@ -79,9 +81,9 @@ class PrologVisitor(TreeVisitor):
 
     def visit_variable_term(self, node: Node):
         assert node.type == "variable_term"
-        name = bytes.decode(node.text,"utf-8")
+        name = bytes.decode(node.text, "utf-8")
         if name not in self.current_scope.variables:
-            v = Variable(bytes.decode(node.text,"utf-8"),self.current_scope)
+            v = Variable(bytes.decode(node.text, "utf-8"), self.current_scope)
             self.current_scope.variables[name] = v
 
         v = self.current_scope.variables[name]
@@ -96,7 +98,7 @@ class PrologVisitor(TreeVisitor):
                 head = self.visit(head)
                 body = self.visit(body)
                 return head
-            case x:
+            case _:
                 raise TypeError(f"Unhandeled operator notation:{node}")
 
     def visit_clause_term(self, parent: Node):
@@ -104,9 +106,6 @@ class PrologVisitor(TreeVisitor):
 
         node = parent.children[0]
         f = self.visit(node)
-        arity = 0
-        if type(f) is Functor:
-            arity = len(f.args)
         predicate = self.get_predicate(f)
         predicate.add_definition(parent)
         predicate.uri = self.current_uri
@@ -116,14 +115,14 @@ class PrologVisitor(TreeVisitor):
         self.save_scope()
         return predicate
 
-    def new_scope(self,node:Node):
+    def new_scope(self, node: Node):
         scope = None
-        scope = Scope() 
-        if node.type == 'directive_term':
-            scope.name =  f"__pls__directive_{self.directive_counter}"
-            self.directive_counter +=1
+        scope = Scope()
+        if node.type == "directive_term":
+            scope.name = f"__pls__directive_{self.directive_counter}"
+            self.directive_counter += 1
 
-        scope.node= node
+        scope.node = node
         self.set_current_scope(scope)
 
     def visit_directive(self, node: Node):
@@ -131,18 +130,19 @@ class PrologVisitor(TreeVisitor):
         self.save_scope()
         return
 
-    def visit_list_notation(self,node: Node):
+    def visit_list_notation(self, node: Node):
         if len(node.children) == 2:
             return
         list_items = node.children[1:-1]
         for item in list_items:
-            if item.type != 'list_notation_separator':
+            if item.type != "list_notation_separator":
                 self.visit(item)
-        
-    def visit_comment(self,node:Node):
+
+    def visit_comment(self, node: Node):
         return
-    def get_predicate(self,t : Term):
+
+    def get_predicate(self, t: Term):
         key = t.key()
         if key not in self.predicate_index:
-            self.predicate_index[key] = Predicate(t.name,t.arity)
+            self.predicate_index[key] = Predicate(t.name, t.arity)
         return self.predicate_index[key]
