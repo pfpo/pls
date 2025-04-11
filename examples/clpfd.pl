@@ -1,0 +1,1 @@
+positive_integer(N) :- N #>= 1.

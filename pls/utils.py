@@ -10,7 +10,8 @@ def node_to_range(node: Node):
         end=types.Position(line=node.end_point.row, character=node.end_point.column),
     )
 
-def position_inside_node(node:Node, p: types.Position):
+
+def position_inside_node(node: Node, p: types.Position):
     in_row_between = node.start_point.row < p.line and node.end_point.row > p.line
     in_first_line = (
         node.start_point.row == p.line and node.start_point.column <= p.character
@@ -24,6 +25,7 @@ def position_inside_node(node:Node, p: types.Position):
         return False
 
     return in_row_between or in_first_line or in_last_line
+
 
 def node_at_position(node: Node, p: types.Position):
     in_row_between = node.start_point.row < p.line and node.end_point.row > p.line
