@@ -1,4 +1,4 @@
-import { ExtensionContext, workspace, window } from "vscode";
+import { ExtensionContext, workspace, window, commands} from "vscode";
 import {
   Executable,
   LanguageClient,
@@ -8,7 +8,7 @@ import {
 let client: LanguageClient;
 let log = window.createOutputChannel("pls");
 
-export function activate(_context: ExtensionContext) {
+export function activate(context: ExtensionContext) {
   log.appendLine("PLS Activation Event");
 
   workspace.onDidChangeConfiguration((event) => {
@@ -17,6 +17,11 @@ export function activate(_context: ExtensionContext) {
       restartLanguageClient();
     }
   });
+
+   const command = 'pls.restartServer';
+  const commandHandler = restartLanguageClient;
+
+  context.subscriptions.push(commands.registerCommand(command, commandHandler))
 
   restartLanguageClient();
 }
