@@ -46,12 +46,12 @@ code-insiders --install-extension pls-vscode-extension.vsix
 - [x] Treesitter Inclusion
 - [x] Using Treesitter to Parse Prolog Files
 - [x] Parsing Diagnostics
-- [ ] Go to definition
+- [x] Go to definition
     - [x] Working on predicates
-    - [ ] Variables
-- [ ] Handling Lists
-- [ ] Find References
+    - [x] Variables
+- [x] Find References
 - [ ] Call Hierarchy
+- [ ] Handling Lists
 - [ ] Neovim Extension
 - [ ] Syntax highlighting 
 - [ ] Parsing Tests
@@ -59,3 +59,56 @@ code-insiders --install-extension pls-vscode-extension.vsix
 - [ ] Parsing comments
 - [ ] Hover information
 - [ ] Completion
+- [ ] Cut operator (red/green).
+- [ ] Determinism analysis.
+- [ ] Unused variables
+- [ ] Detect and report this:
+```
+Warning: /home/martim/Desktop/pls/examples/go_to_definition.pl:23:
+Warning:    Clauses of list/1 are not together in the source-file
+Warning:    Earlier definition at /home/martim/Desktop/pls/examples/go_to_definition.pl:11
+Warning:    Current predicate: hello/0
+Warning:    Use :- discontiguous list/1. to suppress this message
+```
+- [ ] Predicate does not exist
+    - Is it imported
+    - Is it a typo
+    - Is it dynamic
+- [ ] Handle discontiguous directives
+- [ ] Handle dynamic directives
+- [ ] Handle operator directives
+
+- [ ] Parse Sicstus documentation
+- [ ] Redifining predicates
+- [ ] handling is operator
+    - Lhs must be a variable that is not grounded
+    - rhs must not contain functors
+    - X is X + Y.
+    - `=:=` in place of is when comparisons are made
+    - `H is '0'`
+- [ ] Coding Format (covington rules)
+- [ ] List notation common erros:
+    - `[X]` or any list literal on the right side of `|`
+    - list separator must be `,`
+- [ ] Horn clause list must be a list of callables.
+- Execute Command for recursion analysis
+- Modules vs consult
+- Less than operator -> warning for not being defined, suggestion for correct operator
+- Is cut really necessary
+
+
+## Cases
+
+- Single Equals
+- Double Equals
+- `is` when no operations is made
+- `true`
+- duplicated code detection
+- extract predicate
+- grounded predicates should be first "input before output"
+- basically "renaming" predicates
+- snippets.
+- warning/info where predicates clash.
+- 
+- Ref style Proceedings of the `<Full Name of the Conference> (<Sigla>), <Data da Conf>, <Local da Conf>\`
+
