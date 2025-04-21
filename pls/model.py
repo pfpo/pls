@@ -20,6 +20,7 @@ class Predicate(Term):
         self.clauses: list[Clause] = []
         self.uri = ""
         self.references = []
+        self.comments = []
 
     def add_reference(self, node: Node):
         self.references.append(node_to_range(node))
