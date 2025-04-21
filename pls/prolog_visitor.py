@@ -47,9 +47,14 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("list_notation", self.visit_list_notation)
         self.add_visit("double_quoted_list_notation", self.text_visit)
+        self.add_visit("|", self.visit_list_extend)
 
         self.add_visit("ERROR", self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
+
+    def visit_list_extend(self, node: Node, _opts: Opts):
+        # TODO
+        return
 
     def visit_atom(self, node: Node, _opts: Opts) -> str:
         assert node.type == "atom"
@@ -68,10 +73,11 @@ class PrologVisitor(TreeVisitor):
         assert node.type == "arg_list"
         args = []
         for i in range(len(node.children)):
-            if i % 2 == 0:
-                args.append(node.children[i])
+            if node.children[i].type in ("comment", "arg_list_separator"):
+                continue
             else:
-                assert node.children[i].type == "arg_list_separator"
+                args.append(node.children[i])
+                # assert node.children[i].type "arg_list_separator",f"Child:\n{node.children[i].text},Parent:\n{bytes.decode(node.text,'utf-8')}"
         parsed_args = []
         for arg in args:
             parsed_args.append(self.visit(arg, opts))
@@ -94,8 +100,10 @@ class PrologVisitor(TreeVisitor):
                 if is_parameter_definition:
                     opts = self.un_set_parameter_definitions(opts)
                 return f
-            case x:
-                raise TypeError(f"Invalid shape of argument list: {x}")
+            case _:
+                raise TypeError(
+                    f"Invalid shape of argument list: {node.children},Parent:\n{bytes.decode(node.text, 'utf-8')}"
+                )
 
         return
 
@@ -116,9 +124,14 @@ class PrologVisitor(TreeVisitor):
 
     def visit_operator_notation(self, node: Node, opts: Opts):
         assert node.type == "operator_notation"
-        match node.children:
+        children = [child for child in node.children if child.type != "comment"]
+        match children:
+            case [open, operand, close] if (
+                open.type == "open" and close.type == "close"
+            ):
+                operand = self.visit(operand, opts)
+                return operand
             case [head, op, body]:
-                print(op.text)
                 is_parameter_definition = self.is_parameter_start_point(opts, op)
                 if is_parameter_definition:
                     opts = self.set_parameter_definition(opts)
@@ -127,8 +140,13 @@ class PrologVisitor(TreeVisitor):
                     opts = self.un_set_parameter_definitions(opts)
                 body = self.visit(body, opts)
                 return head
+            case [op, operand] if op.type == "prefix_operator":
+                operand = self.visit(operand, opts)
+                return operand
             case _:
-                raise TypeError(f"Unhandeled operator notation:{node}")
+                raise TypeError(
+                    f"Unhandeled operator notation: {node.children},Parent:\n{bytes.decode(node.text, 'utf-8')}"
+                )
 
     def functor_is_parameter_start_point(self, opts: Opts):
         return opts.predicate_definition and not opts.started_predicate_definition
@@ -188,6 +206,8 @@ class PrologVisitor(TreeVisitor):
             return
         list_items = node.children[1:-1]
         for item in list_items:
+            # TODO If it is not list_notation_separator it may be |
+            # It is weird it doesn't show up
             if item.type != "list_notation_separator":
                 self.visit(item, opts)
 

@@ -2,7 +2,7 @@
     "editor.semanticHighlighting.enabled": true,
     "editor.semanticTokenColorCustomizations": {
         "rules": {
-            "number:prolog": "#00ffae",
+            "number:prolog": "#52d60a",
             "operator:prolog": "#ff0000",
             "parameter:prolog": "#c910ba",
             "variable:prolog": "#204e94"
