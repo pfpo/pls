@@ -61,6 +61,7 @@ class Variable(Term):
         self.references = []
         self.is_parameter = False
 
+
 class Scope:
     def __init__(self):
         self.name = ""

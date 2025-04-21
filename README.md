@@ -114,10 +114,13 @@ Warning:    Use :- discontiguous list/1. to suppress this message
 
 ##  TODO
 
-- understand `|` 
-- understand why other examples are not working
-- hover documentation (just for example the token type)
-- parse comments
+- [ ] VScode Restart Server command
+- [ ] commandline option to start server in debug mode
+- [ ] understand `|` 
+- [ ] understand why other examples are not working
+- [ ] hover documentation (just for example the token type)
+- [ ] parse comments
+- [ ] sicstus documentation parsing
 
 ## Highlighting
 

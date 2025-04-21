@@ -11,7 +11,7 @@ from .utils import node_at_position, position_inside_node
 
 from .prolog_visitor import PrologVisitor
 from .syntax_error_visitor import SyntaxErrorVisitor
-from .highlight import HighlightVisitor,TokenTypes,TokenModifier
+from .highlight import HighlightVisitor, TokenTypes, TokenModifier
 
 import logging
 
@@ -24,7 +24,7 @@ class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.diagnostics = {}
-        self.tokens =  {}
+        self.tokens = {}
         self.predicate_index = {}
         self.scopes = {}
         self.notes = {}
@@ -48,7 +48,7 @@ class PLS(LanguageServer):
         self.diagnostics[document.uri] = (document.version, self.tree_diagnostics(tree))
         print(tree)
         print("Calculating Semantic Tokens:")
-        self.tokens[document.uri] = (document.version,self.semantic_tokens(tree))
+        self.tokens[document.uri] = (document.version, self.semantic_tokens(tree))
         self.trees[document.uri] = tree
 
         logging.info("%s", self.diagnostics)
@@ -193,7 +193,7 @@ def find_references(ls: PLS, params: types.ReferenceParams):
 )
 def semantic_tokens_full(ls: PLS, params: types.SemanticTokensParams):
     """Return the semantic tokens for the entire document"""
-    ver_sion, tokens = ls.tokens.get(params.text_document.uri, (0,[]))
+    ver_sion, tokens = ls.tokens.get(params.text_document.uri, (0, []))
     print(tokens)
     res = types.SemanticTokens(data=tokens)
     return res
