@@ -17,15 +17,17 @@ class TreeVisitor(ABC):
     def set_default_visitor(self, f):
         self.default_visitor = f
 
-    def visit_all_children(self, node: Node):
+    def visit_all_children(self, node: Node,*args):
         for child in node.children:
-            self.visit(child)
+            self.visit(child,*args)
 
     def visit(self, node: Node):
+        return self.visit(node,())
+    def visit(self, node: Node,*args):
         if node.type in self.visit_map:
-            return self.visit_map[node.type](node)
+            return self.visit_map[node.type](node,*args)
         if self.default_visitor:
-            return self.default_visitor(node)
+            return self.default_visitor(node,*args)
         raise TypeError(
             f"There is no registered visitor for: {node.type}\n{node}{node.parent if node.parent else ''}"
         )

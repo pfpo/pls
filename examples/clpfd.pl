@@ -1,1 +1,1 @@
-positive_integer(N) :- N #>= 1.
+positive_integer(N) :- N amsdk 1.
