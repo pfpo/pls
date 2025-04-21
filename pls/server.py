@@ -219,7 +219,7 @@ def debug():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == '-d':
+    if len(sys.argv) > 1 and sys.argv[1] == "-d":
         debug()
     else:
         print = logging.debug

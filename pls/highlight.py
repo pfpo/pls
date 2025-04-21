@@ -74,9 +74,11 @@ class HighlightVisitor(TreeVisitor):
         self.create_token(node, 3, 0)
 
     def visit_operator_notation(self, node: Node):
-        children = [child for child in node.children if child.type != "comment" ]
+        children = [child for child in node.children if child.type != "comment"]
         match children:
-            case [open, operand,close] if open.type == "open" and close.type == "close":
+            case [open, operand, close] if (
+                open.type == "open" and close.type == "close"
+            ):
                 self.visit(operand)
                 return operand
             case [head, op, body]:
@@ -85,7 +87,7 @@ class HighlightVisitor(TreeVisitor):
                 self.visit(body)
 
             case [op, operand] if op.type == "prefix_operator":
-                operand= self.visit(operand)
+                operand = self.visit(operand)
                 return operand
             case _:
                 raise TypeError(f"Unhandeled operator notation:{node}")
