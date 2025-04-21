@@ -2,8 +2,7 @@ import enum
 import attrs
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
-from .annotations import Annotations
-from .model import Variable
+from .model import Variable,SymbolTable
 
 
 class TokenModifier(enum.IntFlag):
@@ -27,11 +26,11 @@ TokenTypes = ["number", "variable", "parameter", "function", "operator", "string
 
 
 class HighlightVisitor(TreeVisitor):
-    def __init__(self, notes: Annotations):
+    def __init__(self,symbol_table: SymbolTable):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
-        self.notes = notes
+        self.notes =symbol_table.notes
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
