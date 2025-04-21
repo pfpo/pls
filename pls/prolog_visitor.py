@@ -76,17 +76,24 @@ class PrologVisitor(TreeVisitor):
 
     def visit_functional_notation(self, node: Node,opts:Opts):
         assert node.type == "functional_notation"
+
         match node.children:
             case [atom, _, arg_list, _]:
+                is_parameter_definition = self.functor_is_parameter_start_point(opts)
+                if is_parameter_definition:
+                    opts = self.set_parameter_definition(opts)
                 name = self.visit_atom(atom,opts)
                 args = self.visit_arg_list(arg_list,opts)
                 f = Functor(name.name, args)
                 p = self.get_predicate(f)
                 self.notes[node] =  p
                 p.add_reference(node)
+                if is_parameter_definition:
+                    opts = self.un_set_parameter_definitions(opts)
                 return f
             case x:
                 raise TypeError(f"Invalid shape of argument list: {x}")
+                
         return
 
     def visit_variable_term(self, node: Node,opts:Opts):
@@ -120,6 +127,8 @@ class PrologVisitor(TreeVisitor):
             case _:
                 raise TypeError(f"Unhandeled operator notation:{node}")
 
+    def functor_is_parameter_start_point(self,opts:Opts):
+        return opts.predicate_definition and not opts.started_predicate_definition
     def is_parameter_start_point(self,opts:Opts,op :Node):
         return op.text == b':-' and opts.predicate_definition and not opts.started_predicate_definition
         
