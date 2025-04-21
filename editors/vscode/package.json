@@ -29,6 +29,12 @@
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
+		"commands":[
+			{
+				"command":"pls.restartServer",
+				"title":"Restart PLS"
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "pls",
@@ -37,7 +43,7 @@
 					"scope": "machine",
 					"type": "string",
 					"default": "",
-					"description": "Specifies an absolute path to the yls executable. If empty pls is expected to be in $PATH variable. (example: /home/user/pls/env/bin/pls)"
+					"description": "Specifies an absolute path to the pls executable. If empty pls is expected to be in $PATH variable. (example: /home/user/pls/env/bin/pls)"
 				}
 			}
 		},
