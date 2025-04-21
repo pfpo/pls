@@ -114,8 +114,8 @@ Warning:    Use :- discontiguous list/1. to suppress this message
 
 ##  TODO
 
-- [ ] VScode Restart Server command
-- [ ] commandline option to start server in debug mode
+- [x] VScode Restart Server command
+- [x] commandline option to start server in debug mode
 - [ ] understand `|` 
 - [ ] understand why other examples are not working
 - [ ] hover documentation (just for example the token type)

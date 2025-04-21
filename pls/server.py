@@ -12,6 +12,7 @@ from .utils import node_at_position, position_inside_node
 from .prolog_visitor import PrologVisitor
 from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight import HighlightVisitor, TokenTypes, TokenModifier
+import sys
 
 import logging
 
@@ -224,8 +225,9 @@ def debug():
 
 
 if __name__ == "__main__":
-    if True:
-        print = logging.debug
-        main()
-    else:
+    if len(sys.argv) > 1 and sys.argv[1] == '-d':
         debug()
+    else:
+        print = logging.debug
+        print(sys.argv)
+        main()
