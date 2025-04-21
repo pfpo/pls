@@ -207,7 +207,7 @@ def main():
 
 
 def debug():
-    s = open("./examples/highlight/variables.pl").read()
+    s = open("./examples/highlight/strings.pl").read()
     t: Tree = parser.parse(bytes(s, "utf-8"))
     print(f"{t.root_node}")
     server._parse(s)

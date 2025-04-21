@@ -1,4 +1,4 @@
-% hello(A,B):- C is A + B.
+hello(A,B):- C is A + B,write(C).
 
 main(Y,Y):- X = Y.
 

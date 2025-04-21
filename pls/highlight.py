@@ -24,7 +24,7 @@ class Token:
 
 
 # TokenTypes = ["keyword", "variable", "function", "operator", "parameter", "type"]
-TokenTypes = ["number","variable","parameter","function","operator"]
+TokenTypes = ["number","variable","parameter","function","operator","string"]
 
 
 class HighlightVisitor(TreeVisitor):
@@ -43,6 +43,7 @@ class HighlightVisitor(TreeVisitor):
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("atom", self.visit_atom)
         self.add_visit("operator_notation", self.visit_operator_notation)
+        self.add_visit("double_quoted_list_notation",self.visit_double_quoted_list)
 
 
         # self.add_visit("source_file", self.visit_all_children)
@@ -55,6 +56,9 @@ class HighlightVisitor(TreeVisitor):
     def visit_integer(self,node: Node):
         self.create_token(node,0,0)
 
+    def visit_double_quoted_list(self,node: Node):
+        self.create_token(node,5,0)
+    
 
     def visit_variable_term(self,node: Node):
         may_be_variable : Variable | None = self.notes[node]

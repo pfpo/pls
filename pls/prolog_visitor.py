@@ -44,17 +44,19 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("integer", self.text_visit)
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("list_notation", self.visit_list_notation)
+        self.add_visit("double_quoted_list_notation",self.text_visit)
 
         self.add_visit('ERROR',self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
 
-    def visit_atom(self, node: Node,opts:Opts) -> str:
+    def visit_atom(self, node: Node,_opts:Opts) -> str:
         assert node.type == "atom"
         t = Term(bytes.decode(node.text, "utf-8"))
         self.notes[node] = t
         p = self.get_predicate(t)
         p.add_reference(node)
         return t
+    
 
     def text_visit(self, node: Node,opts:Opts) -> str:
         res = Term(bytes.decode(node.text, "utf-8"))
