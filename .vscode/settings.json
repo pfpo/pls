@@ -1,9 +1,12 @@
 {
     "editor.semanticHighlighting.enabled": true,
     "editor.semanticTokenColorCustomizations": {
-        "rules": {"number": "#00ffae", "operator": "#ff0000"}
+        "rules": {
+            "number:prolog": "#00ffae",
+            "operator:prolog": "#ff0000",
+            "parameter:prolog": "#c910ba",
+            "variable:prolog": "#204e94"
+
+        }
     },
-    "editor.tokenColorCustomizations": {
-        "numbers": "#1900ff"
-    }
 }

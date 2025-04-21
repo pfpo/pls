@@ -2,6 +2,9 @@ import enum
 import attrs
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
+from .annotations import Annotations
+from .model import Scope,Variable
+
 
 class TokenModifier(enum.IntFlag):
     deprecated = enum.auto()
@@ -25,16 +28,15 @@ TokenTypes = ["number","variable","parameter","function","operator"]
 
 
 class HighlightVisitor(TreeVisitor):
-    def __init__(self):
+    def __init__(self,notes:Annotations):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0,0,"")
-
+        self.notes = notes
     
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
         self.add_visit("integer",self.visit_integer)
-
         # self.add_visit("clause_term", self.visit_clause_term)
         # self.add_visit("directive_term", self.visit_directive)
 
@@ -55,8 +57,16 @@ class HighlightVisitor(TreeVisitor):
 
 
     def visit_variable_term(self,node: Node):
-        self.create_token(node,2,0)
-    
+        may_be_variable : Variable | None = self.notes[node]
+        if may_be_variable is None:
+            self.create_token(node,1,0)
+            return
+        variable :Variable = may_be_variable
+        if variable.is_parameter:
+            self.create_token(node,2,0)
+            return
+        self.create_token(node,1,0)
+        return 
     def visit_atom(self,node:Node):
         self.create_token(node,3,0)
 

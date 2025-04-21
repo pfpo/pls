@@ -59,3 +59,10 @@ class Variable(Term):
         self.arity = 0
         self.definition = definition
         self.references = []
+        self.is_parameter = False
+
+class Scope:
+    def __init__(self):
+        self.name = ""
+        self.variables = {}
+        self.node = None

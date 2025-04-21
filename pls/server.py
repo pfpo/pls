@@ -27,6 +27,7 @@ class PLS(LanguageServer):
         self.tokens =  {}
         self.predicate_index = {}
         self.scopes = {}
+        self.notes = {}
         self.trees = {}
         self.current_uri = ""
 
@@ -35,7 +36,7 @@ class PLS(LanguageServer):
         return syntax_error_visitor.visit(tree.root_node)
 
     def semantic_tokens(self, tree: Tree):
-        tokens_visitor = HighlightVisitor()
+        tokens_visitor = HighlightVisitor(self.notes)
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -59,6 +60,7 @@ class PLS(LanguageServer):
         prolog_visitor.visit(tree.root_node)
         self.predicate_index = prolog_visitor.predicate_index
         self.scopes = prolog_visitor.scopes
+        self.notes = prolog_visitor.notes
 
         return tree
 
@@ -205,7 +207,7 @@ def main():
 
 
 def debug():
-    s = open("./examples/go_to_definition.pl").read()
+    s = open("./examples/highlight/variables.pl").read()
     t: Tree = parser.parse(bytes(s, "utf-8"))
     print(f"{t.root_node}")
     server._parse(s)
