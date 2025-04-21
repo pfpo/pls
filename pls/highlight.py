@@ -21,7 +21,7 @@ class Token:
 
 
 # TokenTypes = ["keyword", "variable", "function", "operator", "parameter", "type"]
-TokenTypes = ["number"]
+TokenTypes = ["number","variable","parameter","function","operator"]
 
 
 class HighlightVisitor(TreeVisitor):
@@ -32,13 +32,43 @@ class HighlightVisitor(TreeVisitor):
 
     
     def build_visitors(self):
-        self.add_visit("integer",self.visit_integer)
         self.set_default_visitor(self.visit_all_children)
+        self.add_visit("integer",self.visit_integer)
+
+        # self.add_visit("clause_term", self.visit_clause_term)
+        # self.add_visit("directive_term", self.visit_directive)
+
+        self.add_visit("variable_term", self.visit_variable_term)
+        self.add_visit("atom", self.visit_atom)
+        self.add_visit("operator_notation", self.visit_operator_notation)
+
+
+        # self.add_visit("source_file", self.visit_all_children)
+        # self.add_visit("functional_notation", self.visit_functional_notation)
+        # self.add_visit("list_notation", self.visit_list_notation)
+
+        # self.add_visit('ERROR',self.visit_all_children)
+        # self.add_visit("comment", self.visit_comment)
 
     def visit_integer(self,node: Node):
-        print(f"\n\n\nFound an integer token:{node},{node.text}")
         self.create_token(node,0,0)
 
+
+    def visit_variable_term(self,node: Node):
+        self.create_token(node,2,0)
+    
+    def visit_atom(self,node:Node):
+        self.create_token(node,3,0)
+
+    def visit_operator_notation(self,node:Node):
+
+        match node.children:
+            case [head, op, body]:
+                self.visit(head)
+                self.create_token(op,4,0)
+                self.visit(body)
+            case _:
+                raise TypeError(f"Unhandeled operator notation:{node}")
     
     def create_token(self,node: Node,index: int,modifiers:int):
 

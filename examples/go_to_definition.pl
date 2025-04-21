@@ -10,7 +10,6 @@ main:- p(a,b,x),p(x,y),p.
 list(1,2).
 
 list(X):- X.
-list(X):- X.
 
 test(X):- list( [p,p(1,2,3),p(1,2)] ),
           list([
@@ -20,5 +19,3 @@ test(X):- list( [p,p(1,2,3),p(1,2)] ),
 			   a,a,a,a,aa,a,a,a,a,Z.
 
 hello:- list(1),list(1,2),test(X).
-
-list(X):- X.

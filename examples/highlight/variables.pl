@@ -1,0 +1,1 @@
+hello(A,B):- C is A + B.
