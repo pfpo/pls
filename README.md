@@ -112,3 +112,27 @@ Warning:    Use :- discontiguous list/1. to suppress this message
 - 
 - Ref style Proceedings of the `<Full Name of the Conference> (<Sigla>), <Data da Conf>, <Local da Conf>\`
 
+##  TODO
+
+- understand `|` 
+- understand why other examples are not working
+- hover documentation (just for example the token type)
+- parse comments
+
+## Highlighting
+
+
+- [x] Predicates
+    - [ ] undefined predicates
+    - [ ] predicates
+    - [ ] builtin
+    - [ ] meta predicartes
+- [ ] Atoms
+    - [ ] difference between and predicates
+- [x] Operators
+    - Every operator being highlighted the same
+- [x] Integers
+- [x] Strings
+- [x] Variables
+- [x] Parameters
+- [ ] Unused
