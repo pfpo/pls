@@ -23,8 +23,7 @@ class Token:
     tok_modifiers: list[TokenModifier] = attrs.field(factory=list)
 
 
-# TokenTypes = ["keyword", "variable", "function", "operator", "parameter", "type"]
-TokenTypes = ["number", "variable", "parameter", "function", "operator", "string"]
+TokenTypes = ["number", "variable", "parameter", "function", "operator", "string","comment"]
 
 
 class HighlightVisitor(TreeVisitor):
@@ -50,13 +49,16 @@ class HighlightVisitor(TreeVisitor):
         # self.add_visit("list_notation", self.visit_list_notation)
 
         # self.add_visit('ERROR',self.visit_all_children)
-        # self.add_visit("comment", self.visit_comment)
+        self.add_visit("comment", self.visit_comment)
 
     def visit_integer(self, node: Node):
         self.create_token(node, 0, 0)
 
     def visit_double_quoted_list(self, node: Node):
         self.create_token(node, 5, 0)
+
+    def visit_comment(self, node: Node):
+        self.create_token(node, 6, 0)
 
     def visit_variable_term(self, node: Node):
         may_be_variable: Variable | None = self.notes[node]
@@ -75,6 +77,7 @@ class HighlightVisitor(TreeVisitor):
 
     def visit_operator_notation(self, node: Node):
         children = [child for child in node.children if child.type != "comment"]
+
         match children:
             case [open, operand, close] if (
                 open.type == "open" and close.type == "close"
