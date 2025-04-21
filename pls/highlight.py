@@ -2,8 +2,7 @@ import enum
 import attrs
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
-from .annotations import Annotations
-from .model import Variable
+from .model import Variable, SymbolTable
 
 
 class TokenModifier(enum.IntFlag):
@@ -23,16 +22,23 @@ class Token:
     tok_modifiers: list[TokenModifier] = attrs.field(factory=list)
 
 
-# TokenTypes = ["keyword", "variable", "function", "operator", "parameter", "type"]
-TokenTypes = ["number", "variable", "parameter", "function", "operator", "string"]
+TokenTypes = [
+    "number",
+    "variable",
+    "parameter",
+    "function",
+    "operator",
+    "string",
+    "comment",
+]
 
 
 class HighlightVisitor(TreeVisitor):
-    def __init__(self, notes: Annotations):
+    def __init__(self, symbol_table: SymbolTable):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
-        self.notes = notes
+        self.notes = symbol_table.notes
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
@@ -50,13 +56,16 @@ class HighlightVisitor(TreeVisitor):
         # self.add_visit("list_notation", self.visit_list_notation)
 
         # self.add_visit('ERROR',self.visit_all_children)
-        # self.add_visit("comment", self.visit_comment)
+        self.add_visit("comment", self.visit_comment)
 
     def visit_integer(self, node: Node):
         self.create_token(node, 0, 0)
 
     def visit_double_quoted_list(self, node: Node):
         self.create_token(node, 5, 0)
+
+    def visit_comment(self, node: Node):
+        self.create_token(node, 6, 0)
 
     def visit_variable_term(self, node: Node):
         may_be_variable: Variable | None = self.notes[node]
@@ -75,19 +84,25 @@ class HighlightVisitor(TreeVisitor):
 
     def visit_operator_notation(self, node: Node):
         children = [child for child in node.children if child.type != "comment"]
+
         match children:
             case [open, operand, close] if (
                 open.type == "open" and close.type == "close"
             ):
-                self.visit(operand)
-                return operand
-            case [head, op, body]:
-                self.visit(head)
-                self.create_token(op, 4, 0)
-                self.visit(body)
+                for child in node.children:
+                    if child.type == "comment" or child == operand:
+                        self.visit(child)
+            case [_head, op, _body]:
+                for child in node.children:
+                    if child == op:
+                        self.create_token(op, 4, 0)
+                    self.visit(child)
 
             case [op, operand] if op.type == "prefix_operator":
-                operand = self.visit(operand)
+                for child in node.children:
+                    if child == op:
+                        self.create_token(op, 4, 0)
+                    self.visit(child)
                 return operand
             case _:
                 raise TypeError(f"Unhandeled operator notation:{node}")

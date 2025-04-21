@@ -5,6 +5,9 @@ r(X):- X > 1,main(a,b,c).
 
 X:- X.
 
+
+% Unifies in the last variable the max between X and Y
+
 max_2(X,Y,X):- X > Y.
 max_2(_,Y,Y).
 

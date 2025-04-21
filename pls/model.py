@@ -1,6 +1,8 @@
 from lsprotocol import types
 from .utils import node_to_range
 from tree_sitter import Node
+from dataclasses import dataclass
+from .annotations import Annotations
 
 
 class Term:
@@ -12,6 +14,13 @@ class Term:
         return f"{self.name}/{self.arity}"
 
 
+@dataclass
+class SymbolTable:
+    scopes: map
+    predicate_index: map
+    notes: Annotations
+
+
 class Predicate(Term):
     def __init__(self, name, arity):
         super().__init__(name)
@@ -20,6 +29,7 @@ class Predicate(Term):
         self.clauses: list[Clause] = []
         self.uri = ""
         self.references = []
+        self.comments = []
 
     def add_reference(self, node: Node):
         self.references.append(node_to_range(node))

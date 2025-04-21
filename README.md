@@ -53,11 +53,12 @@ code-insiders --install-extension pls-vscode-extension.vsix
 - [ ] Call Hierarchy
 - [ ] Handling Lists
 - [ ] Neovim Extension
-- [ ] Syntax highlighting 
+- [x] Syntax highlighting 
 - [ ] Parsing Tests
 - [ ] Rename
 - [ ] Parsing comments
-- [ ] Hover information
+- [x] Hover information
+    - With basic comment information
 - [ ] Completion
 - [ ] Cut operator (red/green).
 - [ ] Determinism analysis.
@@ -118,7 +119,8 @@ Warning:    Use :- discontiguous list/1. to suppress this message
 - [x] commandline option to start server in debug mode
 - [x] understand `|` 
 - [x] understand why other examples are not working
-- [ ] hover documentation (just for example the token type)
+- [x] hover documentation (just for example the token type)
+- [x] hover documentation using the above and in between comments
 - [ ] parse comments
 - [ ] sicstus documentation parsing
 - `[X1,X1|XS]` not working error

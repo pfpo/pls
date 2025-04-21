@@ -25,6 +25,8 @@ class PrologVisitor(TreeVisitor):
         self.scopes = {}
         self.directive_counter = 0
 
+        self.comments = []
+
     def set_current_scope(self, scope):
         if self.current_scope is not None:
             self.save_scope()
@@ -176,6 +178,8 @@ class PrologVisitor(TreeVisitor):
         f = self.visit(node, opts)
 
         predicate = self.get_predicate(f)
+        predicate.comments.extend(self.comments.copy())
+        self.comments = []
         self.notes[parent] = predicate
 
         predicate.add_definition(parent)
@@ -212,9 +216,10 @@ class PrologVisitor(TreeVisitor):
                 self.visit(item, opts)
 
     def visit_comment(self, node: Node, opts: Opts):
+        self.comments.append(bytes.decode(node.text, "utf-8"))
         return
 
-    def get_predicate(self, t: Term):
+    def get_predicate(self, t: Term) -> Predicate:
         key = t.key()
         if key not in self.predicate_index:
             self.predicate_index[key] = Predicate(t.name, t.arity)

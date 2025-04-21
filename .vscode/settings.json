@@ -3,9 +3,9 @@
     "editor.semanticTokenColorCustomizations": {
         "rules": {
             "number:prolog": "#52d60a",
-            "operator:prolog": "#ff0000",
-            "parameter:prolog": "#c910ba",
-            "variable:prolog": "#204e94"
+            "operator:prolog": "#e7680682",
+            "parameter:prolog": "#204e94",
+            "function:prolog": "#c4c41d"
 
         }
     },
