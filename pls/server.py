@@ -47,8 +47,6 @@ class PLS(LanguageServer):
         tree = self._parse(document.source)
 
         self.diagnostics[document.uri] = (document.version, self.tree_diagnostics(tree))
-        print(tree)
-        print("Calculating Semantic Tokens:")
         self.tokens[document.uri] = (document.version, self.semantic_tokens(tree))
         self.trees[document.uri] = tree
 
@@ -141,14 +139,11 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
 @server.feature("textDocument/definition")
 def goto_definition(ls: PLS, params: types.DefinitionParams):
     """Jump to an object's definition."""
-    logging.log(logging.DEBUG, "Hellooooo\n\n\n")
     doc = ls.workspace.get_text_document(params.text_document.uri)
     tree = ls.trees.get(doc.uri)
-    logging.log(logging.DEBUG, str(params.position))
     if tree is None:
         return []
     result = ls.go_to_definition(tree, params.position)
-    logging.log(logging.DEBUG, result)
     return result
 
 
@@ -195,7 +190,6 @@ def find_references(ls: PLS, params: types.ReferenceParams):
 def semantic_tokens_full(ls: PLS, params: types.SemanticTokensParams):
     """Return the semantic tokens for the entire document"""
     ver_sion, tokens = ls.tokens.get(params.text_document.uri, (0, []))
-    print(tokens)
     res = types.SemanticTokens(data=tokens)
     return res
 
@@ -208,7 +202,7 @@ def main():
 
 
 def debug():
-    s = open("./examples/highlight/strings.pl").read()
+    s = open("./test/utils.pl").read()
     t: Tree = parser.parse(bytes(s, "utf-8"))
     print(f"{t.root_node}")
     server._parse(s)
@@ -229,5 +223,4 @@ if __name__ == "__main__":
         debug()
     else:
         print = logging.debug
-        print(sys.argv)
         main()

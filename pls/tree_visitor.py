@@ -27,5 +27,5 @@ class TreeVisitor(ABC):
         if self.default_visitor:
             return self.default_visitor(node, *args)
         raise TypeError(
-            f"There is no registered visitor for: {node.type}\n{node}{node.parent if node.parent else ''}"
+            f"There is no registered visitor for: {node.type}\n{node}:{bytes.decode(node.text,'utf-8')}\n\n{str(node.parent)+':'+bytes.decode(node.parent.text,'utf-8') if node.parent else ''}"
         )

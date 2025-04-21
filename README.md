@@ -116,11 +116,12 @@ Warning:    Use :- discontiguous list/1. to suppress this message
 
 - [x] VScode Restart Server command
 - [x] commandline option to start server in debug mode
-- [ ] understand `|` 
-- [ ] understand why other examples are not working
+- [x] understand `|` 
+- [x] understand why other examples are not working
 - [ ] hover documentation (just for example the token type)
 - [ ] parse comments
 - [ ] sicstus documentation parsing
+- `[X1,X1|XS]` not working error
 
 ## Highlighting
 
