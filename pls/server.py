@@ -14,8 +14,7 @@ from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight import HighlightVisitor, TokenTypes, TokenModifier
 from .markup import descriptions
 import sys
-
-import logging
+from .my_logging import print,logging
 
 PROLOG = Language(prolog())
 

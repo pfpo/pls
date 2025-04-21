@@ -2,8 +2,8 @@ import enum
 import attrs
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
-from .model import Variable, SymbolTable
-
+from .model import Variable, SymbolTable,Predicate,Term
+from .my_logging import print
 
 class TokenModifier(enum.IntFlag):
     deprecated = enum.auto()
@@ -52,7 +52,7 @@ class HighlightVisitor(TreeVisitor):
         self.add_visit("double_quoted_list_notation", self.visit_double_quoted_list)
 
         # self.add_visit("source_file", self.visit_all_children)
-        # self.add_visit("functional_notation", self.visit_functional_notation)
+        self.add_visit("functional_notation", self.visit_functional_notation)
         # self.add_visit("list_notation", self.visit_list_notation)
 
         # self.add_visit('ERROR',self.visit_all_children)
@@ -80,11 +80,36 @@ class HighlightVisitor(TreeVisitor):
         return
 
     def visit_atom(self, node: Node):
-        self.create_token(node, 3, 0)
+        notes = self.notes[node]
+        if notes is None:
+            return
+        print(notes)
+        text = bytes.decode(node.text,'utf-8')
+        # TODO: This is not totally correct because it should not be highlighted as strings
+        if len(text) > 1 and text[0] == text[-1] and text[0] == '\'':
+            self.create_token(node, 5, 0)
+            return
+            
+    def visit_functional_notation(self, node: Node):
+
+        children = [child for child in node.children if child.type != "comment"]
+        match children:
+            case [atom, _, arg_list, _]:
+                for child in node.children:
+                    if child.type == "comment" or child == arg_list:
+                        self.visit(child)
+                    elif child == atom:
+                        self.create_token(child, 3, 0)
+            case _:
+                raise TypeError(
+                    f"Invalid shape of argument list: {node.children},Parent:\n{bytes.decode(node.text, 'utf-8')}"
+                )
+
+        return
 
     def visit_operator_notation(self, node: Node):
-        children = [child for child in node.children if child.type != "comment"]
 
+        children = [child for child in node.children if child.type != "comment"]
         match children:
             case [open, operand, close] if (
                 open.type == "open" and close.type == "close"
