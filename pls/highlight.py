@@ -2,7 +2,7 @@ import enum
 import attrs
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
-from .model import Variable,SymbolTable
+from .model import Variable, SymbolTable
 
 
 class TokenModifier(enum.IntFlag):
@@ -22,15 +22,23 @@ class Token:
     tok_modifiers: list[TokenModifier] = attrs.field(factory=list)
 
 
-TokenTypes = ["number", "variable", "parameter", "function", "operator", "string","comment"]
+TokenTypes = [
+    "number",
+    "variable",
+    "parameter",
+    "function",
+    "operator",
+    "string",
+    "comment",
+]
 
 
 class HighlightVisitor(TreeVisitor):
-    def __init__(self,symbol_table: SymbolTable):
+    def __init__(self, symbol_table: SymbolTable):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
-        self.notes =symbol_table.notes
+        self.notes = symbol_table.notes
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
@@ -84,8 +92,7 @@ class HighlightVisitor(TreeVisitor):
                 for child in node.children:
                     if child.type == "comment" or child == operand:
                         self.visit(child)
-            case [head, op, body]:
-
+            case [_head, op, _body]:
                 for child in node.children:
                     if child == op:
                         self.create_token(op, 4, 0)

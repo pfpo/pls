@@ -16,9 +16,10 @@ class Term:
 
 @dataclass
 class SymbolTable:
-    scopes :map
-    predicate_index:map
-    notes : Annotations
+    scopes: map
+    predicate_index: map
+    notes: Annotations
+
 
 class Predicate(Term):
     def __init__(self, name, arity):

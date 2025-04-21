@@ -3,18 +3,16 @@ from lsprotocol import types
 from pygls.workspace import TextDocument
 # from pygls.cli import start_server
 
-from tree_sitter import Language, Parser, Tree,Node
+from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
 from .model import Functor, Variable, Predicate, SymbolTable
 from .utils import node_at_position, position_inside_node
 
-from .prolog_visitor import PrologVisitor,Opts
+from .prolog_visitor import PrologVisitor, Opts
 from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight import HighlightVisitor, TokenTypes, TokenModifier
 from .markup import descriptions
-from .annotations import Annotations
-from dataclasses import dataclass
 import sys
 
 import logging
@@ -24,25 +22,20 @@ PROLOG = Language(prolog())
 parser = Parser(PROLOG)
 
 
-
-
-
-
-
 class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.diagnostics = {}
         self.tokens = {}
-        self.tables:map[str,SymbolTable] = {}
-        self.trees:map[str,Tree] = {}
+        self.tables: map[str, SymbolTable] = {}
+        self.trees: map[str, Tree] = {}
         self.current_uri = ""
 
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
         return syntax_error_visitor.visit(tree.root_node)
 
-    def semantic_tokens(self, tree: Tree,uri:str):
+    def semantic_tokens(self, tree: Tree, uri: str):
         tokens_visitor = HighlightVisitor(self.tables[uri])
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
@@ -50,11 +43,14 @@ class PLS(LanguageServer):
     def parse(self, document: TextDocument):
         self.predicate_index = {}
         self.current_uri = document.uri
-        tree,symbol_table = self._parse(document.source)
+        tree, symbol_table = self._parse(document.source)
 
         self.tables[document.uri] = symbol_table
         self.diagnostics[document.uri] = (document.version, self.tree_diagnostics(tree))
-        self.tokens[document.uri] = (document.version, self.semantic_tokens(tree,document.uri))
+        self.tokens[document.uri] = (
+            document.version,
+            self.semantic_tokens(tree, document.uri),
+        )
         self.trees[document.uri] = tree
 
         logging.info("%s", self.diagnostics)
@@ -63,13 +59,18 @@ class PLS(LanguageServer):
         tree = parser.parse(bytes(doc, "utf-8"))
 
         prolog_visitor = PrologVisitor(self.current_uri)
-        prolog_visitor.visit(tree.root_node,Opts())
-        symbol_table = SymbolTable(scopes=prolog_visitor.scopes,notes= prolog_visitor.notes , predicate_index=
-                    prolog_visitor.predicate_index)
+        prolog_visitor.visit(tree.root_node, Opts())
+        symbol_table = SymbolTable(
+            scopes=prolog_visitor.scopes,
+            notes=prolog_visitor.notes,
+            predicate_index=prolog_visitor.predicate_index,
+        )
 
-        return tree,symbol_table
+        return tree, symbol_table
 
-    def transform_in_variable_or_predicate(self,node:Node,position:types.Position,uri:str)-> Variable | Predicate | None:
+    def transform_in_variable_or_predicate(
+        self, node: Node, position: types.Position, uri: str
+    ) -> Variable | Predicate | None:
         if node is None:
             return None
         table = self.tables[uri]
@@ -87,20 +88,21 @@ class PLS(LanguageServer):
             ):
                 p = PrologVisitor("")
                 p.new_scope(node.parent)
-                functor = p.visit(node.parent,Opts())
+                functor = p.visit(node.parent, Opts())
             else:
                 functor = Functor(bytes.decode(node.text), [])
 
             return table.predicate_index.get(functor.key())
 
-
-    def discover_node(self, tree, position: types.Position,uri:str) -> Variable | Predicate | None:
+    def discover_node(
+        self, tree, position: types.Position, uri: str
+    ) -> Variable | Predicate | None:
         node = node_at_position(tree.root_node, position)
         print(node)
-        return self.transform_in_variable_or_predicate(node,position,uri)
+        return self.transform_in_variable_or_predicate(node, position, uri)
 
-    def go_to_definition(self, tree, position: types.Position,uri:str):
-        element: Variable | Predicate | None = self.discover_node(tree, position,uri)
+    def go_to_definition(self, tree, position: types.Position, uri: str):
+        element: Variable | Predicate | None = self.discover_node(tree, position, uri)
 
         if type(element) is Variable:
             return types.Location(uri=uri, range=element.references[0])
@@ -110,8 +112,8 @@ class PLS(LanguageServer):
             return None
         return None
 
-    def find_references(self, tree, position: types.Position,uri:str):
-        element: Variable | Predicate | None = self.discover_node(tree, position,uri)
+    def find_references(self, tree, position: types.Position, uri: str):
+        element: Variable | Predicate | None = self.discover_node(tree, position, uri)
         print(element)
 
         locations = []
@@ -123,11 +125,11 @@ class PLS(LanguageServer):
 
         return locations
 
-    def hover(self, tree, position: types.Position,uri:str):
-        maybe_node = node_at_position(tree.root_node,position)
+    def hover(self, tree, position: types.Position, uri: str):
+        maybe_node = node_at_position(tree.root_node, position)
         if maybe_node is None:
             return None
-        element = self.transform_in_variable_or_predicate(maybe_node,position,uri)
+        element = self.transform_in_variable_or_predicate(maybe_node, position, uri)
         if element is not None and type(element) is Variable:
             content = descriptions.variable_description(element)
         elif element is not None and type(element) is Predicate:
@@ -144,9 +146,7 @@ class PLS(LanguageServer):
                 start=types.Position(line=position.line, character=0),
                 end=types.Position(line=position.line + 1, character=0),
             ),
-        ) 
-
-
+        )
 
 
 server = PLS("prolog-server", "v0.0.1")
@@ -179,9 +179,8 @@ def goto_definition(ls: PLS, params: types.DefinitionParams):
     tree = ls.trees.get(doc.uri)
     if tree is None:
         return []
-    result = ls.go_to_definition(tree, params.position,doc.uri)
+    result = ls.go_to_definition(tree, params.position, doc.uri)
     return result
-
 
 
 @server.feature(types.TEXT_DOCUMENT_REFERENCES)
@@ -192,7 +191,7 @@ def find_references(ls: PLS, params: types.ReferenceParams):
     logging.log(logging.DEBUG, str(params.position))
     if tree is None:
         return []
-    references = ls.find_references(tree, params.position,doc.uri)
+    references = ls.find_references(tree, params.position, doc.uri)
     logging.log(logging.DEBUG, references)
 
     return references
@@ -211,14 +210,16 @@ def semantic_tokens_full(ls: PLS, params: types.SemanticTokensParams):
     res = types.SemanticTokens(data=tokens)
     return res
 
+
 @server.feature(types.TEXT_DOCUMENT_HOVER)
 def hover(ls: PLS, params: types.HoverParams):
     doc = ls.workspace.get_text_document(params.text_document.uri)
     tree = ls.trees.get(doc.uri)
     if tree is None:
         return []
-    result = ls.hover(tree, params.position,doc.uri)
+    result = ls.hover(tree, params.position, doc.uri)
     return result
+
 
 @server.feature(
     types.TEXT_DOCUMENT_COMPLETION,
@@ -257,7 +258,9 @@ def debug():
         print(f"Refs {len(predicate.references)}{predicate.references}")
         print("========")
 
-    print(f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13))}")
+    print(
+        f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13))}"
+    )
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
 
 

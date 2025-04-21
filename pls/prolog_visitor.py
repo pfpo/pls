@@ -216,10 +216,10 @@ class PrologVisitor(TreeVisitor):
                 self.visit(item, opts)
 
     def visit_comment(self, node: Node, opts: Opts):
-        self.comments.append(bytes.decode(node.text,'utf-8'))
+        self.comments.append(bytes.decode(node.text, "utf-8"))
         return
 
-    def get_predicate(self, t: Term)-> Predicate:
+    def get_predicate(self, t: Term) -> Predicate:
         key = t.key()
         if key not in self.predicate_index:
             self.predicate_index[key] = Predicate(t.name, t.arity)
