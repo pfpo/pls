@@ -53,11 +53,12 @@ code-insiders --install-extension pls-vscode-extension.vsix
 - [ ] Call Hierarchy
 - [ ] Handling Lists
 - [ ] Neovim Extension
-- [ ] Syntax highlighting 
+- [x] Syntax highlighting 
 - [ ] Parsing Tests
 - [ ] Rename
 - [ ] Parsing comments
-- [ ] Hover information
+- [x] Hover information
+    - With basic comment information
 - [ ] Completion
 - [ ] Cut operator (red/green).
 - [ ] Determinism analysis.
