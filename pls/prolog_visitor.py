@@ -40,6 +40,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("list_notation", self.visit_list_notation)
 
+        self.add_visit('ERROR',self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
 
     def visit_atom(self, node: Node) -> str:

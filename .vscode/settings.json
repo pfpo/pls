@@ -1,0 +1,9 @@
+{
+    "editor.semanticHighlighting.enabled": true,
+    "editor.semanticTokenColorCustomizations": {
+        "rules": {"number": "#ff0000"}
+    },
+    "editor.tokenColorCustomizations": {
+        "numbers": "#FF0000"
+    }
+}
