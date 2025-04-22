@@ -1,5 +1,6 @@
 import enum
 import attrs
+from .utils import node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
 from .model import Variable, SymbolTable,Predicate,Term
@@ -125,7 +126,7 @@ class HighlightVisitor(TreeVisitor):
                         self.create_token(child, 3, 0)
             case _:
                 raise TypeError(
-                    f"Invalid shape of argument list: {node.children},Parent:\n{bytes.decode(node.text, 'utf-8')}"
+                    f"Invalid shape of argument list: {node.children}"+ node_and_parent_with_text(node)
                 )
 
         return
@@ -153,7 +154,7 @@ class HighlightVisitor(TreeVisitor):
                     self.visit(child)
                 return operand
             case _:
-                raise TypeError(f"Unhandeled operator notation:{node}")
+                raise TypeError(f"Unhandeled operator notation:"+node_and_parent_with_text(node))
 
     def create_token(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line

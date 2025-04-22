@@ -1,6 +1,6 @@
 from tree_sitter import Node
 from .model import Term, Functor, Predicate, Variable, Scope
-from .utils import node_to_range
+from .utils import node_to_range,node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 
@@ -104,7 +104,7 @@ class PrologVisitor(TreeVisitor):
                 return f
             case _:
                 raise TypeError(
-                    f"Invalid shape of argument list: {node.children},Parent:\n{bytes.decode(node.text, 'utf-8')}"
+                    f"Invalid shape of argument list: {node.children}" + node_and_parent_with_text(node)
                 )
 
         return
@@ -147,7 +147,7 @@ class PrologVisitor(TreeVisitor):
                 return operand
             case _:
                 raise TypeError(
-                    f"Unhandeled operator notation: {node.children},Parent:\n{bytes.decode(node.text, 'utf-8')}"
+                    f"Unhandeled operator notation: {node.children}"+ node_and_parent_with_text(node)
                 )
 
     def functor_is_parameter_start_point(self, opts: Opts):

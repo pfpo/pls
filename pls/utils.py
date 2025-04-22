@@ -48,3 +48,11 @@ def node_at_position(node: Node, p: types.Position):
         if possible:
             current = possible
     return current
+
+
+def node_and_parent_with_text(node:Node):
+    log = lambda n : f"{n}\n{bytes.decode(n.text,'utf-8')}"
+    s = f"Node:{log(node)}"
+    if node.parent:
+        s+=f"\nParent:{log(node.parent)}"
+    return s
