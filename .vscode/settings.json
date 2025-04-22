@@ -4,7 +4,7 @@
         "rules": {
             "number:prolog": "#52d60a",
             "operator:prolog": "#e7680682",
-            "parameter:prolog": "#204e94",
+            "variable:prolog": "#204e94",
             "function:prolog": "#c4c41d"
 
         }

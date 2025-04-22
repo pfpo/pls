@@ -110,6 +110,7 @@ class HighlightVisitor(TreeVisitor):
             return
         text = bytes.decode(node.text,'utf-8')
         # TODO: This is not totally correct because it should not be highlighted as strings
+        return 
         if len(text) > 1 and text[0] == text[-1] and text[0] == '\'':
             self.create_token(node, 5, 0)
             return

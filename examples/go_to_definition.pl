@@ -11,7 +11,11 @@ list(1,2).
 
 list(X):- X.
 
-test(X):- list( [p,p(1,2,3),p(1,2)] ),
+test(X):- list( [   p,
+					p(1,2,3),
+					
+					p(1,2),
+			] ),
           list([
             list([p,p(1,2,3),p(1,2)]),
                   list([main])
