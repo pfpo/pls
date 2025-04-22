@@ -3,7 +3,7 @@ import attrs
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
 from .model import Variable, SymbolTable,Predicate,Term
-from .my_logging import print
+
 
 class TokenModifier(enum.IntFlag):
     deprecated = enum.auto()
@@ -65,7 +65,31 @@ class HighlightVisitor(TreeVisitor):
         self.create_token(node, 5, 0)
 
     def visit_comment(self, node: Node):
-        self.create_token(node, 6, 0)
+
+        # TODO Find a better solution
+        lines = max(node.end_point.row - node.start_point.row -1,0)
+        if lines ==  0:
+            self.create_token(node,6,0)    
+            return 
+
+        # Multiline Comment
+        start_line = node.start_point.row
+        col = node.start_point.column
+        text_per_lines = bytes.decode(node.text,'utf-8').split('\n')
+        for i in range(lines+2):
+            current_row = start_line + i
+            current_line_len = len(text_per_lines[i])
+
+            line_offset = current_row  - self.current_token.line
+            col_offset =  col
+            if not current_row > self.current_token.line:
+                col_offset -= self.current_token.offset
+
+            self.current_token = Token(current_row, col, "")
+            col = 0
+            self.token_list.extend(
+                [line_offset, col_offset,current_line_len ,6,0]
+            )
 
     def visit_variable_term(self, node: Node):
         may_be_variable: Variable | None = self.notes[node]
@@ -83,7 +107,6 @@ class HighlightVisitor(TreeVisitor):
         notes = self.notes[node]
         if notes is None:
             return
-        print(notes)
         text = bytes.decode(node.text,'utf-8')
         # TODO: This is not totally correct because it should not be highlighted as strings
         if len(text) > 1 and text[0] == text[-1] and text[0] == '\'':

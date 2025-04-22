@@ -14,7 +14,7 @@ from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight import HighlightVisitor, TokenTypes, TokenModifier
 from .markup import descriptions
 import sys
-from .my_logging import print,logging
+from .my_logging import print,logging,old_print
 
 PROLOG = Language(prolog())
 
@@ -247,24 +247,36 @@ def main():
 
 
 def debug():
-    s = open("./examples/go_to_definition.pl").read()
-    t: Tree = parser.parse(bytes(s, "utf-8"))
-    print(f"{t.root_node}")
-    server._parse(s)
-    for key, predicate in server.predicate_index.items():
+    class MyDoc:
+        def __init__(self,uri:str):
+            self.uri = uri
+            self.source = ""
+            self.version = 0
+            with open(self.uri) as f:
+                self.source = f.read()
+
+    uri = "./examples/highlight/comment.pl"
+    doc = MyDoc(uri)
+    server.parse(doc)
+    t = server.trees[uri]
+    print(t.root_node)
+    for key, predicate in server.tables[uri].predicate_index.items():
         print(key)
         print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
         print(f"Refs {len(predicate.references)}{predicate.references}")
         print("========")
 
     print(
-        f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13))}"
+        f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     )
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
+    print(server.semantic_tokens(t,uri))
+    
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "-d":
+        print = old_print
         debug()
     else:
         print = logging.debug
