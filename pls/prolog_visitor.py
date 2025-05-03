@@ -42,6 +42,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("source_file", self.start)
         self.add_visit("clause_term", self.visit_clause_term)
         self.add_visit("directive_term", self.visit_directive)
+        self.add_visit("directive_head", self.visit_directive)
         self.add_visit("atom", self.visit_atom)
         self.add_visit("functional_notation", self.visit_functional_notation)
         self.add_visit("operator_notation", self.visit_operator_notation)
@@ -50,6 +51,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("list_notation", self.visit_list_notation)
         self.add_visit("double_quoted_list_notation", self.text_visit)
         self.add_visit("|", self.visit_list_extend)
+        self.add_visit("curly_bracketed_notation",self.curly_braces_visit)
 
         self.add_visit("ERROR", self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
@@ -57,6 +59,12 @@ class PrologVisitor(TreeVisitor):
     def visit_list_extend(self, node: Node, _opts: Opts):
         # TODO
         return
+    def curly_braces_visit(self, node: Node, opts: Opts):
+        children = node.children
+        match children:
+            case [brace_left,body,brace_right] if brace_right.type == "open_curly" and brace_left.type == "open_curly":
+                self.visit(body,opts)
+
 
     def visit_atom(self, node: Node, _opts: Opts) -> str:
         assert node.type == "atom"
@@ -204,6 +212,7 @@ class PrologVisitor(TreeVisitor):
         self.set_current_scope(scope)
 
     def visit_directive(self, node: Node, opts: Opts):
+        print("Entering directive\n")
         self.new_scope(node)
         self.save_scope()
         return

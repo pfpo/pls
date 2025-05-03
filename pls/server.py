@@ -245,6 +245,11 @@ def main():
     )
     server.start_io()
 
+def rec_print(node:Node,tab=0):
+    log = lambda n : f"{bytes.decode(n.text,'utf-8')}"
+    print(f"{'  ' * tab}{node.type} - {log(node)}")
+    for child in node.children:
+        rec_print(child,tab+1)
 
 def debug():
     class MyDoc:
@@ -256,11 +261,14 @@ def debug():
                 self.source = f.read()
 
     uri = "./examples/highlight/comment.pl"
-    uri = "./test/prolog_cumulative.pl"
+    uri = "./test/t.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
+    for child in t.root_node.children:
+        rec_print(child,0)
     print(t.root_node)
+    
     for key, predicate in server.tables[uri].predicate_index.items():
         print(key)
         print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
@@ -282,3 +290,13 @@ if __name__ == "__main__":
     else:
         print = logging.debug
         main()
+
+
+#import tree_sitter_prolog as pl
+#import tree_sitter as ts
+#l = ts.Language(pl.prolog())
+#p = ts.Parser(l)
+#t = p.parse(bytes(open("test/custom_op.pl").read(),"utf-8"))
+#print(t.root_node)
+#t = p.parse(bytes(open("test/custom_op.pl").read(),"utf-8"))
+#print(t.root_node)

@@ -26,8 +26,15 @@
       }
     },
     "directive_head": {
-      "type": "STRING",
-      "value": ":-"
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 2,
+        "content": {
+          "type": "STRING",
+          "value": ":-"
+        }
+      }
     },
     "directive_term": {
       "type": "SEQ",
@@ -630,7 +637,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "open_ct"
+          "name": "open"
         },
         {
           "type": "SYMBOL",
@@ -696,6 +703,44 @@
       "type": "CHOICE",
       "members": [
         {
+          "type": "PREC",
+          "value": 2,
+          "content": {
+            "type": "SYMBOL",
+            "name": "_built_in_operator_notation"
+          }
+        },
+        {
+          "type": "PREC",
+          "value": 1,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_term"
+              },
+              {
+                "type": "FIELD",
+                "name": "operator",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "atom"
+                }
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_term"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_built_in_operator_notation": {
+      "type": "CHOICE",
+      "members": [
+        {
           "type": "SEQ",
           "members": [
             {
@@ -714,7 +759,7 @@
         },
         {
           "type": "PREC_LEFT",
-          "value": 1,
+          "value": 3,
           "content": {
             "type": "SEQ",
             "members": [
@@ -728,8 +773,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "PATTERN",
-                    "value": "(:\\-)|(\\-\\->)"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "(:\\-)|(\\-\\->)"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "binary_operator"
@@ -744,7 +796,7 @@
         },
         {
           "type": "PREC_LEFT",
-          "value": 1,
+          "value": 3,
           "content": {
             "type": "SEQ",
             "members": [
@@ -754,8 +806,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "PATTERN",
-                    "value": "(:\\-)|(\\?-)"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "(:\\-)|(\\?-)"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "prefix_operator"
@@ -784,8 +843,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "STRING",
-                    "value": ";"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "STRING",
+                        "value": ";"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "semicolon"
@@ -814,8 +880,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "STRING",
-                    "value": "->"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "STRING",
+                        "value": "->"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "binary_operator"
@@ -879,8 +952,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "STRING",
-                    "value": "\\+"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "STRING",
+                        "value": "\\+"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "prefix_operator"
@@ -909,8 +989,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "PATTERN",
-                    "value": "=|\\\\=|==|\\\\==|@<|@=<|@>|@>=|=\\.\\.|is|=:=|=\\\\=|<|=<|>|>="
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "=|\\\\=|==|\\\\==|@<|@=<|@>|@>=|=\\.\\.|is|=:=|=\\\\=|<|=<|>|>="
+                      }
+                    }
                   },
                   "named": true,
                   "value": "binary_operator"
@@ -939,8 +1026,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "PATTERN",
-                    "value": "\\+|\\-|\\/\\\\|\\\\\\/"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\+|\\-|\\/\\\\|\\\\\\/"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "binary_operator"
@@ -969,8 +1063,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "PATTERN",
-                    "value": "\\*|\\/|\\/\\/|rem|mod|<<|>>"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\*|\\/|\\/\\/|rem|mod|<<|>>"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "binary_operator"
@@ -999,8 +1100,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "STRING",
-                    "value": "**"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "STRING",
+                        "value": "**"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "binary_operator"
@@ -1029,8 +1137,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "STRING",
-                    "value": "^"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "STRING",
+                        "value": "^"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "binary_operator"
@@ -1055,8 +1170,15 @@
                 "content": {
                   "type": "ALIAS",
                   "content": {
-                    "type": "PATTERN",
-                    "value": "\\-\\\\"
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\-\\\\"
+                      }
+                    }
                   },
                   "named": true,
                   "value": "prexif_operator"
@@ -1442,13 +1564,6 @@
         "value": "("
       }
     },
-    "open_ct": {
-      "type": "TOKEN",
-      "content": {
-        "type": "STRING",
-        "value": "("
-      }
-    },
     "close": {
       "type": "TOKEN",
       "content": {
@@ -1790,7 +1905,11 @@
       "name": "comment"
     }
   ],
-  "conflicts": [],
+  "conflicts": [
+    [
+      "operator_notation"
+    ]
+  ],
   "precedences": [],
   "externals": [],
   "inline": [],
