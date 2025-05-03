@@ -117,7 +117,7 @@ class HighlightVisitor(TreeVisitor):
             
     def visit_functional_notation(self, node: Node):
 
-        children = [child for child in node.children if child.type != "comment"]
+        children = self.filter_children(node)
         match children:
             case [atom, _, arg_list, _]:
                 for child in node.children:
@@ -132,9 +132,12 @@ class HighlightVisitor(TreeVisitor):
 
         return
 
+    def filter_children(self,node:Node):
+        return [child for child in node.children if child.type not in ("comment","ERROR")]
+
     def visit_operator_notation(self, node: Node):
 
-        children = [child for child in node.children if child.type != "comment"]
+        children = self.filter_children(node)
         match children:
             case [open, operand, close] if (
                 open.type == "open" and close.type == "close"
@@ -154,8 +157,8 @@ class HighlightVisitor(TreeVisitor):
                         self.create_token(op, 4, 0)
                     self.visit(child)
                 return operand
-            case _:
-                raise TypeError(f"Unhandeled operator notation:"+node_and_parent_with_text(node))
+            case children:
+                raise TypeError(f"Unhandeled operator notation: \n{children}\n"+node_and_parent_with_text(node))
 
     def create_token(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line

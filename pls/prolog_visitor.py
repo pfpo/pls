@@ -75,7 +75,7 @@ class PrologVisitor(TreeVisitor):
         assert node.type == "arg_list"
         args = []
         for i in range(len(node.children)):
-            if node.children[i].type in ("comment", "arg_list_separator"):
+            if node.children[i].type in ("comment", "arg_list_separator") or node.is_error:
                 continue
             else:
                 args.append(node.children[i])
@@ -87,8 +87,8 @@ class PrologVisitor(TreeVisitor):
 
     def visit_functional_notation(self, node: Node, opts: Opts):
         assert node.type == "functional_notation"
-
-        match node.children:
+        children = self.filter_children(node)
+        match children:
             case [atom, _, arg_list, _]:
                 is_parameter_definition = self.functor_is_parameter_start_point(opts)
                 if is_parameter_definition:
@@ -124,9 +124,12 @@ class PrologVisitor(TreeVisitor):
         v.references.append(definition_range)
         return v
 
+    def filter_children(self,node:Node):
+        return [child for child in node.children if child.type not in ("comment","ERROR")]
+
     def visit_operator_notation(self, node: Node, opts: Opts):
         assert node.type == "operator_notation"
-        children = [child for child in node.children if child.type != "comment"]
+        children = self.filter_children(node)
         match children:
             case [open, operand, close] if (
                 open.type == "open" and close.type == "close"
@@ -147,7 +150,7 @@ class PrologVisitor(TreeVisitor):
                 return operand
             case _:
                 raise TypeError(
-                    f"Unhandeled operator notation: {node.children}"+ node_and_parent_with_text(node)
+                    f"Unhandeled operator notation:`{node.children}`\n"+ node_and_parent_with_text(node)
                 )
 
     def functor_is_parameter_start_point(self, opts: Opts):

@@ -256,6 +256,7 @@ def debug():
                 self.source = f.read()
 
     uri = "./examples/highlight/comment.pl"
+    uri = "./test/prolog_cumulative.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
@@ -266,9 +267,9 @@ def debug():
         print(f"Refs {len(predicate.references)}{predicate.references}")
         print("========")
 
-    print(
-        f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
-    )
+    #print(
+    #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
+    #)
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
     print(server.semantic_tokens(t,uri))
     
