@@ -292,11 +292,11 @@ if __name__ == "__main__":
         main()
 
 
-#import tree_sitter_prolog as pl
-#import tree_sitter as ts
-#l = ts.Language(pl.prolog())
-#p = ts.Parser(l)
-#t = p.parse(bytes(open("test/custom_op.pl").read(),"utf-8"))
-#print(t.root_node)
-#t = p.parse(bytes(open("test/custom_op.pl").read(),"utf-8"))
-#print(t.root_node)
+# import tree_sitter_prolog as pl
+# import tree_sitter as ts
+# l = ts.Language(pl.prolog())
+# p = ts.Parser(l)
+# t = p.parse(bytes(open("test/custom_op.pl").read(),"utf-8"))
+# print(t.root_node)
+# t = p.parse(bytes(open("test/custom_op.pl").read(),"utf-8"))
+# print(t.root_node)

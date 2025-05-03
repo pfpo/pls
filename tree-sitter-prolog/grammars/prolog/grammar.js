@@ -313,7 +313,6 @@ const fields = {
 module.exports = grammar({
   name: "prolog",
   conflicts: $ => [
-    [$.operator_notation]
   ],
   extras: $ => [
     layout_char,
@@ -419,8 +418,13 @@ module.exports = grammar({
     // 6.3.4.1 Operand
     // 6.3.4.2 Operators as functors
     operator_notation: $ => choice(
-      prec(2,$._built_in_operator_notation),
-      prec(1, seq($._term, field(fields.operator, $.atom), $._term)), // infix
+      prec(3,$._built_in_operator_notation),
+      //prec(2, seq($._term, field(fields.operator, $.atom), $._term)), // infix
+      // I don't know why but this fixes the issue where `a b c` is now parsed as `b(a,c)`  instead of `a(b(c))`
+      prec(2, seq(choice($._term,$.atom), field(fields.operator, $.atom), $._term)), // infix
+      prec(1, seq(field(fields.operator, $.atom), $._term)), // prefix
+      prec(1, seq($._term,field(fields.operator, $.atom))), // postfix
+      //prec(1, seq($._term,field(fields.operator, $.atom))), // postfix
     ),
     _built_in_operator_notation: $ =>
       choice(
@@ -438,7 +442,7 @@ module.exports = grammar({
         // Treesitter/Prolog ISO precedences are inverted.
         // Non-associative operators are set to left-associative
         prec.left(
-          3,
+          4,
           seq(
             $._term,
             field(fields.operator, alias(token(prec(1,/(:\-)|(\-\->)/)), $.binary_operator)),
@@ -446,7 +450,7 @@ module.exports = grammar({
           ),
         ),
         prec.left(
-          3,
+          4,
           seq(
             field(fields.operator, alias(token(prec(1,/(:\-)|(\?-)/)), $.prefix_operator)),
             $._term,
