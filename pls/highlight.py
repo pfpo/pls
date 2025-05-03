@@ -4,6 +4,7 @@ from .utils import node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
 from .model import Variable, SymbolTable,Predicate,Term
+from collections import defaultdict
 
 
 class TokenModifier(enum.IntFlag):
@@ -39,7 +40,7 @@ class HighlightVisitor(TreeVisitor):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
-        self.notes = symbol_table.notes
+        self.notes = symbol_table.notes if symbol_table is not None else defaultdict(lambda : None)
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)

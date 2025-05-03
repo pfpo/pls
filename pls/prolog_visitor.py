@@ -212,7 +212,6 @@ class PrologVisitor(TreeVisitor):
         self.set_current_scope(scope)
 
     def visit_directive(self, node: Node, opts: Opts):
-        print("Entering directive\n")
         self.new_scope(node)
         self.save_scope()
         return

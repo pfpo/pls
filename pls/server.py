@@ -1,6 +1,7 @@
 from pygls.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
+import traceback
 # from pygls.cli import start_server
 
 from tree_sitter import Language, Parser, Tree, Node
@@ -35,7 +36,8 @@ class PLS(LanguageServer):
         return syntax_error_visitor.visit(tree.root_node)
 
     def semantic_tokens(self, tree: Tree, uri: str):
-        tokens_visitor = HighlightVisitor(self.tables[uri])
+        tokens_visitor = HighlightVisitor(self.tables.get(uri))
+
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -44,7 +46,8 @@ class PLS(LanguageServer):
         self.current_uri = document.uri
         tree, symbol_table = self._parse(document.source)
 
-        self.tables[document.uri] = symbol_table
+        if symbol_table:
+            self.tables[document.uri] = symbol_table
         self.diagnostics[document.uri] = (document.version, self.tree_diagnostics(tree))
         self.tokens[document.uri] = (
             document.version,
@@ -56,16 +59,20 @@ class PLS(LanguageServer):
 
     def _parse(self, doc: str):
         tree = parser.parse(bytes(doc, "utf-8"))
+        
+        try:
+            prolog_visitor = PrologVisitor(self.current_uri)
+            prolog_visitor.visit(tree.root_node, Opts())
+            symbol_table = SymbolTable(
+                scopes=prolog_visitor.scopes,
+                notes=prolog_visitor.notes,
+                predicate_index=prolog_visitor.predicate_index,
+            )
 
-        prolog_visitor = PrologVisitor(self.current_uri)
-        prolog_visitor.visit(tree.root_node, Opts())
-        symbol_table = SymbolTable(
-            scopes=prolog_visitor.scopes,
-            notes=prolog_visitor.notes,
-            predicate_index=prolog_visitor.predicate_index,
-        )
-
-        return tree, symbol_table
+            return tree, symbol_table
+        except TypeError as e:
+            logging.log(logging.DEBUG,f"{traceback.format_exc()}")
+            return tree,None
 
     def transform_in_variable_or_predicate(
         self, node: Node, position: types.Position, uri: str
@@ -269,11 +276,12 @@ def debug():
         rec_print(child,0)
     print(t.root_node)
     
-    for key, predicate in server.tables[uri].predicate_index.items():
-        print(key)
-        print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
-        print(f"Refs {len(predicate.references)}{predicate.references}")
-        print("========")
+    if uri in server.tables:
+        for key, predicate in server.tables[uri].predicate_index.items():
+            print(key)
+            print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
+            print(f"Refs {len(predicate.references)}{predicate.references}")
+            print("========")
 
     #print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
