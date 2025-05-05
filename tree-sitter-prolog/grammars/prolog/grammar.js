@@ -312,6 +312,8 @@ const fields = {
 
 module.exports = grammar({
   name: "prolog",
+  conflicts: $ => [
+  ],
   extras: $ => [
     layout_char,
     $.comment,
@@ -331,7 +333,7 @@ module.exports = grammar({
       ),
     end: _ => token(end_token),
     // 6.2.1.1 Directives
-    directive_head: _ => ":-",
+    directive_head: _ => token(prec(2,":-")),
     directive_term: $ =>
       seq(
         $.directive_head,
@@ -390,7 +392,7 @@ module.exports = grammar({
     functional_notation: $ =>
       seq(
         field(fields.function, $.atom),
-        $.open_ct,
+        $.open,
         $.arg_list,
         $.close,
       ),
@@ -415,7 +417,16 @@ module.exports = grammar({
     // 6.3.4 Compound terms - operator notation
     // 6.3.4.1 Operand
     // 6.3.4.2 Operators as functors
-    operator_notation: $ =>
+    operator_notation: $ => choice(
+      prec(3,$._built_in_operator_notation),
+      //prec(2, seq($._term, field(fields.operator, $.atom), $._term)), // infix
+      // I don't know why but this fixes the issue where `a b c` is now parsed as `b(a,c)`  instead of `a(b(c))`
+      prec(2, seq(choice($._term,$.atom), field(fields.operator, $.atom), $._term)), // infix
+      prec(1, seq(field(fields.operator, $.atom), $._term)), // prefix
+      prec(1, seq($._term,field(fields.operator, $.atom))), // postfix
+      //prec(1, seq($._term,field(fields.operator, $.atom))), // postfix
+    ),
+    _built_in_operator_notation: $ =>
       choice(
         seq(
           $.open,
@@ -431,17 +442,17 @@ module.exports = grammar({
         // Treesitter/Prolog ISO precedences are inverted.
         // Non-associative operators are set to left-associative
         prec.left(
-          1,
+          4,
           seq(
             $._term,
-            field(fields.operator, alias(/(:\-)|(\-\->)/, $.binary_operator)),
+            field(fields.operator, alias(token(prec(1,/(:\-)|(\-\->)/)), $.binary_operator)),
             $._term,
           ),
         ),
         prec.left(
-          1,
+          4,
           seq(
-            field(fields.operator, alias(/(:\-)|(\?-)/, $.prefix_operator)),
+            field(fields.operator, alias(token(prec(1,/(:\-)|(\?-)/)), $.prefix_operator)),
             $._term,
           ),
         ),
@@ -449,7 +460,7 @@ module.exports = grammar({
           101,
           seq(
             $._term,
-            field(fields.operator, alias(";", $.semicolon)),
+            field(fields.operator, alias(token(prec(1,";")), $.semicolon)),
             $._term,
           ),
         ),
@@ -457,7 +468,7 @@ module.exports = grammar({
           151,
           seq(
             $._term,
-            field(fields.operator, alias("->", $.binary_operator)),
+            field(fields.operator, alias(token(prec(1,"->")), $.binary_operator)),
             $._term,
           ),
         ),
@@ -472,7 +483,7 @@ module.exports = grammar({
         prec.right(
           301,
           seq(
-            field(fields.operator, alias("\\+", $.prefix_operator)),
+            field(fields.operator, alias(token(prec(1,"\\+")), $.prefix_operator)),
             $._term,
           ),
         ),
@@ -480,7 +491,7 @@ module.exports = grammar({
           501,
           seq(
             $._term,
-            field(fields.operator, alias(/=|\\=|==|\\==|@<|@=<|@>|@>=|=\.\.|is|=:=|=\\=|<|=<|>|>=/, $.binary_operator)),
+            field(fields.operator, alias(token(prec(1,/=|\\=|==|\\==|@<|@=<|@>|@>=|=\.\.|is|=:=|=\\=|<|=<|>|>=/)), $.binary_operator)),
             $._term,
           ),
         ),
@@ -488,7 +499,7 @@ module.exports = grammar({
           701,
           seq(
             $._term,
-            field(fields.operator, alias(/\+|\-|\/\\|\\\//, $.binary_operator)),
+            field(fields.operator, alias(token(prec(1,/\+|\-|\/\\|\\\//)), $.binary_operator)),
             $._term,
           ),
         ),
@@ -496,15 +507,16 @@ module.exports = grammar({
           801,
           seq(
             $._term,
-            field(fields.operator, alias(/\*|\/|\/\/|rem|mod|<<|>>/, $.binary_operator)),
+            field(fields.operator, alias(token(prec(1,/\*|\/|\/\/|rem|mod|<<|>>/)), $.binary_operator)),
             $._term,
           ),
         ),
+        
         prec.left(
           1001,
           seq(
             $._term,
-            field(fields.operator, alias("**", $.binary_operator)),
+            field(fields.operator, alias(token(prec(1,"**")), $.binary_operator)),
             $._term,
           ),
         ),
@@ -512,14 +524,14 @@ module.exports = grammar({
           1001,
           seq(
             $._term,
-            field(fields.operator, alias("^", $.binary_operator)),
+            field(fields.operator, alias(token(prec(1,"^")), $.binary_operator)),
             $._term,
           ),
         ),
         prec.right(
           1001,
           seq(
-            field(fields.operator, alias(/\-\\/, $.prexif_operator)),
+            field(fields.operator, alias(token(prec(1,/\-\\/)), $.prexif_operator)),
             $._term,
           ),
         ),
@@ -554,7 +566,6 @@ module.exports = grammar({
     double_quoted_list_notation: _ => double_quoted_list,
     // 6.4 Tokens
     open: _ => token(open_token),
-    open_ct: _ => token(open_token),
     close: _ => token(close_token),
     open_list: _ => token(open_list_token),
     close_list: _ => token(close_list_token),

@@ -71,7 +71,7 @@ test(a, "a-b && c").
   (clause_term
     (functional_notation
       (atom)
-      (open_ct)
+      (open)
       (arg_list
         (atom)
         (arg_list_separator

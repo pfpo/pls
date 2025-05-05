@@ -22,7 +22,6 @@
 
 [
  (open)
- (open_ct)
  (close)
  (open_list)
  "|"

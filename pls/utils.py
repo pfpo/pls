@@ -52,7 +52,8 @@ def node_at_position(node: Node, p: types.Position):
 
 def node_and_parent_with_text(node:Node):
     log = lambda n : f"{n}\n{bytes.decode(n.text,'utf-8')}"
-    s = f"Node:{log(node)}"
+    s = f"Node:{log(node)}\n{node.start_point}\n"
+
     if node.parent:
         s+=f"\nParent:{log(node.parent)}"
     return s

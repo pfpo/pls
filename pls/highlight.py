@@ -4,6 +4,7 @@ from .utils import node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
 from .model import Variable, SymbolTable,Predicate,Term
+from collections import defaultdict
 
 
 class TokenModifier(enum.IntFlag):
@@ -39,7 +40,7 @@ class HighlightVisitor(TreeVisitor):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
-        self.notes = symbol_table.notes
+        self.notes = symbol_table.notes if symbol_table is not None else defaultdict(lambda : None)
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
@@ -117,7 +118,7 @@ class HighlightVisitor(TreeVisitor):
             
     def visit_functional_notation(self, node: Node):
 
-        children = [child for child in node.children if child.type != "comment"]
+        children = self.filter_children(node)
         match children:
             case [atom, _, arg_list, _]:
                 for child in node.children:
@@ -132,9 +133,12 @@ class HighlightVisitor(TreeVisitor):
 
         return
 
+    def filter_children(self,node:Node):
+        return [child for child in node.children if child.type not in ("comment","ERROR")]
+
     def visit_operator_notation(self, node: Node):
 
-        children = [child for child in node.children if child.type != "comment"]
+        children = self.filter_children(node)
         match children:
             case [open, operand, close] if (
                 open.type == "open" and close.type == "close"
@@ -154,8 +158,8 @@ class HighlightVisitor(TreeVisitor):
                         self.create_token(op, 4, 0)
                     self.visit(child)
                 return operand
-            case _:
-                raise TypeError(f"Unhandeled operator notation:"+node_and_parent_with_text(node))
+            case children:
+                raise TypeError(f"Unhandeled operator notation: \n{children}\n"+node_and_parent_with_text(node))
 
     def create_token(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line
