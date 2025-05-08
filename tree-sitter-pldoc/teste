@@ -1,0 +1,7 @@
+%!  templatetopattern(+Template, -Pattern, -Post, -Vars, -Aggregate)
+%
+%   Determine which parts of the goal we must remember in the  findall/3 pattern.
+%
+%   @param mano mano
+%   @param mano mano
+%   @param mano mano
