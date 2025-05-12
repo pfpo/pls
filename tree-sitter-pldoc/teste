@@ -1,4 +1,5 @@
-%!  templatetopattern(+Template, -Pattern, -Post, -Vars, -Aggregate)
+%!  templa_tetopattern(+Template, -Pattern, -Post, -Vars, -Aggregate)
+%!  templatetopattern(+Template, -Pattern, -Post, -Vars, -Aggregate) is nondet
 %
 %   Determine which parts of the goal we must remember in the  findall/3 pattern.
 %
