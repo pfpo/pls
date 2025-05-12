@@ -1,0 +1,39 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "pldoc",
+      "camelcase": "PlDoc",
+      "title": "pldoc",
+      "scope": "source.pldoc",
+      "file-types": [
+        "pl"
+      ],
+      "injection-regex": "^pldoc$",
+      "class-name": "TreeSitterPldoc"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Structured Comments of Prolog",
+    "authors": [
+      {
+        "name": "Martim Videira",
+        "email": "mitram790@gmail.com"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/tree-sitter/tree-sitter-pldoc"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}

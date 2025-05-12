@@ -1,0 +1,65 @@
+<table class="latex frame-hsides center">
+    <tbody>
+        <tr>
+            <td>++</td>
+            <td>Argument is ground at call-time, i.e., the argument
+                does not contain a variable anywhere. </td>
+        </tr>
+        <tr>
+            <td>+</td>
+            <td>Argument is fully instantiated at call-time, to a term
+                that satisfies the type. This is not necessarily <em>ground</em>, e.g.,
+                the term
+                <code>[_]</code> is a <em>list</em>, although its only member is
+                unbound.
+            </td>
+        </tr>
+        <tr>
+            <td>-</td>
+            <td>Argument is an <em>output</em> argument. It may be
+                unbound at call-time, or it may be bound to a term. In the latter case,
+                the predicate behaves as if the argument was unbound, and then unified
+                with that term after the goal succeeds. For example, the goal <code>findall(X, 
+    Goal, [T])</code> is good style and equivalent to <code>findall(X, Goal, 
+    Xs), Xs = [T]</code><sup class="fn">3<span class="fn-text">The ISO
+                        standard dictates that <code>findall(X, Goal, 1)</code> raises a <code>type_error</code>
+                        exception, breaking this semantic relation. SWI-Prolog does not follow
+                        the standard here.</span></sup> Determinism declarations assume that the
+                argument is a free variable at call-time. For the case where the
+                argument is bound or involved in constraints,
+                <code>det</code> effectively becomes <code>semidet</code>, and <code>multi</code>
+                effectively becomes <code>nondet</code>.
+            </td>
+        </tr>
+        <tr>
+            <td>--</td>
+            <td>Argument is unbound at call-time. Typically used by
+                predicates that create‘something’and return a handle to the
+                created object, such as <a href="/pldoc/man?predicate=open/3">open/3</a>
+                which creates a <em>stream</em>. </td>
+        </tr>
+        <tr>
+            <td>?</td>
+            <td>Argument is bound to a <em>partial term</em> of the
+                indicated type at call-time. Note that a variable is a partial term for
+                any type. </td>
+        </tr>
+        <tr>
+            <td>:</td>
+            <td>Argument is a meta-argument. Implies <code><code>+</code></code>. </td>
+        </tr>
+        <tr>
+            <td>@</td>
+            <td>Argument will not be further instantiated than it is
+                at call-time. Typically used for type tests. </td>
+        </tr>
+        <tr>
+            <td>!</td>
+            <td>Argument contains a mutable structure that may be
+                modified using
+                <a href="/pldoc/man?predicate=setarg/3">setarg/3</a> or <a
+                    href="/pldoc/man?predicate=nb_setarg/3">nb_setarg/3</a>.
+            </td>
+        </tr>
+    </tbody>
+</table>
