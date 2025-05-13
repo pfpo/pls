@@ -42,7 +42,7 @@
 %     representing an extension (e.g. `'.pl'`) that should be tried
 %     when constructing the absolute file name. The extensions are tried in
 %     the order they appear in the list. Default value is Ext \=
-%     \[”], i.e. only the given FileSpec is tried, no extension is
+%     \["], i.e. only the given FileSpec is tried, no extension is
 %     added. To specify `extensions('')` or `extensions([])` is
 %     equal to not giving any extensions option at all.
 %     When case\-normalization is applied to the FileSpec, e.g. on Windows, each atom in Ext will also be case\-normalized before use.
@@ -60,17 +60,17 @@
 %     FileSpec is a file without any extension. (Default)
 %     `source`
 %     implies `extensions(['.pro','.pl',''])`.
-%     FileSpec is a Prolog source file, maybe with a ‘`.pro`’ or ‘`.pl`’ extension.
+%     FileSpec is a Prolog source file, maybe with a '`.pro`' or '`.pl`' extension.
 %     `object`
 %     implies `extensions(['.po'])`.
 %     FileSpec is a Prolog object file.
 %     `saved_state`
 %     implies `extensions(['.sav',''])`. FileSpec is a
-%     saved state, maybe with a ‘`.sav`’ extension.
+%     saved state, maybe with a '`.sav`' extension.
 %     `foreign_resource`
 %     FileSpec is a foreign language shared object file,
 %     maybe with a system dependent extension.
-%     `executable   since release 4.0.2`
+%     `executable   since release 4.0.2`
 %     FileSpec is an executable file,
 %     maybe with a system dependent extension.
 %     `directory`
@@ -86,13 +86,13 @@
 %     to a directory and AbsFileName will be the absolute path to each
 %     child that matches both the Glob pattern and any other filtering
 %     option, like `access/1`, `extensions/1`, `file_type/1`,
-%     …. The special children `.` and `..` will never be
+%     .... The special children `.` and `..` will never be
 %     returned.
 %     The Glob should be an atom specifying a *glob pattern*
 %     consisting of characters interpreted as follows:
-%     * A ‘`*`’ matches any sequence of zero or more characters.
-%     * A ‘`?`’ matches exactly one character.
-%     * A ‘`{`’, ‘`}`’, ‘`[`’, ‘`]`’ currently matches
+%     * A '`*`' matches any sequence of zero or more characters.
+%     * A '`?`' matches exactly one character.
+%     * A '`{`', '`}`', '`[`', '`]`' currently matches
 %     themselves but are reserved for future expansion of the allowable
 %     patterns.
 %     * Any other character matches itself.
@@ -111,7 +111,7 @@
 %     AbsFileName must be readable and exist.
 %     `write`
 %     `append`
-%     If AbsFileName exists, then it must be writable. If it doesn’t exist, then
+%     If AbsFileName exists, then it must be writable. If it doesn't exist, then
 %     it must be possible to create.
 %     `exist`
 %     The file represented by AbsFileName must exist.
@@ -136,9 +136,9 @@
 %     determine the effective access rights.
 %     Therefore, a simplified access control model is used by
 %     `absolute_file_name/3` and elsewhere in SICStus.
-%     On UNIX systems only the “classical” access control information is
-%     used, i.e. the read/write/execute “bits” for owner/group/other.
-%     Under Windows only the “FAT” access control information is used, i.e.
+%     On UNIX systems only the "classical" access control information is
+%     used, i.e. the read/write/execute "bits" for owner/group/other.
+%     Under Windows only the "FAT" access control information is used, i.e.
 %     a file may be marked as read\-only.
 %     A file is deemed executable if its extension is one of `.cmd`,
 %     `.bat` or if it is classified as an executable by the Win32 API
@@ -151,7 +151,7 @@
 %     current value of the `fileerrors` Prolog flag:
 %     `error`
 %     Raise an exception if a file derived from FileSpec
-%     has the wrong permissions, that is, can’t be accessed at all, or doesn’t
+%     has the wrong permissions, that is, can't be accessed at all, or doesn't
 %     satisfy the access modes specified with the `access` option.
 %     This is the default if the Prolog flag `fileerrors` is set to its default value, `on`.
 %     `fail`
@@ -184,7 +184,7 @@
 %     Otherwise, the default is the current working directory.
 %     You can use `file_systems:current_directory/1` to obtain the
 %     current working directory from a goal in a file being loaded.
-%     `if_user(Val)   since release 4.3`
+%     `if_user(Val)   since release 4.3`
 %     controls how to resolve the special file name `user`.
 %     Val is one of the following:
 %     `file`
@@ -417,11 +417,11 @@ reference inRef:
 %
 %     @:BlockSpec   *callable*, must be ground
 %     Goal template or list of goal templates, of the form
-%     `f(Arg1, Arg2,…)`.
+%     `f(Arg1, Arg2,...)`.
 %     Each Argn is one of:
-%     ‘`-`’
+%     '`-`'
 %     part of a block condition
-%     ‘`?`’
+%     '`?`'
 %     otherwise
 
 %!    break
@@ -683,7 +683,7 @@ and all mutables by brand new mutables.
 %     The most general form of the key for a currently recorded term.
 
 %!    current_module(?ModuleName)
-%!    Queries whether a module is “current” or backtracks through all
+%!    Queries whether a module is "current" or backtracks through all
 of the current modules.
 %
 %     `current_module(?ModuleName, ?AbsFile)`
@@ -868,8 +868,8 @@ a predicate specifications of the formName/Arity.
 
 %!    +X^+P
 %
-%     Equivalent to “there exists an X such that P is
-%     true”, thus X is normally an unbound variable. The use of the
+%     Equivalent to "there exists an X such that P is
+%     true", thus X is normally an unbound variable. The use of the
 %     explicit existential quantifier outside `setof/3` and `bagof/3`
 %     is superfluous.
 %
@@ -887,7 +887,7 @@ a predicate specifications of the formName/Arity.
 %     Prolog clauses, to give `user:term_expansion/6` an opportunity to
 %     perform some action at the beginning and end of a source
 %     file. **Please note**: the virtual clause
-%     `beginning_of_file` is “seen” *before* any module
+%     `beginning_of_file` is "seen" *before* any module
 %     declaration, i.e. before the source module has been updated.
 %
 %     @Term1   *term*
@@ -955,7 +955,7 @@ a predicate specifications of the formName/Arity.
 %     An atom that names the Language
 %     in which Routine is written. Can only be `c`.
 %     @ForeignSpec   *foreign\_spec*, must be ground
-%     A ground term of the form PredName(Argspec, …,
+%     A ground term of the form PredName(Argspec, ...,
 %     Argspec) as described in [Conversions between Prolog Arguments and C Types](Conversions-between-Prolog-Arguments-and-C-Types.html). Each Argspec should be a *foreign\_arg*.
 
 %!    :- discontiguous foreign_resource/2.
@@ -978,11 +978,11 @@ a predicate specifications of the formName/Arity.
 %     Defaults to the current output stream.
 %     @Control      *chars* or *codes* or *atom*, must be ground
 %     A string, which can contain control sequences of the form
-%     ‘`~N<c>`’:
+%     '`~N<c>`':
 %     \<c\>
 %     a format control option
 %     N
-%     optional; if given, must be ‘`*`’ or an integer.
+%     optional; if given, must be '`*`' or an integer.
 %     Any characters that are not part of a control sequence are written
 %     to the specified output stream.
 %     @:Arguments   *list of term*, must be proper list
@@ -1370,9 +1370,9 @@ a predicate specifications of the formName/Arity.
 %     @Severity      *one of `[informational,warning,error,help,silent]`*
 %     @MessageTerm   *term*
 %     @Lines         *list of list of pair*
-%     Is of the form `[Line1, Line2, …]`, where each
+%     Is of the form `[Line1, Line2, ...]`, where each
 %     Linei is of the form
-%     `[Control_1-Args_1,Control_2-Args_2, …]`.
+%     `[Control_1-Args_1,Control_2-Args_2, ...]`.
 
 %!    :- meta_predicate+MetaSpec
 %
@@ -1382,15 +1382,15 @@ a predicate specifications of the formName/Arity.
 %
 %     @:MetaSpec   *callable*, must be ground
 %     Goal template or list of goal templates, of the form
-%     `functor(Arg1, Arg2,…)`.
+%     `functor(Arg1, Arg2,...)`.
 %     Each Argn is one of:
-%     ‘`:`’
+%     '`:`'
 %     requires module name expansion
 %     If the argument will be treated as a goal, then it is better to
 %     explicitly indicate this using an integer, see the next item.
 %     nsuppressed
 %     a non\-negative integer.
-%     This is a special case of ‘`:`’ that means that the argument can be
+%     This is a special case of '`:`' that means that the argument can be
 %     made into a goal by adding nsuppressed additional
 %     arguments. E.g., if the argument will be passed to `call/1`, then
 %     `0` (zero) should be used.
@@ -1398,14 +1398,14 @@ a predicate specifications of the formName/Arity.
 %     `call/3` would be `:- meta_predicate call(2,?,?)`, since
 %     `call/3` will add two arguments to its first argument in order to
 %     to construct the goal to invoke.
-%     An integer is treated the same as ‘`:`’ above by the SICStus
+%     An integer is treated the same as '`:`' above by the SICStus
 %     runtime. Other tools, such as the cross referencer (see [The Cross\-Referencer](The-Cross_002dReferencer.html)) and the SICStus Prolog IDE (see [SICStus
 %     Prolog IDE](SPIDER.html)), will use this information to better follow predicate
 %     references in analyzed source code.
-%     ‘`*`’
-%     ‘`+`’
-%     ‘`-`’
-%     ‘`?`’
+%     '`*`'
+%     '`+`'
+%     '`-`'
+%     '`?`'
 %     ignored
 
 %!    :- mode+Mode
@@ -1661,17 +1661,17 @@ a predicate specifications of the formName/Arity.
 %     `encoding(Encoding)`
 %     Specifies the encoding to use if the stream is opened in text mode, as
 %     an atom. The default is `'ISO-8859-1'`, the 8 bit subset of
-%     Unicode, i.e. “ISO\-8859\-1” (Latin 1) (see [ref\-iou\-sfh\-enc](ref_002diou_002dsfh_002denc.html)).
+%     Unicode, i.e. "ISO\-8859\-1" (Latin 1) (see [ref\-iou\-sfh\-enc](ref_002diou_002dsfh_002denc.html)).
 %     Overridden by the `encoding_signature/1` option, see below.
 %     `encoding_signature(+Boolean)`
 %     Specifies whether an encoding signature should be used (`true`),
 %     or not (`false`). An encoding signature is a special byte
 %     sequence that identifies the encoding used in the file. The most
-%     common case is one of the Unicode signatures, often called “byte
-%     order mark” (BOM).
+%     common case is one of the Unicode signatures, often called "byte
+%     order mark" (BOM).
 %     A Unicode signature is a special byte sequence that can be used to
-%     distinguish between several UTF encoding variants, such as “UTF\-8”,
-%     “UTF\-16\-BE” and “UTF\-16\-LE”.
+%     distinguish between several UTF encoding variants, such as "UTF\-8",
+%     "UTF\-16\-BE" and "UTF\-16\-LE".
 %     If `reposition(true)` is specified, then
 %     `encoding_signature/1` defaults to `false` for both streams
 %     opened in write mode and streams opened in read mode.
@@ -1688,13 +1688,13 @@ a predicate specifications of the formName/Arity.
 %     following list:
 %     1. If the `encoding_signature/1` option is `true`:
 %     If a byte order mark is detected, then it will be used to select
-%     between the encodings “UTF\-8”, “UTF\-16” or “UTF\-32” with
+%     between the encodings "UTF\-8", "UTF\-16" or "UTF\-32" with
 %     suitable endianness.
 %     2. If the `encoding_signature/1` option is `true`:
-%     If an Emacs style ‘`-*- coding: coding-system-*-`’ is present on the first non\-empty line of the
+%     If an Emacs style '`-*- coding: coding-system-*-`' is present on the first non\-empty line of the
 %     file, then it will be used.
 %     3. If an option `encoding(ENCODING)` Is supplied, then the specified encoding will be used.
-%     4. As a final fallback, “ISO\-8859\-1” (Latin 1) will be used.
+%     4. As a final fallback, "ISO\-8859\-1" (Latin 1) will be used.
 %     the character encoding selected in this way will be used if it is
 %     recognized, otherwise an error exception is raised.
 %     If `reposition(true)` is not specified, and
@@ -1703,9 +1703,9 @@ a predicate specifications of the formName/Arity.
 %     to force an encoding signature to be output for those encodings that supports it, then you
 %     can specify `encoding_signature(true)`. Conversely, if you want to prevent an
 %     encoding signature from being output, then you can explicitly specify `encoding_signature(false)`.
-%     All UTF encodings supports an encoding signature in the form of a BOM. “UTF\-8” does not write a BOM unless
+%     All UTF encodings supports an encoding signature in the form of a BOM. "UTF\-8" does not write a BOM unless
 %     you explicitly specify `encoding_signature(true)`, the 16 and 32 bit UTF
-%     encodings, e.g. “UTF\-16 BE”, “UTF\-32 LE” writes a BOM unless
+%     encodings, e.g. "UTF\-16 BE", "UTF\-32 LE" writes a BOM unless
 %     explicitly requested not to with `encoding_signature(false)`.
 %     If the file is opened in mode append, then `encoding_signature/1` defaults to
 %     `false`.
@@ -1821,7 +1821,7 @@ a predicate specifications of the formName/Arity.
 %     @:PhraseType   *callable*, must be nonvar
 %     Name of a phrase type.
 %     @List          *list of term*
-%     A list of symbols — tokens or *codes*.
+%     A list of symbols -- tokens or *codes*.
 %     @Rest          *list of term*
 %     A suffix of List; what remains of
 %     List after PhraseType has been found.
@@ -1900,7 +1900,7 @@ a predicate specifications of the formName/Arity.
 %!    Prints the coverage data accumulated so far, to the current output
 stream, in a hierarchical format.
 %
-%     `print_coverage(+Data)`   *since release 4\.2*
+%     `print_coverage(+Data)`   *since release 4\.2*
 %     Prints the coverage data Data, to the current output stream, in
 %     a hierarchical format. Data should be of type *list of
 %     coverage\_pair*; see `coverage_data/1`.
@@ -1919,11 +1919,11 @@ stream, in a hierarchical format.
 %     **Value**
 %     **Prefix**
 %     `informational`
-%     ‘`%` ’
+%     '`%` '
 %     `warning`
-%     ‘`*` ’
+%     '`*` '
 %     `error`
-%     ‘`!` ’
+%     '`!` '
 %     `help`
 %     `query`
 %     `silent`
@@ -1939,15 +1939,15 @@ stream, in a hierarchical format.
 %     Any valid output stream.
 %     @Severity   *one of `[query,help,informational,warning,error,silent,term]`*
 %     @Lines      *list of list of pair*
-%     Must be of the form `[Line1, Line2, …]`, where each
+%     Must be of the form `[Line1, Line2, ...]`, where each
 %     Linei must be of the form
-%     `[Control_1-Args_1,Control_2-Args_2, …]`.
+%     `[Control_1-Args_1,Control_2-Args_2, ...]`.
 
 %!    print_profilesince release 4.2
 %!    Prints the profiling data accumulated so far, to the current output
 stream, in a format similar togprof(1).
 %
-%     `print_profile(+Data)`   *since release 4\.2*
+%     `print_profile(+Data)`   *since release 4\.2*
 %     Prints the profiling data Data, to the current output stream, in
 %     a format similar to `gprof(1)`. Data should be of type
 %     *list of profile\_pair*; see `profile_data/1`.
@@ -2100,7 +2100,7 @@ stream, in a format similar togprof(1).
 %!    :- multifile 'SU_messages':query_hook/6.
 %
 %     `'SU_messages':query_hook(+QueryClass, +Prompt, +PromptLines, +Help, +HelpLines, -Answer)`
-%     Provides a method of overriding Prolog’s default keyboard based
+%     Provides a method of overriding Prolog's default keyboard based
 %     input requests.
 %
 %     @QueryClass    *term*
@@ -2256,9 +2256,9 @@ stream, in a format similar togprof(1).
 %     `consume_layout(Boolean)`
 %     Boolean must be `true` or `false`. If this option is
 %     `true`, then `read_term/[2,3]` will consume the
-%     layout\-text\-item that follows the terminating ‘`.`’ (this
+%     layout\-text\-item that follows the terminating '`.`' (this
 %     layout\-text\-item can either be a layout\-char or a
-%     comment starting with a ‘`%`’). If the option is `false`, then the
+%     comment starting with a '`%`'). If the option is `false`, then the
 %     layout\-text\-item will remain in the input stream, so that
 %     subsequent character input predicates will see it. The default of
 %     the `consume_layout` option is `false`.
@@ -2320,7 +2320,7 @@ stream, in a format similar togprof(1).
 %     Restores a saved state.
 %
 %     @FileSpec   *file\_spec*, must be ground
-%     The name of a saved state, ‘`.sav`’ extension optional.
+%     The name of a saved state, '`.sav`' extension optional.
 
 %!    retract(+Clause)
 %
@@ -2371,7 +2371,7 @@ stream, in a format similar togprof(1).
 %     A file specification or a list of file specifications;
 %     extensions optional.
 %     @File          *file\_spec*, must be ground
-%     A file specification, ‘`.po`’ extension optional.
+%     A file specification, '`.po`' extension optional.
 
 %!    save_modules(+Modules,+File)
 %
@@ -2381,7 +2381,7 @@ stream, in a format similar togprof(1).
 %     An atom representing a current module, or a list of such atoms
 %     representing a list of modules.
 %     @File      *file\_spec*, must be ground
-%     A file specification, ‘`.po`’ extension optional.
+%     A file specification, '`.po`' extension optional.
 
 %!    save_predicates(+PredSpecs,+File)
 %
@@ -2390,7 +2390,7 @@ stream, in a format similar togprof(1).
 %     @:PredSpecs   *pred\_spec\_tree*
 %     A predicate specification, or a list of such.
 %     @File         *file\_spec*, must be ground
-%     A file specification, ‘`.po`’ extension optional.
+%     A file specification, '`.po`' extension optional.
 
 %!    save_program(+File)
 %!    save_program(+File,+Goal)
@@ -2400,7 +2400,7 @@ stream, in a format similar togprof(1).
 %     execution/restoring of the saved state, may be specified.
 %
 %     @File    *file\_spec*, must be ground
-%     A file specification, ‘`.sav`’ extension optional.
+%     A file specification, '`.sav`' extension optional.
 %     @:Goal   *callable*, must be nonvar
 %     A goal, defaults to `true`.
 
@@ -2624,7 +2624,7 @@ execution time.
 %     F is the file name associated with the Stream.
 %     `mode(M)`
 %     Stream has been opened in mode M.
-%     `id(ID)   since release 4.2`
+%     `id(ID)   since release 4.2`
 %     Stream has the unique identity ID. The identity of a
 %     stream is a positive integer that is never re\-used during the
 %     life\-time of the SICStus process. This is unlike the compound term
@@ -2660,8 +2660,8 @@ execution time.
 %     `type(T)`
 %     Stream is of type T, one of `text`, `binary`, cf. the
 %     `type` option of `open/4`.
-%     `input_encoding(CS)   since release 4.3`
-%     `output_encoding(CS)   since release 4.3`
+%     `input_encoding(CS)   since release 4.3`
+%     `output_encoding(CS)   since release 4.3`
 %     Stream is a text stream with encoding CS in the input direction, cf. the
 %     `encoding` option of `open/4`. Note that the encoding used
 %     may be different from the `encoding` option passed to
@@ -2689,7 +2689,7 @@ execution time.
 %     REPOSITION is true if it is possible to set the position of the
 %     stream with `set_stream_position/2`, cf. the `reposition`
 %     option of `open/4`.
-%     `interactive   since release 4.1`
+%     `interactive   since release 4.1`
 %     Stream is an interactive stream.
 %     Most streams have only a subset of these properties set.
 %     More properties may be added in the future.
@@ -2822,7 +2822,7 @@ without duplicates, in first occurrence order.
 
 %!    trimcore
 %
-%     Force reclamation of memory in all of Prolog’s data areas.
+%     Force reclamation of memory in all of Prolog's data areas.
 
 %!    true
 %
@@ -2930,7 +2930,7 @@ loaded and up-to-date. Imports all exported predicates.
 %!    :- volatile+PredSpecs
 %
 %     Declares PredSpecs to be volatile. Clauses of volatile predicates are not
-%     saved by the ‘`save_*`’ predicates.
+%     saved by the '`save_*`' predicates.
 %
 %     @:PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
@@ -2998,7 +2998,7 @@ loaded and up-to-date. Imports all exported predicates.
 %     `portrayed(Boolean)`
 %     If selected, then `user:portray/1` is called for each non\-variable subterm.
 %     `print/1` selects this.
-%     `variable_names(Names)   since release 4.3`
+%     `variable_names(Names)   since release 4.3`
 %     Names should be a list of `Name=Var`
 %     pairs, where each Name is an atom indicating the
 %     name to be used if Var is a variable occurring in the written term.
@@ -3012,7 +3012,7 @@ loaded and up-to-date. Imports all exported predicates.
 %     treated specially (see `numbervars/3`). `print/1`,
 %     `write/1`, `writeq/1`, and `portray_clause/1` select
 %     this.
-%     `legacy_numbervars(Boolean)   since release 4.3`
+%     `legacy_numbervars(Boolean)   since release 4.3`
 %     If selected, then terms of the form `'$VAR'(N)` where
 %     N is an integer \>\= 0, an atom, or a code list,
 %     are treated specially,
@@ -3037,8 +3037,8 @@ loaded and up-to-date. Imports all exported predicates.
 %     selects the value `portable`. See [ref\-lps\-flg](ref_002dlps_002dflg.html).
 %     `float_format(Spec)`
 %     How to print floats. Spec should be an atom of the form
-%     ‘`~NC`’, like one of the `format/[2,3]` character
-%     sequences for printing floats. The default is ‘`~H`’.
+%     '`~NC`', like one of the `format/[2,3]` character
+%     sequences for printing floats. The default is '`~H`'.
 %     `priority(Prio)`
 %     The term is printed as if in the context of an associative
 %     operator of precedence Prio, where Prio is an
