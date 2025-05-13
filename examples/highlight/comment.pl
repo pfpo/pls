@@ -7,6 +7,6 @@ hello.
 hell0.
 
 
-hello./* One line multiline comment */ hello.
+hello.t /* One line multiline comment */ hello.
 hello.
 
