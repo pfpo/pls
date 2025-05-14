@@ -36,7 +36,7 @@
           "named": true
         },
         {
-          "type": "tag",
+          "type": "c_tag",
           "named": true
         }
       ]
@@ -46,6 +46,21 @@
     "type": "c_style_description",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "c_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "c_style_description",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "comment",
@@ -99,10 +114,6 @@
       "required": true,
       "types": [
         {
-          "type": "normal_multiline_comment",
-          "named": true
-        },
-        {
           "type": "normal_single_line_comment",
           "named": true
         }
@@ -113,6 +124,21 @@
     "type": "normal_single_line_comment",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "pl_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "prolog_style_description",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "pldoc_c_style",
@@ -195,11 +221,11 @@
       "required": true,
       "types": [
         {
-          "type": "prolog_style_description",
+          "type": "pl_tag",
           "named": true
         },
         {
-          "type": "tag",
+          "type": "prolog_style_description",
           "named": true
         }
       ]
@@ -225,11 +251,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "tag",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "template",
@@ -386,10 +407,6 @@
   {
     "type": "nondet",
     "named": false
-  },
-  {
-    "type": "normal_multiline_comment",
-    "named": true
   },
   {
     "type": "semidet",
