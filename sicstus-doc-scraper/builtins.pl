@@ -1202,7 +1202,7 @@
 %
 %     @param  Term   *term*
 
-%!    -Term is +Expression
+%!    is(-Term,+Expression)
 %
 %     Evaluates Expression as an arithmetic expression, and unifies
 %     the resulting number with Term.

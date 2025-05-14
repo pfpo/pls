@@ -1,22 +1,12 @@
 
-
-%!    +P -> +Q
+%!    is(-Term,+Expression)
 %
-%     When occurring other than as the first argument of a disjunction operator
-%     (`;/2`), this is equivalent to:
-%     ```
-%     P -> Q ; fail.
-%     ```
+%     Evaluates Expression as an arithmetic expression, and unifies
+%     the resulting number with Term.
 %
-%     @param  :P   *callable*, must be nonvar
-%     @param  :Q   *callable*, must be nonvar
-
-%!    :- include +Files
-%
-%     Literally embed the Prolog clauses and
-%     directives in Files into the file being loaded.
-%     The file or files will be opened with default options.
-%
-%     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
-%     A file specification or a list of file specifications;
-%     extension optional.
+%     @param  Expression   *expr*, must be ground.
+%     An expression made up of:
+%     * functors representing arithmetic operations
+%     * numbers
+%     * variables bound to numbers or arithmetic expressions
+%     @param  Term         *number*
