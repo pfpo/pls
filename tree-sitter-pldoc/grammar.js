@@ -43,7 +43,7 @@ const tags = [
 
 module.exports = grammar({
   name: "pldoc",
-  conflicts: $ => [[$.pldoc_prolog_style], [$.prolog_style_body]],
+  conflicts: $ => [[$.pldoc_prolog_style], [$.prolog_style_body],[$.operator_template,$.arg_name]],
 
   rules: {
     // TODO: add the actual grammar rules
@@ -61,7 +61,18 @@ module.exports = grammar({
     normal_single_line_comment: $ => seq('%', /.*/, choice('\n', '\0')),
     normal_multiline_comment: $ => multi_line_comment,
 
-    template: $ => seq($.head, optional(seq('is', choice(...determinism_modifiers)))),
+    template: $=> choice(
+      $.functor_template,
+      $.operator_template,
+      $.directive_template,
+    ),
+    operator_template: $=> choice(
+      seq($.arg_spec,word,$.arg_spec),
+      seq(word,$.arg_spec),
+      seq($.arg_spec,word),
+    ),
+    functor_template: $ => seq($.head, optional(seq('is', choice(...determinism_modifiers)))),
+    directive_template: $=> seq(':-',choice($.functor_template,$.operator_template)),
 
     head: $ => seq(
       $.functor,

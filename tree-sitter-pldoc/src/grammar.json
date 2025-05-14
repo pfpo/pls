@@ -90,6 +90,71 @@
       }
     },
     "template": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "functor_template"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "operator_template"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "directive_template"
+        }
+      ]
+    },
+    "operator_template": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "arg_spec"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[^\\s]+"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "arg_spec"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "[^\\s]+"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "arg_spec"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "arg_spec"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[^\\s]+"
+            }
+          ]
+        }
+      ]
+    },
+    "functor_template": {
       "type": "SEQ",
       "members": [
         {
@@ -139,6 +204,28 @@
             },
             {
               "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "directive_template": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": ":-"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "functor_template"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "operator_template"
             }
           ]
         }
@@ -1594,6 +1681,10 @@
     ],
     [
       "prolog_style_body"
+    ],
+    [
+      "operator_template",
+      "arg_name"
     ]
   ],
   "precedences": [],
