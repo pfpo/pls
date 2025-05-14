@@ -1,16 +1,22 @@
-%!    skipline
-%!    skipline(+Stream)
-%
-%     Skip the remaining input characters on the current line on Stream.
-%
-%     @param  Stream   streamobject Hello my baby sldkfjslakdfj açsdlkfj adçflkja sdlfkj
-% asldkfjadslfka dfçklasdj falçksdj façsldkfj dsalçkfj asdlçf
-%     @param  Stream   streamobject Hello my baby sldkfjslakdfj açsdlkfj adçflkja sdlfkj
-% asldkfjadslfka dfçklasdj falçksdj façsldkfj dsalçkfj asdlçf
-%     @param  Stream   streamobject Hello my baby sldkfjslakdfj açsdlkfj adçflkja sdlfkj
-% asldkfjadslfka dfçklasdj falçksdj façsldkfj dsalçkfj asdlçf
 
 
-%!    skipline
+%!    +P -> +Q
 %
-%     Skip the remaining input characters on the current line on Stream.
+%     When occurring other than as the first argument of a disjunction operator
+%     (`;/2`), this is equivalent to:
+%     ```
+%     P -> Q ; fail.
+%     ```
+%
+%     @param  :P   *callable*, must be nonvar
+%     @param  :Q   *callable*, must be nonvar
+
+%!    :- include +Files
+%
+%     Literally embed the Prolog clauses and
+%     directives in Files into the file being loaded.
+%     The file or files will be opened with default options.
+%
+%     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
+%     A file specification or a list of file specifications;
+%     extension optional.

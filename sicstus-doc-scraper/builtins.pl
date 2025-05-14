@@ -212,7 +212,7 @@
 %     @param  BID           *integer*
 %     Breakpoint identifier.
 
-%!    +P,+Q
+%!    +P , +Q
 %
 %     @param  :P   *callable*, must be nonvar
 %     @param  :Q   *callable*, must be nonvar
@@ -413,7 +413,7 @@
 %     @param  OldTerm   *term*
 %     @param  NewTerm   *term*
 
-%!    :- block+BlockSpec
+%!    :- block +BlockSpec
 %
 %     Specifies conditions
 %     for blocking goals of the predicates referred to by BlockSpec.
@@ -875,7 +875,7 @@
 %     @param  FocusConditions   *term*
 %     @param  :Tests            *term*
 
-%!    +X^+P
+%!    +X ^ +P
 %
 %     Equivalent to "there exists an X such that P is
 %     true", thus X is normally an unbound variable. The use of the
@@ -1126,7 +1126,7 @@
 %     @param  Goal         *callable*
 %     @param  SourceInfo   *term*
 
-%!    +Expr1>+Expr2
+%!    +Expr1 > +Expr2
 %
 %     Succeeds if the result of evaluating Expr1 is strictly
 %     *greater than* the result of evaluating Expr2.
@@ -1168,7 +1168,7 @@
 %     @param  :P   *callable*, must be nonvar
 %     @param  :Q   *callable*, must be nonvar
 
-%!    :- include+Files
+%!    :- include +Files
 %
 %     Literally embed the Prolog clauses and
 %     directives in Files into the file being loaded.
@@ -1178,7 +1178,7 @@
 %     A file specification or a list of file specifications;
 %     extension optional.
 
-%!    :- initialization+Goal
+%!    :- initialization +Goal
 %
 %     Declares that Goal is to be run when the file in which the
 %     declaration appears is loaded into a running system, or when a
@@ -1202,7 +1202,7 @@
 %
 %     @param  Term   *term*
 
-%!    -Termis+Expression
+%!    -Term is +Expression
 %
 %     Evaluates Expression as an arithmetic expression, and unifies
 %     the resulting number with Term.
@@ -1241,7 +1241,7 @@
 %     @param  List      *list of term*
 %     @param  Integer   *integer*, non\-negative
 
-%!    +Expr1<+Expr2
+%!    +Expr1 < +Expr2
 %
 %     Evaluates Expr1 and Expr2 as arithmetic expressions.
 %     The goal succeeds if the result of evaluating Expr1 is strictly
@@ -1383,7 +1383,7 @@
 %     Linei is of the form
 %     `[Control_1-Args_1,Control_2-Args_2, ...]`.
 
-%!    :- meta_predicate+MetaSpec
+%!    :- meta_predicate +MetaSpec
 %
 %     Provides for module name expansion of arguments in calls to the
 %     predicate given by MetaSpec. All `meta_predicate/1` declarations
@@ -1417,7 +1417,7 @@
 %     '`?`'
 %     ignored
 
-%!    :- mode+Mode
+%!    :- mode +Mode
 %
 %     Currently a dummy declaration.
 %
@@ -1441,7 +1441,7 @@
 %     disabled (although spypoints can be set), and no source
 %     information is generated at compile time.
 
-%!    :- multifile+PredSpecs
+%!    :- multifile +PredSpecs
 %
 %     Declares the clauses of the predicates defined by PredSpecs to be
 %     multifile in the source file (suppresses compile\-time warnings).
@@ -1522,7 +1522,7 @@
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
 
-%!    +Expr1>=+Expr2
+%!    +Expr1 >= +Expr2
 %
 %     Succeeds if the results of evaluating Expr1 and
 %     Expr2 *are equal*.
@@ -1776,7 +1776,7 @@
 %
 %     @param  Stream   *stream\_object*
 
-%!    +Q;+R
+%!    +Q ; +R
 %
 %     Disjunction: Succeeds if Q succeeds *or* R succeeds.
 %     \+P `->` \+Q `;` \+R
@@ -2016,7 +2016,7 @@
 %     @param  NewPrompt   *atom*, must be nonvar
 %     The new prompt atom.
 
-%!    :- public+Term
+%!    :- public +Term
 %
 %     Currently a dummy declaration.
 %
@@ -2568,7 +2568,7 @@
 %     @param  AbsFile   *atom*
 %     Absolute filename.
 
-%!    spy+PredSpecs
+%!    spy +PredSpecs
 %!    spy(+PredSpecs,+Conditions)
 %
 %     Sets plain spypoints on all the predicates represented by PredSpecs.
@@ -2769,14 +2769,14 @@
 %     Layout term of Term2.
 %     @param  Tokens2   *list of atom*
 
-%!    +Term1@>+Term2
+%!    +Term1 @> +Term2
 %
 %     Succeeds if Term1 is *after* Term2 in the standard order.
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
 
-%!    +Term1@<+Term2
+%!    +Term1 @< +Term2
 %
 %     Succeeds if Term1 is *before* Term2 in the standard order.
 %
@@ -2790,14 +2790,14 @@
 %     @param  Term1   *term*
 %     @param  Term2   *term*
 
-%!    +Term1@=<+Term2
+%!    +Term1 @=< +Term2
 %
 %     Succeeds if Term1 is *not after* Term2 in the standard order.
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
 
-%!    +Term1@>=+Term2
+%!    +Term1 @>= +Term2
 %
 %     Succeeds if Term1 is *not before* Term2 in the standard order.
 %
@@ -2839,7 +2839,7 @@
 %
 %     Always succeeds.
 
-%!    +Term1=+Term2
+%!    +Term1 = +Term2
 %
 %     *unifies* Term1 and Term2.
 %
@@ -2853,7 +2853,7 @@
 %     @param  Term1   *term*
 %     @param  Term2   *term*
 
-%!    +Term=..-List
+%!    +Term =.. -List
 %
 %     \-Term `=..` \+List
 %     Unifies List with a list whose head is the atomic term corresponding
