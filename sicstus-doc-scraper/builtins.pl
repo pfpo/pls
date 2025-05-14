@@ -196,7 +196,7 @@
 %     `error`
 %     Treat the name `user` as a non\-existing file, subject to the `file_errors/1` option.
 
-%!    acyclic_term(+Term)since release 4.3
+%!    acyclic_term(+Term)
 %
 %     Term is currently instantiated to a finite (acyclic) term.
 %
@@ -249,10 +249,12 @@
 %     @param  Answer       *term*
 %     See QueryClass
 
-%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database reference inRef:
 %!    assert(+Clause)
+%!    assert(+Clause,-Ref)
 %
-%     `assert(+Clause, -Ref)`
+%     These predicates add a dynamic clause,
+%     Clause, to the Prolog database. They optionally return a database
+%     reference in Ref:
 %     It is undefined whether Clause will precede or follow the
 %     clauses already in the database.
 %
@@ -261,10 +263,12 @@
 %     @param  Ref       *db\_reference*, must be var
 %     A database reference, which uniquely identifies the newly asserted Clause.
 
-%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database reference inRef:
 %!    asserta(+Clause)
+%!    asserta(+Clause,-Ref)
 %
-%     `asserta(+Clause, -Ref)`
+%     These predicates add a dynamic clause,
+%     Clause, to the Prolog database. They optionally return a database
+%     reference in Ref:
 %     Clause will precede all existing clauses in the database.
 %
 %     @param  :Clause   *callable*, must be nonvar
@@ -272,10 +276,12 @@
 %     @param  Ref       *db\_reference*, must be var
 %     A database reference, which uniquely identifies the newly asserted Clause.
 
-%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database reference inRef:
 %!    assertz(+Clause)
+%!    assertz(+Clause,-Ref)
 %
-%     `assertz(+Clause, -Ref)`
+%     These predicates add a dynamic clause,
+%     Clause, to the Prolog database. They optionally return a database
+%     reference in Ref:
 %     Clause will follow all existing clauses in the database.
 %
 %     @param  :Clause   *callable*, must be nonvar
@@ -308,8 +314,8 @@
 %     @param  Term   *term*
 
 %!    atom_chars(+Atom,-Chars)
+%!    atom_chars(-Atom,+Chars)
 %
-%     `atom_chars(-Atom, +Chars)`
 %     Chars is the *chars* comprising the printed
 %     representation of Atom.
 %
@@ -322,8 +328,8 @@
 %     representation of a number.
 
 %!    atom_codes(+Atom,-Codes)
+%!    atom_codes(-Atom,+Codes)
 %
-%     `atom_codes(-Atom, +Codes)`
 %     Codes is the *codes* comprising the printed
 %     representation of Atom.
 %
@@ -336,8 +342,8 @@
 %     representation of a number.
 
 %!    atom_concat(+Atom1,+Atom2,-Atom12)
+%!    atom_concat(-Atom1,-Atom2,+Atom12)
 %
-%     `atom_concat(-Atom1,-Atom2,+Atom12)`
 %     The characters of the atom Atom1 concatenated with those of
 %     Atom2 are the same as the characters of atom Atom12.
 %
@@ -426,9 +432,9 @@
 %     causes the current execution to be
 %     interrupted; enters next break level.
 
-%!    :- multifile user:breakpoint_expansion/2.
+%!    user:breakpoint_expansion(+Macro,-Body)
 %
-%     `user:breakpoint_expansion(+Macro, -Body)`
+%     `:- multifile user:breakpoint_expansion/2.`
 %     Defines debugger condition macros.
 %
 %     @param  Macro   *term*
@@ -447,9 +453,9 @@
 %     The resulting byte count of the stream.
 
 %!    call(+P)
+%!    call(+P,?Q,...)
 %
 %     Proves (executes) P.
-%     `call(+P,?Q,...)`
 %     Executes the goal obtained by
 %     augmenting P by the remaining arguments.
 %
@@ -457,12 +463,20 @@
 %     @param  Q    term
 %     ...
 
-%!    Executes the procedure callGoal.  WhenGoalsucceeds determinately, is cut, fails, or raises an exception,Cleanupis executed.
+%!    call_cleanup(+Goal,+Cleanup)
+%
+%     Executes the procedure call Goal. When Goal succeeds
+%     determinately, is cut, fails, or raises an exception,
+%     Cleanup is executed.
 %
 %     @param  :Goal      *callable*, must be nonvar
 %     @param  :Cleanup   *callable*, must be nonvar
 
-%!    Executes the procedure callGoal, unifyingVarswith the list of residual variables that have blocked goals or attributes attached to them.
+%!    call_residue_vars(+Goal,-Vars)
+%
+%     Executes the procedure call Goal, unifying Vars with
+%     the list of residual variables that have blocked goals or attributes
+%     attached to them.
 %
 %     @param  :Goal   *callable*, must be nonvar
 %     @param  Vars    *list of var*
@@ -484,8 +498,8 @@
 %     @param  :Handler         *callable*, must be nonvar
 
 %!    char_code(+Char,-Code)
+%!    char_code(-Char,+Code)
 %
-%     `char_code(-Char, +Code)`
 %     Code is the character code comprising the printed
 %     representation of Char.
 %
@@ -514,8 +528,8 @@
 
 %!    clause(+Head,-Body)
 %!    clause(+Head,-Body,-Ref)
+%!    clause(-Head,-Body,+Ref)
 %
-%     `clause(-Head, -Body, +Ref)`
 %     Searches the database for a clause whose head matches Head
 %     and whose body matches Body.
 %
@@ -590,9 +604,11 @@
 %     extensions optional.
 
 %!    copy_term(+Term,-Copy)
-%!    UnifiesCopywith a copy ofTermin which all variables have been replaced by brand new variables, and all mutables by brand new mutables.
+%!    copy_term(+Term,-Copy,-Body)
 %
-%     `copy_term(+Term, -Copy, -Body)`
+%     Unifies Copy with a copy of Term
+%     in which all variables have been replaced by brand new variables,
+%     and all mutables by brand new mutables.
 %     Furthermore, if Term contains variables with goals blocked on
 %     them, or variables with attributes that can be interpreted as a goal
 %     (see [lib\-atts](lib_002datts.html)), then Body is unified with the conjunction of
@@ -605,7 +621,7 @@
 %     @param  Copy   *term*
 %     @param  Body   *callable*
 
-%!    coverage_data(-Data)since release 4.2
+%!    coverage_data(-Data)
 %
 %     Data is the coverage data accumulated so far.
 %
@@ -676,9 +692,10 @@
 %     The most general form of the key for a currently recorded term.
 
 %!    current_module(?ModuleName)
-%!    Queries whether a module is "current" or backtracks through all of the current modules.
+%!    current_module(?ModuleName,?AbsFile)
 %
-%     `current_module(?ModuleName, ?AbsFile)`
+%     Queries whether a module is "current" or backtracks through all
+%     of the current modules.
 %     Associates modules with their module files.
 %
 %     @param  ModuleName   *atom*
@@ -702,9 +719,10 @@
 %     @param  Stream   *stream\_object*
 
 %!    current_predicate(?PredSpec)
-%!    UnifiesPredSpecwith a predicate specifications of the formName/Arity.
+%!    current_predicate(?Name,?Term)
 %
-%     `current_predicate(?Name, ?Term)`
+%     Unifies PredSpec with
+%     a predicate specifications of the form Name/Arity.
 %     Unifies Name with the name of a user\-defined predicate, and Term
 %     with the most general term corresponding to that predicate.
 %
@@ -736,7 +754,7 @@
 %
 %     Cut.
 
-%!    db_reference(+Term)since release 4.1
+%!    db_reference(+Term)
 %
 %     Term is currently instantiated to
 %     a compound term with principal functor `'$ref'/2`
@@ -748,9 +766,9 @@
 %
 %     Turns on the debugger in debug mode.
 
-%!    :- multifile user:debugger_command_hook/2.
+%!    user:debugger_command_hook(+DCommand,-Actions)
 %
-%     `user:debugger_command_hook(+DCommand, -Actions)`
+%     `:- multifile user:debugger_command_hook/2.`
 %     Allows the interactive debugger to be extended with user\-defined
 %     commands. See [Debug Commands](Debug-Commands.html).
 %
@@ -839,18 +857,18 @@
 %
 %     @param  Ref   *db\_reference*, must be nonvar
 
-%!    :- multifile user:error_exception/1.
+%!    user:error_exception(+Exception)
 %
-%     `user:error_exception(+Exception)`
+%     `:- multifile user:error_exception/1.`
 %     Tells the debugger to enter trace mode on exceptions
 %     matching Exception.
 %
 %     @param  Exception   *term*
 
 %!    execution_state(+Tests)
-%!    Testsare satisfied in the current state of the execution.
+%!    execution_state(+FocusConditions,+Tests)
 %
-%     `execution_state(+FocusConditions, +Tests)`
+%     Tests are satisfied in the current state of the execution.
 %     Tests are satisfied in the state of the execution pointed to by
 %     FocusConditions.
 %
@@ -892,9 +910,9 @@
 %
 %     Always fails (same as `fail/0`).
 
-%!    :- multifile user:file_search_path/2.
+%!    user:file_search_path(+PathAlias,+DirSpec)
 %
-%     `user:file_search_path(+PathAlias, +DirSpec)`
+%     `:- multifile user:file_search_path/2.`
 %     Defines a symbolic name for a directory or a path. Used by
 %     predicates taking *file\_spec* as input argument.
 %
@@ -933,10 +951,10 @@
 %     @param  Stream   *stream\_object*, must be ground
 %     A valid Prolog stream, defaults to the current output stream.
 
-%!    :- discontiguous foreign/2, foreign/3.
 %!    foreign(+Routine,+ForeignSpec)
+%!    foreign(+Routine,+Language,+ForeignSpec)
 %
-%     `foreign(+Routine, +Language, +ForeignSpec)`
+%     `:- discontiguous foreign/2, foreign/3.`
 %     Describes the interface between Prolog and the foreign Routine.
 %     Used by `load_foreign_resource/1`.
 %
@@ -949,9 +967,9 @@
 %     A ground term of the form PredName(Argspec, ...,
 %     Argspec) as described in [Conversions between Prolog Arguments and C Types](Conversions-between-Prolog-Arguments-and-C-Types.html). Each Argspec should be a *foreign\_arg*.
 
-%!    :- discontiguous foreign_resource/2.
+%!    foreign_resource(+ResourceName,+ForeignFunctions)
 %
-%     `foreign_resource(+ResourceName, +ForeignFunctions)`
+%     `:- discontiguous foreign_resource/2.`
 %     Describes the foreign functions in ResourceName to interface to.
 %
 %     @param  ResourceName       *atom*, must be nonvar
@@ -996,8 +1014,8 @@
 %     @param  Goal   *callable*
 
 %!    functor(+Term, -Name, -Arity)
+%!    functor(-Term, +Name, +Arity)
 %
-%     `functor(-Term, +Name, +Arity)`
 %     Succeeds if the principal functor of term Term has name
 %     Name and arity Arity.
 %
@@ -1013,9 +1031,9 @@
 %
 %     Invokes the atom garbage collector.
 
-%!    :- multifile 'SU_messages':generate_message/3.
+%!    'SU_messages':generate_message(+MessageTerm,-S0,-S)
 %
-%     `'SU_messages':generate_message(+MessageTerm, -S0, -S)`
+%     `:- multifile 'SU_messages':generate_message/3.`
 %     For a given MessageTerm, generates a list composed of
 %     Control\-Arg pairs and the atom `nl`. This can be translated into a
 %     nested list of Control\-Arg pairs, which can be used as input to
@@ -1028,9 +1046,9 @@
 %     @param  S             *list of pair*
 %     The remaining list.
 
-%!    :- multifile user:generate_message_hook/3.
+%!    user:generate_message_hook(+MessageTerm,-S0,-S)
 %
-%     `user:generate_message_hook(+MessageTerm, -S0, -S)`
+%     `:- multifile user:generate_message_hook/3.`
 %     A way for the user to override the call to `'SU_messages':generate_message/3`
 %     in `print_message/2`.
 %
@@ -1232,9 +1250,9 @@
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
 
-%!    :- multifile user:library_directory/1.
+%!    user:library_directory(+DirSpec)
 %
-%     `user:library_directory(+DirSpec)`
+%     `:- multifile user:library_directory/1.`
 %     Defines a library directory. Used by predicates taking
 %     *file\_spec* as input argument.
 %
@@ -1276,8 +1294,8 @@
 
 %!    load_files(+Files)
 %!    load_files(+Files,+Options)
+%!    [+Files]
 %
-%     `[+Files]`
 %     Loads the specified Prolog source and/or object file(s) into memory.
 %     Subsumes all other load predicates.
 %
@@ -1350,9 +1368,9 @@
 %     @param  Element   *term*
 %     @param  List      *list of term*
 
-%!    :- multifile user:message_hook/3.
+%!    user:message_hook(+Severity,+MessageTerm,+Lines)
 %
-%     `user:message_hook(+Severity, +MessageTerm, +Lines)`
+%     `:- multifile user:message_hook/3.`
 %     Overrides the call to `print_message_lines/3` in `print_message/2`.
 %     A way for the user to intercept the Message of type
 %     Severity, whose translations is Lines, before it is
@@ -1439,8 +1457,8 @@
 %     @param  Term   *term*
 
 %!    name(+Constant,-Codes)
+%!    name(-Constant,+Codes)
 %
-%     `name(-Constant, +Codes)`
 %     Codes is the list consisting of the *codes* comprising
 %     the printed representation of Constant.
 %
@@ -1545,8 +1563,8 @@
 %     @param  Term   *term*
 
 %!    number_chars(+Number,-Chars)
+%!    number_chars(-Number,+Chars)
 %
-%     `number_chars(-Number, +Chars)`
 %     Chars is the *chars* comprising the printed
 %     representation of Number.
 %
@@ -1554,8 +1572,8 @@
 %     @param  Chars    *chars*
 
 %!    number_codes(+Number,-Codes)
+%!    number_codes(-Number,+Codes)
 %
-%     `number_codes(-Number, +Codes)`
 %     Codes is the *codes* comprising the printed
 %     representation of Number.
 %
@@ -1572,9 +1590,9 @@
 %     @param  LastVar    *integer*
 
 %!    on_exception(-Exception,+ProtectedGoal,+Handler)
+%!    catch(ProtectedGoal,Exception,Handler)
 %
 %     same as:
-%     `catch(ProtectedGoal, Exception, Handler)`
 %     Specify an exception handler for ProtectedGoal, and call
 %     ProtectedGoal, as described in [ref\-ere](ref_002dere.html).
 %
@@ -1818,9 +1836,9 @@
 %     List after PhraseType has been found.
 %     Defaults to `[]`.
 
-%!    :- multifile user:portray/1.
+%!    user:portray(+Term)
 %
-%     `user:portray(+Term)`
+%     `:- multifile user:portray/1.`
 %     A way for the user to over\-ride the default behavior of `print/1`.
 %
 %     @param  Term   *term*
@@ -1835,9 +1853,9 @@
 %     A valid open Prolog stream, defaults to the current output stream.
 %     @param  Clause   *term*
 
-%!    :- multifile user:portray_message/2.
+%!    user:portray_message(+Severity,+MessageTerm)
 %
-%     `user:portray_message(+Severity, +MessageTerm)`
+%     `:- multifile user:portray_message/2.`
 %     Called by `print_message/2` before processing the message. If this
 %     succeeds, then it is assumed that the message has been processed and nothing
 %     further is done.
@@ -1887,10 +1905,11 @@
 %     A valid open Prolog stream, defaults to the current output stream.
 %     @param  Term     *term*
 
-%!    print_coveragesince release 4.2
-%!    Prints the coverage data accumulated so far, to the current output stream, in a hierarchical format.
+%!    print_coverage
+%!    print_coverage(+Data)
 %
-%     `print_coverage(+Data)`   *since release 4\.2*
+%     Prints the coverage data accumulated so far, to the current output
+%     stream, in a hierarchical format.
 %     Prints the coverage data Data, to the current output stream, in
 %     a hierarchical format. Data should be of type *list of
 %     coverage\_pair*; see `coverage_data/1`.
@@ -1933,17 +1952,18 @@
 %     Linei must be of the form
 %     `[Control_1-Args_1,Control_2-Args_2, ...]`.
 
-%!    print_profilesince release 4.2
-%!    Prints the profiling data accumulated so far, to the current output stream, in a format similar togprof(1).
+%!    print_profile
+%!    print_profile(+Data)
 %
-%     `print_profile(+Data)`   *since release 4\.2*
+%     Prints the profiling data accumulated so far, to the current output
+%     stream, in a format similar to `gprof(1)`.
 %     Prints the profiling data Data, to the current output stream, in
 %     a format similar to `gprof(1)`. Data should be of type
 %     *list of profile\_pair*; see `profile_data/1`.
 %
 %     @param  Data   *list of profile\_pair*
 
-%!    profile_data(-Data)since release 4.2
+%!    profile_data(-Data)
 %
 %     Data is the profiling data accumulated so far.
 %
@@ -1961,14 +1981,14 @@
 %     | caller | ::\= pred\_spec |
 %     | callee | ::\= pred\_spec |
 
-%!    profile_resetsince release 4.2
+%!    profile_reset
 %
 %     Resets all profiling data.
 
 %!    prolog_flag(?FlagName,?Value)
-%!    FlagNameis a flag, which currently is set toValue.
+%!    prolog_flag(+FlagName,-OldValue,+NewValue)
 %
-%     `prolog_flag(+FlagName, -OldValue, +NewValue)`
+%     FlagName is a flag, which currently is set to Value.
 %     Unifies the current value of FlagName with OldValue
 %     and then sets the value of the flag to NewValue.
 %     The available Prolog flags are listed in [ref\-lps\-flg](ref_002dlps_002dflg.html).
@@ -2029,9 +2049,9 @@
 %     A valid output *text* stream, defaults to the current output stream.
 %     @param  Code     *code*, must be nonvar
 
-%!    :- multifile 'SU_messages':query_abbreviation/3.
+%!    'SU_messages':query_abbreviation(+QueryClass,-Prompt,-Pairs)
 %
-%     `'SU_messages':query_abbreviation(+QueryClass, -Prompt, -Pairs)`
+%     `:- multifile 'SU_messages':query_abbreviation/3.`
 %     A way to specify one letter abbreviations for responses to queries
 %     from the Prolog System.
 %
@@ -2043,9 +2063,9 @@
 %     A list of word\-abbreviation pairs, defining the characters accepted
 %     and the corresponding abstract answers.
 
-%!    :- multifile 'SU_messages':query_class/5.
+%!    'SU_messages':query_class(+QueryClass,-Prompt,-InputMethod,-MapMethod,-FailureMode)
 %
-%     `'SU_messages':query_class(+QueryClass, -Prompt, -InputMethod, -MapMethod, -FailureMode)`
+%     `:- multifile 'SU_messages':query_class/5.`
 %     Access the parameters of a given QueryClass.
 %
 %     @param  QueryClass    *term*
@@ -2067,9 +2087,9 @@
 %     * \- `query` \- only print the query text;
 %     * \- `none` \- do not print anything.
 
-%!    :- multifile user:query_class_hook/5.
+%!    user:query_class_hook(+QueryClass,-Prompt,-InputMethod,-MapMethod,-FailureMode)
 %
-%     `user:query_class_hook(+QueryClass, -Prompt, -InputMethod, -MapMethod, -FailureMode)`
+%     `:- multifile user:query_class_hook/5.`
 %     Provides the user with a method of overriding the call to
 %     `'SU_messages':query_class/5` in the preparation phase of query
 %     processing. This way the default query class characteristics can be
@@ -2086,9 +2106,9 @@
 %     @param  FailureMode   *term*
 %     The failure mode to use.
 
-%!    :- multifile 'SU_messages':query_hook/6.
+%!    'SU_messages':query_hook(+QueryClass,+Prompt,+PromptLines,+Help,+HelpLines,-Answer)
 %
-%     `'SU_messages':query_hook(+QueryClass, +Prompt, +PromptLines, +Help, +HelpLines, -Answer)`
+%     `:- multifile 'SU_messages':query_hook/6.`
 %     Provides a method of overriding Prolog's default keyboard based
 %     input requests.
 %
@@ -2105,9 +2125,9 @@
 %     @param  Answer        *term*
 %     See QueryClass
 
-%!    :- multifile 'SU_messages':query_input/3.
+%!    'SU_messages':query_input(+InputMethod,+Prompt,-RawInput)
 %
-%     `'SU_messages':query_input(+InputMethod, +Prompt, -RawInput)`
+%     `:- multifile 'SU_messages':query_input/3.`
 %     Implements the input phase of query processing. The user is prompted
 %     with Prompt, input is read according to InputMethod, and the
 %     result is returned in RawInput.
@@ -2118,9 +2138,9 @@
 %     The prompt to display at the terminal.
 %     @param  RawInput      *term*
 
-%!    :- multifile user:query_input_hook/3.
+%!    user:query_input_hook(+InputMethod,+Prompt,-RawInput)
 %
-%     `user:query_input_hook(+InputMethod, +Prompt, -RawInput)`
+%     `:- multifile user:query_input_hook/3.`
 %     Provides the user with a method of overriding the call to
 %     `'SU_messages':query_input/3` in the input phase of query
 %     processing. This way the implementation of the default input methods
@@ -2132,9 +2152,9 @@
 %     The prompt to display at the terminal.
 %     @param  RawInput      *term*
 
-%!    :- multifile 'SU_messages':query_map/4.
+%!    'SU_messages':query_map(+MapMethod,+RawInput,-Result,-Answer)
 %
-%     `'SU_messages':query_map(+MapMethod, +RawInput, -Result, -Answer)`
+%     `:- multifile 'SU_messages':query_map/4.`
 %     Implements the mapping phase of query processing. The RawInput,
 %     received from `query_input/3`, is mapped to the abstract answer
 %     term Answer.
@@ -2148,9 +2168,9 @@
 %     @param  Answer      *one of `[success,failure,failure(Warning)]`*
 %     Abstract answer term.
 
-%!    :- multifile user:query_map_hook/4.
+%!    user:query_map_hook(+MapMethod,+RawInput,-Result,-Answer)
 %
-%     `user:query_map_hook(+MapMethod, +RawInput, -Result, -Answer)`
+%     `:- multifile user:query_map_hook/4.`
 %     Provides the user with a method of overriding the call to
 %     `'SU_messages':query_map/4` in the map phase of query
 %     processing. This way the implementation of the default map methods
@@ -2171,11 +2191,11 @@
 
 %!    read(-Term)
 %!    read(+Stream,-Term)
+%!    read_term(Term, [])
+%!    read_term(Stream,Term, [])
 %
 %     Reads the next term from Stream and unifies it with Term.
 %     Same as:
-%     `read_term(Term, [])`
-%     `read_term(Stream, Term, [])`
 %
 %     @param  Stream   *stream\_object*, must be ground
 %     A valid Prolog input stream, defaults to the current input stream.
@@ -2253,9 +2273,9 @@
 %     the `consume_layout` option is `false`.
 
 %!    reconsult(+Files)
+%!    consult(Files)
 %
 %     same as:
-%     `consult(Files)`
 %
 %     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
@@ -2272,8 +2292,8 @@
 %     @param  Ref    *db\_reference*, must be var
 
 %!    recorded(-Key,-Term,+Ref)
+%!    recorded(?Key,?Term,?Ref)
 %
-%     `recorded(?Key, ?Term, ?Ref)`
 %     Searches the internal database for a term recorded under the principal
 %     functor of Key that unifies with Term, and whose database
 %     reference unifies with Ref.
@@ -2393,7 +2413,10 @@
 %     @param  :Goal   *callable*, must be nonvar
 %     A goal, defaults to `true`.
 
-%!    see(+FileOrStream)Makes fileFileOrStreamthe current input stream.
+%!    see(+FileOrStream)
+%
+%     `see(+FileOrStream)`
+%     Makes file FileOrStream the current input stream.
 %
 %     @param  FileOrStream   *file\_spec* or *stream\_object*, must be ground
 
@@ -2452,9 +2475,9 @@
 %     A valid output stream.
 
 %!    set_prolog_flag(+FlagName,+Value)
+%!    prolog_flag(FlagName, _,Value)
 %
 %     same as:
-%     `prolog_flag(FlagName, _, Value)`
 %
 %     @param  FlagName   *atom*, must be nonvar
 %     @param  Value      *term*, must be nonvar and belong to proper type/domain
@@ -2546,9 +2569,9 @@
 %     Absolute filename.
 
 %!    spy+PredSpecs
-%!    Sets plain spypoints on all the predicates represented byPredSpecs.
+%!    spy(+PredSpecs,+Conditions)
 %
-%     `spy(+PredSpecs, +Conditions)`
+%     Sets plain spypoints on all the predicates represented by PredSpecs.
 %     Sets conditional spypoints on all the predicates represented by PredSpecs.
 %
 %     @param  :PredSpecs    *pred\_spec\_tree*
@@ -2557,9 +2580,10 @@
 %     Spypoint conditions.
 
 %!    statistics
-%!    Displays statistics relating to memory usage and execution time.
+%!    statistics(?Keyword,?List)
 %
-%     `statistics(?Keyword, ?List)`
+%     Displays statistics relating to memory usage and
+%     execution time.
 %     Obtains individual statistics.
 %
 %     @param  Keyword   *atom*
@@ -2568,8 +2592,8 @@
 %     List of statistics.
 
 %!    stream_code(-Stream,+CStream)
+%!    stream_code(+Stream,-CStream)
 %
-%     `stream_code(+Stream, -CStream)`
 %     Converts between Prolog representation, Stream, and
 %     C representation, CStream, of a stream.
 %
@@ -2728,9 +2752,9 @@
 %     @param  Term1   *term*
 %     @param  Term2   *term*
 
-%!    :- multifile user:term_expansion/6.
+%!    user:term_expansion(+Term1,+Layout1,+Tokens1,-Term2,-Layout2,-Tokens2)
 %
-%     `user:term_expansion(+Term1, +Layout1, +Tokens1, -Term2, -Layout2, -Tokens2)`
+%     `:- multifile user:term_expansion/6.`
 %     Overrides or complements the standard transformations to be done by
 %     `expand_term/2`.
 %
@@ -2788,7 +2812,7 @@
 %     @param  Term1   *term*
 %     @param  Term2   *term*
 
-%!    term_variables(+Term,-Variables)since release 4.3True ifVariablesis the list of variables occurring inTerm, without duplicates, in first occurrence order.
+%!    term_variables(+Term,-Variables)
 %
 %     @param  Term         Any *term*, a cyclic term is also accepted.
 %     @param  -Variables   The variables in the term. Must be a variable or a list.
@@ -2851,9 +2875,9 @@
 %     @param  OldAction   *one of `[error,fail,trace,warning]`*
 %     @param  NewAction   *one of `[error,fail,trace,warning]`*, must be nonvar
 
-%!    :- multifile user:unknown_predicate_handler/3.
+%!    user:unknown_predicate_handler(+Goal,+Module,-NewGoal)
 %
-%     `user:unknown_predicate_handler(+Goal, +Module, -NewGoal)`
+%     `:- multifile user:unknown_predicate_handler/3.`
 %     User definable hook to trap calls to unknown predicates.
 %
 %     @param  Goal      *callable*
@@ -2880,16 +2904,17 @@
 %     @param  Mutable   *mutable*, must be nonvar
 
 %!    use_module(+File)
-%!    Loads the module file(s)File, if not already loaded and up-to-date. Imports all exported predicates.
 %!    use_module(+File,+Imports)
+%!    use_module(+Module,-File,+Imports)
+%!    use_module(-Module,+File,+Imports)
 %
+%     Loads the module file(s) File, if not already
+%     loaded and up\-to\-date. Imports all exported predicates.
 %     Loads module file File, if not already
 %     loaded and up\-to\-date. Imports according to Imports.
-%     `use_module(+Module, -File, +Imports)`
 %     Module is already loaded. Imports according to
 %     Imports. The File argument must be a variable or a
 %     legal file specification but is otherwise ignored.
-%     `use_module(-Module, +File, +Imports)`
 %     Module is a variable or has not been loaded. Loads module file
 %     File, if not already loaded and up\-to\-date. Imports according to
 %     Imports, i.e. similar to what `use_module(File, Imports)`
