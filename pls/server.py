@@ -267,14 +267,13 @@ def debug():
             with open(self.uri) as f:
                 self.source = f.read()
 
-    uri = "./examples/highlight/comment.pl"
-    uri = "./test/t.pl"
+    uri = "./examples/use_comment.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
-    for child in t.root_node.children:
-        rec_print(child,0)
-    print(t.root_node)
+    # for child in t.root_node.children:
+    #     rec_print(child,0)
+    # print(t.root_node)
     
     if uri in server.tables:
         for key, predicate in server.tables[uri].predicate_index.items():

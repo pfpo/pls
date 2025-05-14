@@ -26,24 +26,24 @@ const text = word
 const c_style_line_begin = /[^\S\n]*\*?[^\S\n]*/
 
 const tags = [
-  (e) => seq(token(prec(1, '@arg')), name,e),
-  (e) => seq(token(prec(1, '@param')), name,e),
-  (e) => seq(token(prec(1, '@error')), name,e),
-  (e) => seq(token(prec(1, '@author')), name,e),
-  (e) => seq(token(prec(1, '@version')), name,e),
-  (e) => seq(token(prec(1, '@see')),e),
-  (e) => seq(token(prec(1, '@deprecated')),e),
-  (e) => seq(token(prec(1, '@compat')),e),
-  (e) => seq(token(prec(1, '@copyright')),e),
-  (e) => seq(token(prec(1, '@license')),e),
-  (e) => seq(token(prec(1, '@bug')),e),
-  (e) => seq(token(prec(1, '@tbd')),e),
+  (e) => seq(token(prec(1, '@arg')), name, e),
+  (e) => seq(token(prec(1, '@param')), name, e),
+  (e) => seq(token(prec(1, '@error')), name, e),
+  (e) => seq(token(prec(1, '@author')), name, e),
+  (e) => seq(token(prec(1, '@version')), name, e),
+  (e) => seq(token(prec(1, '@see')), e),
+  (e) => seq(token(prec(1, '@deprecated')), e),
+  (e) => seq(token(prec(1, '@compat')), e),
+  (e) => seq(token(prec(1, '@copyright')), e),
+  (e) => seq(token(prec(1, '@license')), e),
+  (e) => seq(token(prec(1, '@bug')), e),
+  (e) => seq(token(prec(1, '@tbd')), e),
 
 ]
 
 module.exports = grammar({
   name: "pldoc",
-  conflicts: $ => [[$.pldoc_prolog_style], [$.prolog_style_body] ],
+  conflicts: $ => [[$.pldoc_prolog_style], [$.prolog_style_body]],
 
   rules: {
     // TODO: add the actual grammar rules
@@ -55,7 +55,7 @@ module.exports = grammar({
     ),
     normal_comment: $ => choice(
       $.normal_single_line_comment,
-     // $.normal_multiline_comment,
+      // $.normal_multiline_comment,
     ),
 
     normal_single_line_comment: $ => seq('%', /.*/, choice('\n', '\0')),
@@ -94,8 +94,9 @@ module.exports = grammar({
 
     pldoc_prolog_style: $ => seq(
       repeat1($.pldoc_prolog_directive),
-      repeat1(seq('%','\n')),
-      optional($.prolog_style_body)
+      optional(seq(
+        repeat1(seq('%', '\n')),
+        $.prolog_style_body))
     ),
 
     prolog_style_body: $ => choice(
@@ -108,15 +109,17 @@ module.exports = grammar({
     ),
 
     _prolog_style_description: $ => repeat1(seq('%', /([^@\s].*)|(\s+[^@].*)/, choice('\n', '\0'))),
-    prolog_style_description: $ => repeat1( choice(
-                                              /%[\r\t\f\v ]*[^@\s].*\n/,
-                                              /%\s*\n/,
-                                    )),
+    prolog_style_description: $ => repeat1(choice(
+      /%[\r\t\f\v ]*[^@\s].*\n/,
+      /%\s*\n/,
+    )),
 
     pldoc_c_style: $ => seq(
       pldoc_c_style_start_comment,
       repeat1(seq('*', $.template, '\n')),
-      optional($.c_style_body),
+      optional(seq(
+        repeat1(seq(optional('*'), '\n')),
+        $.c_style_body)),
       '*/'),
 
     c_style_body: $ => choice(
@@ -127,14 +130,12 @@ module.exports = grammar({
       $.c_style_description,
       repeat1(seq(optional('*'), $.c_tag, '\n')),
     ),
-
-
-
+    
     c_style_description: $ => repeat1(seq(multi_line_comment_line, /\n?/)),
 
 
-    pl_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/,optional($.prolog_style_description))))))),
-    c_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/,optional($.c_style_description))))))),
+    pl_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/, optional($.prolog_style_description))))))),
+    c_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/, optional($.c_style_description))))))),
   }
 
 });

@@ -3,11 +3,11 @@
 %
 %     Removes procedures from the Prolog database.
 %
-%     @:Predicates   *pred\_spec* or *pred\_spec\_tree*
+%     @param  :Predicates   *pred\_spec* or *pred\_spec\_tree*
 %     A predicate specification, or a list of such.
 %     Note that the default is to only allow a single predicate
 %     specification, see `tree/1` option below.
-%     @Options       *list of term*, must be ground
+%     @param  Options       *list of term*, must be ground
 %     A list of zero or more of the following:
 %     `force(Boolean)`
 %     Specifies whether SICStus Prolog is to abolish the predicate
@@ -29,11 +29,11 @@
 %     Unifies AbsFileName with the absolute filename
 %     that corresponds to the relative file specification RelFileSpec.
 %
-%     @RelFileSpec   *file\_spec*, must be ground
+%     @param  RelFileSpec   *file\_spec*, must be ground
 %     A valid file specification. See below for details.
-%     @AbsFileName   *atom*
+%     @param  AbsFileName   *atom*
 %     Corresponding absolute filename.
-%     @Options       *list of term*, must be ground
+%     @param  Options       *list of term*, must be ground
 %     A list of zero or more of the following.
 %     The default is the empty list:
 %     `extensions(Ext)`
@@ -200,28 +200,28 @@
 %
 %     Term is currently instantiated to a finite (acyclic) term.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    add_breakpoint(+Conditions,-BID)
 %
 %     Creates a breakpoint with Conditions and with identifier
 %     BID.
 %
-%     @:Conditions   *term*.
+%     @param  :Conditions   *term*.
 %     Breakpoint conditions.
-%     @BID           *integer*
+%     @param  BID           *integer*
 %     Breakpoint identifier.
 
 %!    +P,+Q
 %
-%     @:P   *callable*, must be nonvar
-%     @:Q   *callable*, must be nonvar
+%     @param  :P   *callable*, must be nonvar
+%     @param  :Q   *callable*, must be nonvar
 
 %!    append(?List1,?List2,?List3)
 %
-%     @List1   *list of term*
-%     @List2   *list of term*
-%     @List3   *list of term*
+%     @param  List1   *list of term*
+%     @param  List2   *list of term*
+%     @param  List3   *list of term*
 %     A list consisting of List1 followed by List2.
 
 %!    arg(+ArgNum,+Term,-Arg)
@@ -229,9 +229,9 @@
 %     unifies Arg with the ArgNumth argument of term
 %     Term.
 %
-%     @ArgNum   *integer*, must be nonvar and non\-negative.
-%     @Term     *compound*, must be nonvar
-%     @Arg      *term*
+%     @param  ArgNum   *integer*, must be nonvar and non\-negative.
+%     @param  Term     *compound*, must be nonvar
+%     @param  Arg      *term*
 
 %!    ask_query(+QueryClass,+Query,+Help,-Answer)
 %
@@ -240,50 +240,47 @@
 %     the abstract answer term Answer. The Help message may
 %     be printed in case of invalid input.
 %
-%     @QueryClass   *term*, must be nonvar
+%     @param  QueryClass   *term*, must be nonvar
 %     Determines the allowed values for the atom Answer.
-%     @Query        *term*
+%     @param  Query        *term*
 %     A message term.
-%     @Help         *term*
+%     @param  Help         *term*
 %     A message term.
-%     @Answer       *term*
+%     @param  Answer       *term*
 %     See QueryClass
 
-%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database
-reference inRef:
+%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database reference inRef:
 %!    assert(+Clause)
 %
 %     `assert(+Clause, -Ref)`
 %     It is undefined whether Clause will precede or follow the
 %     clauses already in the database.
 %
-%     @:Clause   *callable*, must be nonvar
+%     @param  :Clause   *callable*, must be nonvar
 %     A valid dynamic Prolog clause.
-%     @Ref       *db\_reference*, must be var
+%     @param  Ref       *db\_reference*, must be var
 %     A database reference, which uniquely identifies the newly asserted Clause.
 
-%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database
-reference inRef:
+%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database reference inRef:
 %!    asserta(+Clause)
 %
 %     `asserta(+Clause, -Ref)`
 %     Clause will precede all existing clauses in the database.
 %
-%     @:Clause   *callable*, must be nonvar
+%     @param  :Clause   *callable*, must be nonvar
 %     A valid dynamic Prolog clause.
-%     @Ref       *db\_reference*, must be var
+%     @param  Ref       *db\_reference*, must be var
 %     A database reference, which uniquely identifies the newly asserted Clause.
 
-%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database
-reference inRef:
+%!    These predicates add a dynamic clause,Clause, to the Prolog database.  They optionally return a database reference inRef:
 %!    assertz(+Clause)
 %
 %     `assertz(+Clause, -Ref)`
 %     Clause will follow all existing clauses in the database.
 %
-%     @:Clause   *callable*, must be nonvar
+%     @param  :Clause   *callable*, must be nonvar
 %     A valid dynamic Prolog clause.
-%     @Ref       *db\_reference*, must be var
+%     @param  Ref       *db\_reference*, must be var
 %     A database reference, which uniquely identifies the newly asserted Clause.
 
 %!    at_end_of_line
@@ -292,7 +289,7 @@ reference inRef:
 %     Test whether end of line has been reached for
 %     the current input stream or for the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid Prolog input stream, defaults to the current input stream.
 
 %!    at_end_of_stream
@@ -301,14 +298,14 @@ reference inRef:
 %     Tests whether the end has been reached for
 %     the current input stream or for the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid Prolog input stream, defaults to the current input stream.
 
 %!    atom(+Term)
 %
 %     Succeeds if Term is currently instantiated to an atom.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    atom_chars(+Atom,-Chars)
 %
@@ -316,10 +313,10 @@ reference inRef:
 %     Chars is the *chars* comprising the printed
 %     representation of Atom.
 %
-%     @Chars   *chars*
+%     @param  Chars   *chars*
 %     The *chars*
 %     comprising the printed representation of Atom.
-%     @Atom    *atom*
+%     @param  Atom    *atom*
 %     The atom containing
 %     exactly those characters, even if the characters look like the printed
 %     representation of a number.
@@ -330,10 +327,10 @@ reference inRef:
 %     Codes is the *codes* comprising the printed
 %     representation of Atom.
 %
-%     @Codes   *codes*
+%     @param  Codes   *codes*
 %     The *codes*
 %     comprising the printed representation of Atom.
-%     @Atom    *atom*
+%     @param  Atom    *atom*
 %     The atom containing
 %     exactly those characters, even if the characters look like the printed
 %     representation of a number.
@@ -344,23 +341,23 @@ reference inRef:
 %     The characters of the atom Atom1 concatenated with those of
 %     Atom2 are the same as the characters of atom Atom12.
 %
-%     @Atom1    *atom*
-%     @Atom2    *atom*
-%     @Atom12   *atom*
+%     @param  Atom1    *atom*
+%     @param  Atom2    *atom*
+%     @param  Atom12   *atom*
 
 %!    atom_length(+Atom,-Length)
 %
 %     Length is the number of characters of the atom Atom.
 %
-%     @Atom     *atom*, must be nonvar
-%     @Length   *integer*
+%     @param  Atom     *atom*, must be nonvar
+%     @param  Length   *integer*
 
 %!    atomic(+Term)
 %
 %     Succeeds if Term is currently
 %     instantiated to an atom or a number.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    bagof(+Template,+Generator,-Set)
 %
@@ -368,10 +365,10 @@ reference inRef:
 %     returned will not be ordered, and may contain duplicates. This
 %     relaxation saves time and space in execution.
 %
-%     @Template     *term*
-%     @:Generator   *callable*, must be nonvar
+%     @param  Template     *term*
+%     @param  :Generator   *callable*, must be nonvar
 %     A goal to be proved as if by `call/1`.
-%     @Set          *list of term*, non\-empty set
+%     @param  Set          *list of term*, non\-empty set
 
 %!    bb_delete(:Key,-Term)
 %
@@ -379,16 +376,16 @@ reference inRef:
 %     and a copy of it is unified with Term. Otherwise,
 %     `bb_delete/2` silently fails.
 %
-%     @:Key   *bbkey*
-%     @Term   *term*
+%     @param  :Key   *bbkey*
+%     @param  Term   *term*
 
 %!    bb_get(:Key,-Term)
 %
 %     If a term is currently stored under Key, then a copy of it is unified
 %     with Term. Otherwise, `bb_get/2` silently fails.
 %
-%     @:Key   *bbkey*
-%     @Term   *term*
+%     @param  :Key   *bbkey*
+%     @param  Term   *term*
 
 %!    bb_put(:Key,+Term)
 %
@@ -396,8 +393,8 @@ reference inRef:
 %     blackboard. Any previous term stored under the same Key is
 %     simply deleted.
 %
-%     @:Key   *bbkey*
-%     @Term   *term*
+%     @param  :Key   *bbkey*
+%     @param  Term   *term*
 
 %!    bb_update(:Key,-OldTerm,+NewTerm)
 %
@@ -406,16 +403,16 @@ reference inRef:
 %     Otherwise, `bb_update/3` silently fails. This predicate provides
 %     an atomic swap operation.
 %
-%     @:Key      *bbkey*
-%     @OldTerm   *term*
-%     @NewTerm   *term*
+%     @param  :Key      *bbkey*
+%     @param  OldTerm   *term*
+%     @param  NewTerm   *term*
 
 %!    :- block+BlockSpec
 %
 %     Specifies conditions
 %     for blocking goals of the predicates referred to by BlockSpec.
 %
-%     @:BlockSpec   *callable*, must be ground
+%     @param  :BlockSpec   *callable*, must be ground
 %     Goal template or list of goal templates, of the form
 %     `f(Arg1, Arg2,...)`.
 %     Each Argn is one of:
@@ -434,9 +431,9 @@ reference inRef:
 %     `user:breakpoint_expansion(+Macro, -Body)`
 %     Defines debugger condition macros.
 %
-%     @Macro   *term*
+%     @param  Macro   *term*
 %     Breakpoint test or action.
-%     @Body    *term*
+%     @param  Body    *term*
 %     Expanded breakpoint test or action, may be composite.
 
 %!    byte_count(+Stream,-Count)
@@ -444,9 +441,9 @@ reference inRef:
 %     Obtains the total number of bytes either input from or output to
 %     the open binary stream Stream and unifies it with Count.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open *binary* stream.
-%     @Count    *integer*
+%     @param  Count    *integer*
 %     The resulting byte count of the stream.
 
 %!    call(+P)
@@ -456,38 +453,35 @@ reference inRef:
 %     Executes the goal obtained by
 %     augmenting P by the remaining arguments.
 %
-%     @:P   *callable*, must be nonvar
-%     @Q    term
+%     @param  :P   *callable*, must be nonvar
+%     @param  Q    term
 %     ...
 
-%!    Executes the procedure callGoal.  WhenGoalsucceeds
-determinately, is cut, fails, or raises an exception,Cleanupis executed.
+%!    Executes the procedure callGoal.  WhenGoalsucceeds determinately, is cut, fails, or raises an exception,Cleanupis executed.
 %
-%     @:Goal      *callable*, must be nonvar
-%     @:Cleanup   *callable*, must be nonvar
+%     @param  :Goal      *callable*, must be nonvar
+%     @param  :Cleanup   *callable*, must be nonvar
 
-%!    Executes the procedure callGoal, unifyingVarswith
-the list of residual variables that have blocked goals or attributes
-attached to them.
+%!    Executes the procedure callGoal, unifyingVarswith the list of residual variables that have blocked goals or attributes attached to them.
 %
-%     @:Goal   *callable*, must be nonvar
-%     @Vars    *list of var*
+%     @param  :Goal   *callable*, must be nonvar
+%     @param  Vars    *list of var*
 
 %!    callable(+Term)
 %
 %     Succeeds if Term is currently
 %     instantiated to an atom or a compound term.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    catch(+ProtectedGoal,-Exception,+Handler)
 %
 %     Specify an exception handler for ProtectedGoal, and call
 %     ProtectedGoal, as described in [ref\-ere](ref_002dere.html).
 %
-%     @:ProtectedGoal   *callable*, must be nonvar
-%     @Exception        *term*
-%     @:Handler         *callable*, must be nonvar
+%     @param  :ProtectedGoal   *callable*, must be nonvar
+%     @param  Exception        *term*
+%     @param  :Handler         *callable*, must be nonvar
 
 %!    char_code(+Char,-Code)
 %
@@ -495,9 +489,9 @@ attached to them.
 %     Code is the character code comprising the printed
 %     representation of Char.
 %
-%     @Char   *char*
+%     @param  Char   *char*
 %     The *char* whose code is Code.
-%     @Code   *code*
+%     @param  Code   *code*
 %     The *code* corresponding to Char.
 
 %!    char_conversion(+InChar,+OutChar)
@@ -505,17 +499,17 @@ attached to them.
 %     The mapping of InChar to OutChar is added to the
 %     character\-conversion mapping.
 %
-%     @InChar    *char*, must be nonvar
-%     @OutChar   *char*, must be nonvar
+%     @param  InChar    *char*, must be nonvar
+%     @param  OutChar   *char*, must be nonvar
 
 %!    character_count(+Stream,-Count)
 %
 %     Obtains the total number of characters either input from or output to
 %     the open text stream Stream and unifies it with Count.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open *text* stream
-%     @Count    *integer*
+%     @param  Count    *integer*
 %     The resulting character count of the stream
 
 %!    clause(+Head,-Body)
@@ -525,19 +519,19 @@ attached to them.
 %     Searches the database for a clause whose head matches Head
 %     and whose body matches Body.
 %
-%     @:Head   *callable*
+%     @param  :Head   *callable*
 %     A term whose functor names a dynamic procedure.
-%     @Body    *callable*
-%     @Ref     *db\_reference*
+%     @param  Body    *callable*
+%     @param  Ref     *db\_reference*
 
 %!    close(+Stream)
 %!    close(+Stream,+Options)
 %
 %     closes the stream corresponding to Stream.
 %
-%     @Stream    *stream\_object*, must be ground
+%     @param  Stream    *stream\_object*, must be ground
 %     Stream or file specification.
-%     @Options   *list of term*, must be ground
+%     @param  Options   *list of term*, must be ground
 %     A list of zero or more of the following:
 %     `force(Boolean)`
 %     Specifies whether SICStus Prolog is to close the stream
@@ -563,21 +557,21 @@ attached to them.
 %     succeeds if the result of comparing terms Term1 and
 %     Term2 is Order
 %
-%     @Order   *order*
+%     @param  Order   *order*
 %     `=`
 %     if Term1 is identical to Term2,
 %     `<`
 %     if Term1 is before Term2 in the standard order,
 %     `>`
 %     if Term1 is after Term2 in the standard order.
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    compile(+Files)
 %
 %     Compiles the specified Prolog source file(s) into memory.
 %
-%     @:Files   *file\_spec* or *list of file\_spec*, must be ground
+%     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
 %     extensions optional.
 
@@ -585,19 +579,18 @@ attached to them.
 %
 %     Term is currently instantiated to a compound term.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    consult(+Files)
 %
 %     Consults the specified Prolog source file(s) into memory.
 %
-%     @:Files   *file\_spec* or *list of file\_spec*, must be ground
+%     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
 %     extensions optional.
 
 %!    copy_term(+Term,-Copy)
-%!    UnifiesCopywith a copy ofTermin which all variables have been replaced by brand new variables,
-and all mutables by brand new mutables.
+%!    UnifiesCopywith a copy ofTermin which all variables have been replaced by brand new variables, and all mutables by brand new mutables.
 %
 %     `copy_term(+Term, -Copy, -Body)`
 %     Furthermore, if Term contains variables with goals blocked on
@@ -608,15 +601,15 @@ and all mutables by brand new mutables.
 %     will reinstate blocked goals and attributes on the variables in Copy
 %     equivalent to those on the variables in Term.
 %
-%     @Term   *term*
-%     @Copy   *term*
-%     @Body   *callable*
+%     @param  Term   *term*
+%     @param  Copy   *term*
+%     @param  Body   *callable*
 
 %!    coverage_data(-Data)since release 4.2
 %
 %     Data is the coverage data accumulated so far.
 %
-%     @Data   *list of coverage\_pair*
+%     @param  Data   *list of coverage\_pair*
 %     where:
 %     | coverage\_pair | ::\= `counter(filename,pred_spec,clauseno,lineno)-tagged_hits` |
 %     | --- | --- |
@@ -631,66 +624,65 @@ and all mutables by brand new mutables.
 %
 %     Mutable is a new mutable term with initial value Datum.
 %
-%     @Datum     *term*, must be nonvar
-%     @Mutable   *mutable*
+%     @param  Datum     *term*, must be nonvar
+%     @param  Mutable   *mutable*
 
 %!    current_atom(?Atom)
 %
 %     Atom is a currently existing atom.
 %
-%     @Atom   *atom*
+%     @param  Atom   *atom*
 
 %!    current_breakpoint(-Conditions,-BID,-Status,-Kind,-Type)
 %
 %     There is a breakpoint with conditions Conditions, identifier
 %     BID, enabledness Status, kind Kind, and type Type.
 %
-%     @:Conditions   *term*
+%     @param  :Conditions   *term*
 %     Breakpoint conditions.
-%     @BID           *integer*
+%     @param  BID           *integer*
 %     Breakpoint identifier.
-%     @Status        *one of `[on,off]`*
+%     @param  Status        *one of `[on,off]`*
 %     `on` for enabled breakpoints and `off` for disabled ones
-%     @Kind          *one of `[plain(MFunc),conditional(MFunc),generic]`*
+%     @param  Kind          *one of `[plain(MFunc),conditional(MFunc),generic]`*
 %     MFunc is the module qualified functor of
 %     the specific breakpoint.
-%     @Type          *one of `[debugger,advice]`*
+%     @param  Type          *one of `[debugger,advice]`*
 
 %!    current_char_conversion(?InChar,?OutChar)
 %
 %     InChar is currently mapped to OutChar in the
 %     character\-conversion mapping, where the two are distinct.
 %
-%     @InChar    *char*
-%     @OutChar   *char*
+%     @param  InChar    *char*
+%     @param  OutChar   *char*
 
 %!    current_input(-Stream)
 %
 %     unifies Stream with the current input stream.
 %
-%     @Stream   *stream\_object*
+%     @param  Stream   *stream\_object*
 
 %!    current_key(?KeyName,?KeyTerm)
 %
 %     Succeeds when KeyName is the name of KeyTerm, and
 %     KeyTerm is a recorded key.
 %
-%     @KeyName   *atomic*
+%     @param  KeyName   *atomic*
 %     One of:
 %     * KeyTerm, if KeyTerm is atomic; or
 %     * the principal functor of KeyTerm, if KeyTerm is a compound term.
-%     @KeyTerm   *term*
+%     @param  KeyTerm   *term*
 %     The most general form of the key for a currently recorded term.
 
 %!    current_module(?ModuleName)
-%!    Queries whether a module is "current" or backtracks through all
-of the current modules.
+%!    Queries whether a module is "current" or backtracks through all of the current modules.
 %
 %     `current_module(?ModuleName, ?AbsFile)`
 %     Associates modules with their module files.
 %
-%     @ModuleName   *atom*
-%     @AbsFile      *atom*
+%     @param  ModuleName   *atom*
+%     @param  AbsFile      *atom*
 %     Absolute filename in which the module is defined.
 
 %!    current_op(?Precedence,?Type,?Name)
@@ -699,47 +691,46 @@ of the current modules.
 %     currently an operator of type Type and precedence
 %     Precedence.
 %
-%     @Precedence   *integer*, in the range 1\-1200
-%     @Type         *one of `[xfx, xfy, yfx, fx, fy, xf, yf]`*
-%     @Name         *atom*
+%     @param  Precedence   *integer*, in the range 1\-1200
+%     @param  Type         *one of `[xfx, xfy, yfx, fx, fy, xf, yf]`*
+%     @param  Name         *atom*
 
 %!    current_output(-Stream)
 %
 %     unifies Stream with the current output stream.
 %
-%     @Stream   *stream\_object*
+%     @param  Stream   *stream\_object*
 
 %!    current_predicate(?PredSpec)
-%!    UnifiesPredSpecwith
-a predicate specifications of the formName/Arity.
+%!    UnifiesPredSpecwith a predicate specifications of the formName/Arity.
 %
 %     `current_predicate(?Name, ?Term)`
 %     Unifies Name with the name of a user\-defined predicate, and Term
 %     with the most general term corresponding to that predicate.
 %
-%     @:PredSpec   *pred\_spec*
-%     @Name        *atom*
-%     @:Term       *callable*
+%     @param  :PredSpec   *pred\_spec*
+%     @param  Name        *atom*
+%     @param  :Term       *callable*
 
 %!    current_prolog_flag(?FlagName,?Value)
 %
 %     same as `prolog_flag(FlagName, Value)`, except that
 %     `current_prolog_flag(FlagName, Value)` type checks FlagName.
 %
-%     @FlagName   *atom*
-%     @Value      *term*
+%     @param  FlagName   *atom*
+%     @param  Value      *term*
 
 %!    current_stream(?AbsFile,?Mode,?Stream)
 %
 %     Stream is a stream, which is currently open on
 %     file AbsFile in mode Mode.
 %
-%     @AbsFile   *atom*
+%     @param  AbsFile   *atom*
 %     Absolute filename.
-%     @Mode      for streams opened with `open/[3,4]` this is
+%     @param  Mode      for streams opened with `open/[3,4]` this is
 %     *one of `[read, write, append]`*.
 %     For other streams Mode may have other values.
-%     @Stream    *stream\_object*
+%     @param  Stream    *stream\_object*
 
 %!    !
 %
@@ -751,7 +742,7 @@ a predicate specifications of the formName/Arity.
 %     a compound term with principal functor `'$ref'/2`
 %     denoting a unique reference to a dynamic clause.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    debug
 %
@@ -763,8 +754,8 @@ a predicate specifications of the formName/Arity.
 %     Allows the interactive debugger to be extended with user\-defined
 %     commands. See [Debug Commands](Debug-Commands.html).
 %
-%     @DCommand   *term*
-%     @Actions    *term*
+%     @param  DCommand   *term*
+%     @param  Actions    *term*
 
 %!    debugging
 %
@@ -775,14 +766,14 @@ a predicate specifications of the formName/Arity.
 %     Constrains X and Y to represent different terms i.e.
 %     to be non\-unifiable.
 %
-%     @X   *term*
-%     @Y   *term*
+%     @param  X   *term*
+%     @param  Y   *term*
 
 %!    disable_breakpoints(+BIDs)
 %
 %     Disables the breakpoints specified by BIDs.
 %
-%     @BIDs   *list of integer*, must be ground
+%     @param  BIDs   *list of integer*, must be ground
 %     Breakpoint identifiers.
 
 %!    :- discontiguous+PredSpecs
@@ -790,7 +781,7 @@ a predicate specifications of the formName/Arity.
 %     Declares the clauses of the predicates defined by PredSpecs to be
 %     discontiguous in the source file (suppresses compile\-time warnings).
 %
-%     @:PredSpecs   *pred\_spec\_forest*, must be ground
+%     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
 
@@ -801,19 +792,19 @@ a predicate specifications of the formName/Arity.
 %     Since quoting is never used, even when needed for reading the term
 %     back in, the standard predicate `write_canonical/1` is often preferable.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    (+Iteratordo+Body)
 %
-%     @+Iterator   *iterator*, must be nonvar
-%     @:Body       *callable*, must be nonvar
+%     @param  +Iterator   *iterator*, must be nonvar
+%     @param  :Body       *callable*, must be nonvar
 
 %!    :- dynamic+PredSpecs
 %
 %     Declares the clauses of the predicates defined by PredSpecs to be
 %     dynamic.
 %
-%     @:PredSpecs   *pred\_spec\_forest*, must be ground
+%     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
 
@@ -821,7 +812,7 @@ a predicate specifications of the formName/Arity.
 %
 %     Enables the breakpoints specified by BIDs.
 %
-%     @BIDs   *list of integer*, must be ground
+%     @param  BIDs   *list of integer*, must be ground
 %     Breakpoint identifiers.
 
 %!    ensure_loaded(+Files)
@@ -829,7 +820,7 @@ a predicate specifications of the formName/Arity.
 %     Loads the specified Prolog source and/or object file(s) into memory,
 %     if not already loaded and up to date.
 %
-%     @:Files   *file\_spec* or *list of file\_spec*, must be ground
+%     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
 %     extension optional.
 
@@ -838,15 +829,15 @@ a predicate specifications of the formName/Arity.
 %     Succeeds if the results of evaluating Expr1 and
 %     Expr2 *are equal*.
 %
-%     @Expr1   *expr*, must be ground
-%     @Expr2   *expr*, must be ground
+%     @param  Expr1   *expr*, must be ground
+%     @param  Expr2   *expr*, must be ground
 
 %!    erase(+Ref)
 %
 %     Erases from the database the dynamic clause or recorded term referenced
 %     by Ref.
 %
-%     @Ref   *db\_reference*, must be nonvar
+%     @param  Ref   *db\_reference*, must be nonvar
 
 %!    :- multifile user:error_exception/1.
 %
@@ -854,7 +845,7 @@ a predicate specifications of the formName/Arity.
 %     Tells the debugger to enter trace mode on exceptions
 %     matching Exception.
 %
-%     @Exception   *term*
+%     @param  Exception   *term*
 
 %!    execution_state(+Tests)
 %!    Testsare satisfied in the current state of the execution.
@@ -863,8 +854,8 @@ a predicate specifications of the formName/Arity.
 %     Tests are satisfied in the state of the execution pointed to by
 %     FocusConditions.
 %
-%     @FocusConditions   *term*
-%     @:Tests            *term*
+%     @param  FocusConditions   *term*
+%     @param  :Tests            *term*
 
 %!    +X^+P
 %
@@ -873,8 +864,8 @@ a predicate specifications of the formName/Arity.
 %     explicit existential quantifier outside `setof/3` and `bagof/3`
 %     is superfluous.
 %
-%     @X    *term*
-%     @:P   *callable*, must be nonvar
+%     @param  X    *term*
+%     @param  :P   *callable*, must be nonvar
 
 %!    expand_term(+Term1,-Term2)
 %
@@ -890,8 +881,8 @@ a predicate specifications of the formName/Arity.
 %     `beginning_of_file` is "seen" *before* any module
 %     declaration, i.e. before the source module has been updated.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    fail
 %
@@ -907,9 +898,9 @@ a predicate specifications of the formName/Arity.
 %     Defines a symbolic name for a directory or a path. Used by
 %     predicates taking *file\_spec* as input argument.
 %
-%     @PathAlias   *atom*
+%     @param  PathAlias   *atom*
 %     An atom that represents the path given by DirSpec.
-%     @DirSpec     *file\_spec*
+%     @param  DirSpec     *file\_spec*
 %     Either an atom giving the path to
 %     a file or directory, or PathAlias(DirSpec), where PathAlias is
 %     defined by another `file_search_path/2` rule.
@@ -921,17 +912,17 @@ a predicate specifications of the formName/Arity.
 %     which the goal Generator succeeds, appended to Remainder.
 %     Remainder defaults to the empty list.
 %
-%     @Template     *term*
-%     @:Generator   *callable*, must be nonvar
+%     @param  Template     *term*
+%     @param  :Generator   *callable*, must be nonvar
 %     A goal to be proved as if by `call/1`.
-%     @List         *list of term*
-%     @Remainder    *list of term*
+%     @param  List         *list of term*
+%     @param  Remainder    *list of term*
 
 %!    float(+Term)
 %
 %     Term is currently instantiated to a float.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    flush_output
 %!    flush_output(+Stream)
@@ -939,7 +930,7 @@ a predicate specifications of the formName/Arity.
 %     Forces the buffered output of the stream Stream (defaults to the
 %     current output stream) to be sent to the associated device.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid Prolog stream, defaults to the current output stream.
 
 %!    :- discontiguous foreign/2, foreign/3.
@@ -949,12 +940,12 @@ a predicate specifications of the formName/Arity.
 %     Describes the interface between Prolog and the foreign Routine.
 %     Used by `load_foreign_resource/1`.
 %
-%     @Routine       *atom*, must be nonvar
+%     @param  Routine       *atom*, must be nonvar
 %     An atom that names a foreign code Routine.
-%     @Language      *atom*, must be nonvar
+%     @param  Language      *atom*, must be nonvar
 %     An atom that names the Language
 %     in which Routine is written. Can only be `c`.
-%     @ForeignSpec   *foreign\_spec*, must be ground
+%     @param  ForeignSpec   *foreign\_spec*, must be ground
 %     A ground term of the form PredName(Argspec, ...,
 %     Argspec) as described in [Conversions between Prolog Arguments and C Types](Conversions-between-Prolog-Arguments-and-C-Types.html). Each Argspec should be a *foreign\_arg*.
 
@@ -963,8 +954,8 @@ a predicate specifications of the formName/Arity.
 %     `foreign_resource(+ResourceName, +ForeignFunctions)`
 %     Describes the foreign functions in ResourceName to interface to.
 %
-%     @ResourceName       *atom*, must be nonvar
-%     @ForeignFunctions   *list of atom*, must be ground
+%     @param  ResourceName       *atom*, must be nonvar
+%     @param  ForeignFunctions   *list of atom*, must be ground
 %     A list of foreign
 %     function symbols that will be obtained from ResourceName.
 
@@ -974,9 +965,9 @@ a predicate specifications of the formName/Arity.
 %     Interprets the Arguments according to the Control string and
 %     prints the result on Stream.
 %
-%     @Stream       *stream\_object*, must be ground
+%     @param  Stream       *stream\_object*, must be ground
 %     Defaults to the current output stream.
-%     @Control      *chars* or *codes* or *atom*, must be ground
+%     @param  Control      *chars* or *codes* or *atom*, must be ground
 %     A string, which can contain control sequences of the form
 %     '`~N<c>`':
 %     \<c\>
@@ -985,7 +976,7 @@ a predicate specifications of the formName/Arity.
 %     optional; if given, must be '`*`' or an integer.
 %     Any characters that are not part of a control sequence are written
 %     to the specified output stream.
-%     @:Arguments   *list of term*, must be proper list
+%     @param  :Arguments   *list of term*, must be proper list
 %     List of arguments, which will be interpreted and
 %     possibly printed by format control options.
 
@@ -993,16 +984,16 @@ a predicate specifications of the formName/Arity.
 %
 %     Blocks Goal until Flag is bound.
 %
-%     @Flag    *term*
-%     @:Goal   *callable*, must be nonvar
+%     @param  Flag    *term*
+%     @param  :Goal   *callable*, must be nonvar
 
 %!    frozen(+Term,-Goal)
 %
 %     Goal is unified with the conjunction of all goals blocked on some variable
 %     that occurs in Term.
 %
-%     @Term   *term*
-%     @Goal   *callable*
+%     @param  Term   *term*
+%     @param  Goal   *callable*
 
 %!    functor(+Term, -Name, -Arity)
 %
@@ -1010,9 +1001,9 @@ a predicate specifications of the formName/Arity.
 %     Succeeds if the principal functor of term Term has name
 %     Name and arity Arity.
 %
-%     @Term    *term*
-%     @Name    *atom*
-%     @Arity   *arity*
+%     @param  Term    *term*
+%     @param  Name    *atom*
+%     @param  Arity   *arity*
 
 %!    garbage_collect
 %
@@ -1030,11 +1021,11 @@ a predicate specifications of the formName/Arity.
 %     nested list of Control\-Arg pairs, which can be used as input to
 %     `print_message_lines/3`.
 %
-%     @MessageTerm   *term*
+%     @param  MessageTerm   *term*
 %     May be any term.
-%     @S0            *list of pair*
+%     @param  S0            *list of pair*
 %     The resulting list of Control\-Args pairs.
-%     @S             *list of pair*
+%     @param  S             *list of pair*
 %     The remaining list.
 
 %!    :- multifile user:generate_message_hook/3.
@@ -1043,11 +1034,11 @@ a predicate specifications of the formName/Arity.
 %     A way for the user to override the call to `'SU_messages':generate_message/3`
 %     in `print_message/2`.
 %
-%     @MessageTerm   *term*
+%     @param  MessageTerm   *term*
 %     May be any term.
-%     @S0            *list of pair*
+%     @param  S0            *list of pair*
 %     The resulting list of Control\-Args pairs.
-%     @S             *list of pair*
+%     @param  S             *list of pair*
 %     The remaining list.
 
 %!    get_byte(-Byte)
@@ -1056,10 +1047,10 @@ a predicate specifications of the formName/Arity.
 %     Unifies Byte with the next *byte* from
 %     Stream or with \-1 if there are no more bytes.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     valid input *binary* stream,
 %     defaults to the current input stream.
-%     @Byte     *byte* or \-1
+%     @param  Byte     *byte* or \-1
 
 %!    get_char(-Char)
 %!    get_char(+Stream,-Char)
@@ -1067,10 +1058,10 @@ a predicate specifications of the formName/Arity.
 %     Unifies Char with the next *char* from Stream or
 %     with `end_of_file` if there are no more characters.
 %
-%     @Stream   *stream\_object*, must be ground.
+%     @param  Stream   *stream\_object*, must be ground.
 %     Valid input *text* stream,
 %     defaults to the current input stream.
-%     @Char     *char* or *one of \[`end_of_file`]*
+%     @param  Char     *char* or *one of \[`end_of_file`]*
 
 %!    get_code(-Code)
 %!    get_code(+Stream,-Code)
@@ -1078,33 +1069,33 @@ a predicate specifications of the formName/Arity.
 %     Unifies Code with the next *code* from
 %     Stream or with \-1 if there are no more characters.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     Valid input *text* stream,
 %     defaults to the current input stream.
-%     @Code     *code* or \-1
+%     @param  Code     *code* or \-1
 
 %!    get_mutable(-Datum,+Mutable)
 %
 %     Datum is the current value of the mutable term
 %     Mutable.
 %
-%     @Datum     *term*, must be nonvar
-%     @Mutable   *mutable*, must be nonvar
+%     @param  Datum     *term*, must be nonvar
+%     @param  Mutable   *mutable*, must be nonvar
 
 %!    M:goal_expansion(+Goal1,+Layout1,+Module,-Goal2,-Layout2)
 %
 %     Defines transformations on goals while clauses are being compiled or asserted,
 %     and during meta\-calls at runtime.
 %
-%     @Goal1     *callable*
+%     @param  Goal1     *callable*
 %     Goal to transform.
-%     @Layout1   *term*
+%     @param  Layout1   *term*
 %     Layout of goal to transform.
-%     @Module    *atom*
+%     @param  Module    *atom*
 %     Source module of goal to transform.
-%     @Goal2     *callable*
+%     @param  Goal2     *callable*
 %     Transformed goal.
-%     @Layout2   *term*
+%     @param  Layout2   *term*
 %     Layout of transformed goal.
 
 %!    goal_source_info(+AGoal,-Goal,-SourceInfo)
@@ -1113,30 +1104,30 @@ a predicate specifications of the formName/Arity.
 %     and the SourceInfo descriptor term, indicating the source
 %     position of the goal.
 %
-%     @AGoal        *callable*, must be nonvar
-%     @Goal         *callable*
-%     @SourceInfo   *term*
+%     @param  AGoal        *callable*, must be nonvar
+%     @param  Goal         *callable*
+%     @param  SourceInfo   *term*
 
 %!    +Expr1>+Expr2
 %
 %     Succeeds if the result of evaluating Expr1 is strictly
 %     *greater than* the result of evaluating Expr2.
 %
-%     @Expr1   *expr*, must be ground
-%     @Expr2   *expr*, must be ground
+%     @param  Expr1   *expr*, must be ground
+%     @param  Expr2   *expr*, must be ground
 
 %!    ground(+Term)
 %
 %     Term is currently instantiated to a ground term.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    halt
 %!    halt(+ExitCode)
 %
 %     Causes an exit from the running process.
 %
-%     @ExitCode   *integer*, must be nonvar
+%     @param  ExitCode   *integer*, must be nonvar
 %     Exit status code. Only the lower 8 bits of this value is used.
 
 %!    if(+P,+Q,+R)
@@ -1144,9 +1135,9 @@ a predicate specifications of the formName/Arity.
 %     *If* P *then* Q *else* R, for all solution of
 %     P.
 %
-%     @:P   *callable*, must be nonvar
-%     @:Q   *callable*, must be nonvar
-%     @:R   *callable*, must be nonvar
+%     @param  :P   *callable*, must be nonvar
+%     @param  :Q   *callable*, must be nonvar
+%     @param  :R   *callable*, must be nonvar
 
 %!    +P->+Q
 %
@@ -1156,8 +1147,8 @@ a predicate specifications of the formName/Arity.
 %     P -> Q ; fail.
 %     ```
 %
-%     @:P   *callable*, must be nonvar
-%     @:Q   *callable*, must be nonvar
+%     @param  :P   *callable*, must be nonvar
+%     @param  :Q   *callable*, must be nonvar
 
 %!    :- include+Files
 %
@@ -1165,7 +1156,7 @@ a predicate specifications of the formName/Arity.
 %     directives in Files into the file being loaded.
 %     The file or files will be opened with default options.
 %
-%     @:Files   *file\_spec* or *list of file\_spec*, must be ground
+%     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
 %     extension optional.
 
@@ -1176,7 +1167,7 @@ a predicate specifications of the formName/Arity.
 %     stand\-alone program or runtime system that contains the file is started
 %     up.
 %
-%     @:Goal   *callable*, must be nonvar
+%     @param  :Goal   *callable*, must be nonvar
 
 %!    instance(+Ref,-Term)
 %
@@ -1184,26 +1175,26 @@ a predicate specifications of the formName/Arity.
 %     most general instance of the dynamic clause or recorded term indicated by
 %     the database reference Ref.
 %
-%     @Ref    *db\_reference*, must be nonvar
-%     @Term   *term*
+%     @param  Ref    *db\_reference*, must be nonvar
+%     @param  Term   *term*
 
 %!    integer(+Term)
 %
 %     Term is currently instantiated to an integer.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    -Termis+Expression
 %
 %     Evaluates Expression as an arithmetic expression, and unifies
 %     the resulting number with Term.
 %
-%     @Expression   *expr*, must be ground.
+%     @param  Expression   *expr*, must be ground.
 %     An expression made up of:
 %     * functors representing arithmetic operations
 %     * numbers
 %     * variables bound to numbers or arithmetic expressions
-%     @Term         *number*
+%     @param  Term         *number*
 
 %!    keysort(+Pairs,-Sorted)
 %
@@ -1211,14 +1202,14 @@ a predicate specifications of the formName/Arity.
 %     standard order (see [ref\-lte\-cte\-sot](ref_002dlte_002dcte_002dsot.html)) with respect to the key of
 %     the pair structure.
 %
-%     @Pairs    *list of pair*, must be a proper list of proper pairs
-%     @Sorted   *list of pair*
+%     @param  Pairs    *list of pair*, must be a proper list of proper pairs
+%     @param  Sorted   *list of pair*
 
 %!    leash(+Mode)
 %
 %     Starts leashing on the ports given by Mode.
 %
-%     @Mode   %     *list of one of
+%     @param  Mode   %     *list of one of
 %     `[call,exit,redo,fail,exception,all,half,loose,tight,off]`*, must be ground
 %     A list of the ports to be leashed.
 %     A single keyword can be given without enclosing it in a list.
@@ -1229,8 +1220,8 @@ a predicate specifications of the formName/Arity.
 %     instantiated to a proper *list of term*, or Integer to an integer, then
 %     the predicate is determinate.
 %
-%     @List      *list of term*
-%     @Integer   *integer*, non\-negative
+%     @param  List      *list of term*
+%     @param  Integer   *integer*, non\-negative
 
 %!    +Expr1<+Expr2
 %
@@ -1238,8 +1229,8 @@ a predicate specifications of the formName/Arity.
 %     The goal succeeds if the result of evaluating Expr1 is strictly
 %     *less than* the result of evaluating Expr2.
 %
-%     @Expr1   *expr*, must be ground
-%     @Expr2   *expr*, must be ground
+%     @param  Expr1   *expr*, must be ground
+%     @param  Expr2   *expr*, must be ground
 
 %!    :- multifile user:library_directory/1.
 %
@@ -1247,7 +1238,7 @@ a predicate specifications of the formName/Arity.
 %     Defines a library directory. Used by predicates taking
 %     *file\_spec* as input argument.
 %
-%     @DirSpec   *file\_spec*
+%     @param  DirSpec   *file\_spec*
 %     Either an atom giving the path to
 %     a file or directory, or PathAlias(DirSpec), where PathAlias is
 %     defined by a `file_search_path/2` rule.
@@ -1257,9 +1248,9 @@ a predicate specifications of the formName/Arity.
 %     Obtains the total number of lines either input from or output to
 %     the open text stream Stream and unifies it with Count.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open *text* stream.
-%     @Count    *integer*
+%     @param  Count    *integer*
 %     The resulting line count of the stream.
 
 %!    line_position(+Stream,-Count)
@@ -1268,9 +1259,9 @@ a predicate specifications of the formName/Arity.
 %     the current line of
 %     the open text stream Stream and unifies it with Count.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open *text* stream.
-%     @Count    *integer*
+%     @param  Count    *integer*
 %     The resulting line count of the stream.
 
 %!    listing
@@ -1280,7 +1271,7 @@ a predicate specifications of the formName/Arity.
 %     type\-in module of the Prolog database, or of PredSpecs, to the
 %     current output stream, using `portray_clause/1`.
 %
-%     @:PredSpecs   *pred\_spec\_tree*
+%     @param  :PredSpecs   *pred\_spec\_tree*
 %     A predicate specification, or a list of such.
 
 %!    load_files(+Files)
@@ -1290,10 +1281,10 @@ a predicate specifications of the formName/Arity.
 %     Loads the specified Prolog source and/or object file(s) into memory.
 %     Subsumes all other load predicates.
 %
-%     @:Files    *file\_spec* or *list of file\_spec*, must be ground
+%     @param  :Files    *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
 %     extensions optional.
-%     @Options   *list of term*, must be ground
+%     @param  Options   *list of term*, must be ground
 %     A list of zero or more options of the form:
 %     `if(X)`
 %     `true` (the default) to always load, or `changed` to
@@ -1338,7 +1329,7 @@ a predicate specifications of the formName/Arity.
 %     Load the foreign resource Resource into Prolog. Relies on the
 %     hook predicates `foreign_resource/2` and `foreign/[2,3]`.
 %
-%     @:Resource   *file\_spec*, must be ground
+%     @param  :Resource   *file\_spec*, must be ground
 %     The foreign resource to be loaded. The file extension can be omitted.
 
 %!    member(?Element,?List)
@@ -1347,8 +1338,8 @@ a predicate specifications of the formName/Arity.
 %     to test for an element or to enumerate all the elements by backtracking.
 %     Indeed, it may be used to generate the List!
 %
-%     @Element   *term*
-%     @List      *list of term*
+%     @param  Element   *term*
+%     @param  List      *list of term*
 
 %!    memberchk(?Element,?List)
 %
@@ -1356,8 +1347,8 @@ a predicate specifications of the formName/Arity.
 %     List. Its purpose is to test for membership. Normally, the two
 %     arguments are ground.
 %
-%     @Element   *term*
-%     @List      *list of term*
+%     @param  Element   *term*
+%     @param  List      *list of term*
 
 %!    :- multifile user:message_hook/3.
 %
@@ -1367,9 +1358,9 @@ a predicate specifications of the formName/Arity.
 %     Severity, whose translations is Lines, before it is
 %     actually printed.
 %
-%     @Severity      *one of `[informational,warning,error,help,silent]`*
-%     @MessageTerm   *term*
-%     @Lines         *list of list of pair*
+%     @param  Severity      *one of `[informational,warning,error,help,silent]`*
+%     @param  MessageTerm   *term*
+%     @param  Lines         *list of list of pair*
 %     Is of the form `[Line1, Line2, ...]`, where each
 %     Linei is of the form
 %     `[Control_1-Args_1,Control_2-Args_2, ...]`.
@@ -1380,7 +1371,7 @@ a predicate specifications of the formName/Arity.
 %     predicate given by MetaSpec. All `meta_predicate/1` declarations
 %     should be at the beginning of a module.
 %
-%     @:MetaSpec   *callable*, must be ground
+%     @param  :MetaSpec   *callable*, must be ground
 %     Goal template or list of goal templates, of the form
 %     `functor(Arg1, Arg2,...)`.
 %     Each Argn is one of:
@@ -1412,7 +1403,7 @@ a predicate specifications of the formName/Arity.
 %
 %     Currently a dummy declaration.
 %
-%     @:Mode   *term*
+%     @param  :Mode   *term*
 
 %!    :- module(+ModuleName,+PublicPred).
 %!    :- module(+ModuleName,+PublicPred,+Options).
@@ -1421,10 +1412,10 @@ a predicate specifications of the formName/Arity.
 %     module file named ModuleName, with public predicates
 %     PublicPred. Must appear as the first term in the file.
 %
-%     @ModuleName   *atom*, must be nonvar
-%     @PublicPred   *list of simple\_pred\_spec*, must be ground
+%     @param  ModuleName   *atom*, must be nonvar
+%     @param  PublicPred   *list of simple\_pred\_spec*, must be ground
 %     List of predicate specifications of the form Name/Arity.
-%     @Options      *list of term*, must be ground
+%     @param  Options      *list of term*, must be ground
 %     A list of zero or more options of the form:
 %     `hidden(Boolean)`
 %     Boolean is `false` (the default) or `true`. In the
@@ -1437,7 +1428,7 @@ a predicate specifications of the formName/Arity.
 %     Declares the clauses of the predicates defined by PredSpecs to be
 %     multifile in the source file (suppresses compile\-time warnings).
 %
-%     @:PredSpecs   *pred\_spec\_forest*, must be ground
+%     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
 
@@ -1445,7 +1436,7 @@ a predicate specifications of the formName/Arity.
 %
 %     Succeeds if Term is currently instantiated to a mutable term.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    name(+Constant,-Codes)
 %
@@ -1453,8 +1444,8 @@ a predicate specifications of the formName/Arity.
 %     Codes is the list consisting of the *codes* comprising
 %     the printed representation of Constant.
 %
-%     @Constant   *atomic*
-%     @Codes      *codes*
+%     @param  Constant   *atomic*
+%     @param  Codes      *codes*
 
 %!    nl
 %!    nl(+Stream)
@@ -1462,7 +1453,7 @@ a predicate specifications of the formName/Arity.
 %     Terminates the current output record on the current output stream
 %     or on Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid output *text* stream, defaults to the current output stream.
 
 %!    nodebug
@@ -1475,21 +1466,21 @@ a predicate specifications of the formName/Arity.
 %     List. Its purpose is to test for membership. Normally, the two
 %     arguments are ground.
 %
-%     @Element   *term*
-%     @List      *list of term*
+%     @param  Element   *term*
+%     @param  List      *list of term*
 
 %!    nonvar(+Term)
 %
 %     Term is currently instantiated.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    nospy+PredSpecs
 %
 %     Any spypoints (plain and conditional) on the predicates
 %     represented by PredSpecs are removed.
 %
-%     @:PredSpecs   *pred\_spec\_tree*
+%     @param  :PredSpecs   *pred\_spec\_tree*
 %     A predicate specification, or a list of such.
 
 %!    nospyall
@@ -1502,24 +1493,24 @@ a predicate specifications of the formName/Arity.
 %     Succeeds if the results of evaluating Expr1 and
 %     Expr2 are *not equal*.
 %
-%     @Expr1   *expr*, must be ground
-%     @Expr2   *expr*, must be ground
+%     @param  Expr1   *expr*, must be ground
+%     @param  Expr2   *expr*, must be ground
 
 %!    +Expr1=<+Expr2
 %
 %     Succeeds if the result of evaluating Expr1 is *less
 %     than or equal* to the result of evaluating Expr2.
 %
-%     @Expr1   *expr*, must be ground
-%     @Expr2   *expr*, must be ground
+%     @param  Expr1   *expr*, must be ground
+%     @param  Expr2   *expr*, must be ground
 
 %!    +Expr1>=+Expr2
 %
 %     Succeeds if the results of evaluating Expr1 and
 %     Expr2 *are equal*.
 %
-%     @Expr1   *expr*, must be ground
-%     @Expr2   *expr*, must be ground
+%     @param  Expr1   *expr*, must be ground
+%     @param  Expr2   *expr*, must be ground
 
 %!    \++P
 %
@@ -1530,14 +1521,14 @@ a predicate specifications of the formName/Arity.
 %     ```
 %     except that the use of `call/1` often can be avoided.
 %
-%     @:P   *callable*, must be nonvar
+%     @param  :P   *callable*, must be nonvar
 
 %!    +Term1\=+Term2
 %
 %     Term1 and Term2 do not unify.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    notrace
 %
@@ -1551,7 +1542,7 @@ a predicate specifications of the formName/Arity.
 %
 %     Term is currently instantiated to a number.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    number_chars(+Number,-Chars)
 %
@@ -1559,8 +1550,8 @@ a predicate specifications of the formName/Arity.
 %     Chars is the *chars* comprising the printed
 %     representation of Number.
 %
-%     @Number   *number*
-%     @Chars    *chars*
+%     @param  Number   *number*
+%     @param  Chars    *chars*
 
 %!    number_codes(+Number,-Codes)
 %
@@ -1568,17 +1559,17 @@ a predicate specifications of the formName/Arity.
 %     Codes is the *codes* comprising the printed
 %     representation of Number.
 %
-%     @Number   *number*
-%     @Codes    *codes*
+%     @param  Number   *number*
+%     @param  Codes    *codes*
 
 %!    numbervars(+Term,+FirstVar,-LastVar)
 %
 %     instantiates each of the variables in Term to a term of the form
 %     `'$VAR'(N)`.
 %
-%     @Term       *term*
-%     @FirstVar   *integer*, must be nonvar
-%     @LastVar    *integer*
+%     @param  Term       *term*
+%     @param  FirstVar   *integer*, must be nonvar
+%     @param  LastVar    *integer*
 
 %!    on_exception(-Exception,+ProtectedGoal,+Handler)
 %
@@ -1587,9 +1578,9 @@ a predicate specifications of the formName/Arity.
 %     Specify an exception handler for ProtectedGoal, and call
 %     ProtectedGoal, as described in [ref\-ere](ref_002dere.html).
 %
-%     @Exception        *term*
-%     @:ProtectedGoal   *callable*, must be nonvar
-%     @:Handler         *callable*, must be nonvar
+%     @param  Exception        *term*
+%     @param  :ProtectedGoal   *callable*, must be nonvar
+%     @param  :Handler         *callable*, must be nonvar
 
 %!    once(+P)
 %
@@ -1599,16 +1590,16 @@ a predicate specifications of the formName/Arity.
 %     ```
 %     except that the use of `call/1` often can be avoided.
 %
-%     @:P   *callable*, must be nonvar
+%     @param  :P   *callable*, must be nonvar
 
 %!    op(+Precedence,+Type,+Name)
 %
 %     declares Name to be an operator of the stated
 %     Type and Precedence.
 %
-%     @Precedence   *integer*, must be nonvar and in the range 1\-1200
-%     @Type         *one of `[xfx,xfy,yfx,fx,fy,xf,yf]`*, must be nonvar
-%     @Name         *atom* or *list of atom*, must be ground
+%     @param  Precedence   *integer*, must be nonvar and in the range 1\-1200
+%     @param  Type         *one of `[xfx,xfy,yfx,fx,fy,xf,yf]`*, must be nonvar
+%     @param  Name         *atom* or *list of atom*, must be ground
 
 %!    open(+FileSpec,+Mode,-Stream)
 %!    open(+FileSpec,+Mode,-Stream,+Options)
@@ -1616,9 +1607,9 @@ a predicate specifications of the formName/Arity.
 %     Creates a Prolog stream by opening the file FileSpec
 %     in mode Mode with options Options.
 %
-%     @FileSpec   *file\_spec*, must be ground
+%     @param  FileSpec   *file\_spec*, must be ground
 %     A file specification.
-%     @Mode       *one of `[read,write,append]`*, must be nonvar
+%     @param  Mode       *one of `[read,write,append]`*, must be nonvar
 %     An atom specifying the open mode of the target file.
 %     One of:
 %     `read`
@@ -1631,7 +1622,7 @@ a predicate specifications of the formName/Arity.
 %     opens FileSpec for output. If FileSpec
 %     already exists, then it adds output to the end of it. If not, then a new file is created,
 %     as for the `write` mode.
-%     @Options    *list of term*, must be ground
+%     @param  Options    *list of term*, must be ground
 %     A list of zero or more of the following.
 %     `type(+T)`
 %     Specifies whether the stream is a `text` or `binary`
@@ -1765,7 +1756,7 @@ a predicate specifications of the formName/Arity.
 %     opens an output *text* stream that is not connected to any file and
 %     unifies its stream object with Stream.
 %
-%     @Stream   *stream\_object*
+%     @param  Stream   *stream\_object*
 
 %!    +Q;+R
 %
@@ -1774,9 +1765,9 @@ a predicate specifications of the formName/Arity.
 %     *If* P *then* Q *else* R, using first solution of
 %     P only.
 %
-%     @:P   *callable*, must be nonvar
-%     @:Q   *callable*, must be nonvar
-%     @:R   *callable*, must be nonvar
+%     @param  :P   *callable*, must be nonvar
+%     @param  :Q   *callable*, must be nonvar
+%     @param  :R   *callable*, must be nonvar
 
 %!    otherwise
 %
@@ -1787,9 +1778,9 @@ a predicate specifications of the formName/Arity.
 %
 %     looks ahead for next input byte on the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *binary* stream, defaults to the current input stream.
-%     @Byte     *byte* or \-1
+%     @param  Byte     *byte* or \-1
 %     The resulting next input byte available on the stream.
 
 %!    peek_char(-Char)
@@ -1798,9 +1789,9 @@ a predicate specifications of the formName/Arity.
 %     looks ahead for next input character on the current input stream
 %     or on the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *text* stream.
-%     @Char     *char* or *one of \[`end_of_file`]*
+%     @param  Char     *char* or *one of \[`end_of_file`]*
 %     The resulting next input character available on the stream.
 
 %!    peek_code(-Code)
@@ -1808,9 +1799,9 @@ a predicate specifications of the formName/Arity.
 %
 %     looks ahead for next input character on the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *text* stream, defaults to the current input stream.
-%     @Code     *code* or \-1
+%     @param  Code     *code* or \-1
 %     The resulting next input character available on the stream.
 
 %!    phrase(+PhraseType,+List)
@@ -1818,11 +1809,11 @@ a predicate specifications of the formName/Arity.
 %
 %     Used in conjunction with a grammar to parse or generate strings.
 %
-%     @:PhraseType   *callable*, must be nonvar
+%     @param  :PhraseType   *callable*, must be nonvar
 %     Name of a phrase type.
-%     @List          *list of term*
+%     @param  List          *list of term*
 %     A list of symbols -- tokens or *codes*.
-%     @Rest          *list of term*
+%     @param  Rest          *list of term*
 %     A suffix of List; what remains of
 %     List after PhraseType has been found.
 %     Defaults to `[]`.
@@ -1832,7 +1823,7 @@ a predicate specifications of the formName/Arity.
 %     `user:portray(+Term)`
 %     A way for the user to over\-ride the default behavior of `print/1`.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    portray_clause(+Clause)
 %!    portray_clause(+Stream,+Clause)
@@ -1840,9 +1831,9 @@ a predicate specifications of the formName/Arity.
 %     Writes Clause to the current output stream. Used by
 %     `listing/[0,1]`.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open Prolog stream, defaults to the current output stream.
-%     @Clause   *term*
+%     @param  Clause   *term*
 
 %!    :- multifile user:portray_message/2.
 %
@@ -1851,8 +1842,8 @@ a predicate specifications of the formName/Arity.
 %     succeeds, then it is assumed that the message has been processed and nothing
 %     further is done.
 %
-%     @Severity      *one of `[informational,warning,error,help,silent]`*
-%     @MessageTerm   *term*
+%     @param  Severity      *one of `[informational,warning,error,help,silent]`*
+%     @param  MessageTerm   *term*
 
 %!    predicate_property(?Callable,?PredProperty)
 %
@@ -1860,9 +1851,9 @@ a predicate specifications of the formName/Arity.
 %     predicate, and Callable with the most general term that corresponds
 %     to that predicate.
 %
-%     @:Callable      *callable*
+%     @param  :Callable      *callable*
 %     The skeletal specification of a loaded predicate.
-%     @PredProperty   *term*
+%     @param  PredProperty   *term*
 %     The various properties associated with
 %     Callable. Each loaded predicate will have one
 %     or more of the properties:
@@ -1892,20 +1883,19 @@ a predicate specifications of the formName/Arity.
 %     Writes Term on Stream, without quoting atoms,
 %     calling `user:portray/1` on subterms.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open Prolog stream, defaults to the current output stream.
-%     @Term     *term*
+%     @param  Term     *term*
 
 %!    print_coveragesince release 4.2
-%!    Prints the coverage data accumulated so far, to the current output
-stream, in a hierarchical format.
+%!    Prints the coverage data accumulated so far, to the current output stream, in a hierarchical format.
 %
 %     `print_coverage(+Data)`   *since release 4\.2*
 %     Prints the coverage data Data, to the current output stream, in
 %     a hierarchical format. Data should be of type *list of
 %     coverage\_pair*; see `coverage_data/1`.
 %
-%     @Data   *list of coverage\_pair*
+%     @param  Data   *list of coverage\_pair*
 
 %!    print_message(+Severity,+MessageTerm)
 %
@@ -1913,7 +1903,7 @@ stream, in a hierarchical format.
 %     customized using the hooks `user:portray_message/2`,
 %     `user:generate_message_hook/3` and `user:message_hook/3`.
 %
-%     @Severity      *atom*, must be nonvar
+%     @param  Severity      *atom*, must be nonvar
 %     Unless the default system portrayal is overridden with
 %     `user:message_hook/3`, Severity must be one of:
 %     **Value**
@@ -1928,37 +1918,36 @@ stream, in a hierarchical format.
 %     `query`
 %     `silent`
 %     no prefix
-%     @MessageTerm   *term*
+%     @param  MessageTerm   *term*
 
 %!    print_message_lines(+Stream,+Severity,+Lines)
 %
 %     Print the Lines to Stream, preceding each line with a
 %     prefix corresponding to Severity.
 %
-%     @Stream     *stream\_object*, must be ground
+%     @param  Stream     *stream\_object*, must be ground
 %     Any valid output stream.
-%     @Severity   *one of `[query,help,informational,warning,error,silent,term]`*
-%     @Lines      *list of list of pair*
+%     @param  Severity   *one of `[query,help,informational,warning,error,silent,term]`*
+%     @param  Lines      *list of list of pair*
 %     Must be of the form `[Line1, Line2, ...]`, where each
 %     Linei must be of the form
 %     `[Control_1-Args_1,Control_2-Args_2, ...]`.
 
 %!    print_profilesince release 4.2
-%!    Prints the profiling data accumulated so far, to the current output
-stream, in a format similar togprof(1).
+%!    Prints the profiling data accumulated so far, to the current output stream, in a format similar togprof(1).
 %
 %     `print_profile(+Data)`   *since release 4\.2*
 %     Prints the profiling data Data, to the current output stream, in
 %     a format similar to `gprof(1)`. Data should be of type
 %     *list of profile\_pair*; see `profile_data/1`.
 %
-%     @Data   *list of profile\_pair*
+%     @param  Data   *list of profile\_pair*
 
 %!    profile_data(-Data)since release 4.2
 %
 %     Data is the profiling data accumulated so far.
 %
-%     @Data   *list of profile\_pair*
+%     @param  Data   *list of profile\_pair*
 %     where:
 %     | profile\_pair | ::\= `caller-profile_info` |
 %     | --- | --- |
@@ -1984,61 +1973,61 @@ stream, in a format similar togprof(1).
 %     and then sets the value of the flag to NewValue.
 %     The available Prolog flags are listed in [ref\-lps\-flg](ref_002dlps_002dflg.html).
 %
-%     @FlagName   *atom*, must be nonvar and a legal flag in `prolog_flag/3`
-%     @Value      *term*
-%     @OldValue   *term*
-%     @NewValue   *term*, must be nonvar and belong to proper type/domain
+%     @param  FlagName   *atom*, must be nonvar and a legal flag in `prolog_flag/3`
+%     @param  Value      *term*
+%     @param  OldValue   *term*
+%     @param  NewValue   *term*, must be nonvar and belong to proper type/domain
 
 %!    prolog_load_context(?Key,?Value)
 %
 %     Finds out the context of the current load.
 %     The available context keys are described in [ref\-lps\-lco](ref_002dlps_002dlco.html).
 %
-%     @Key     *atom*
-%     @Value   *term*
+%     @param  Key     *atom*
+%     @param  Value   *term*
 
 %!    prompt(-OldPrompt,+NewPrompt)
 %
 %     Queries or changes the prompt string of the current input stream or an
 %     input stream Stream.
 %
-%     @OldPrompt   *atom*
+%     @param  OldPrompt   *atom*
 %     The old prompt atom.
-%     @NewPrompt   *atom*, must be nonvar
+%     @param  NewPrompt   *atom*, must be nonvar
 %     The new prompt atom.
 
 %!    :- public+Term
 %
 %     Currently a dummy declaration.
 %
-%     @:Term   *term*
+%     @param  :Term   *term*
 
 %!    put_byte(+Byte)
 %!    put_byte(+Stream,+Byte)
 %
 %     Writes the byte Byte to Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid output *binary* stream, defaults to the current output stream.
-%     @Byte     *byte*, must be nonvar
+%     @param  Byte     *byte*, must be nonvar
 
 %!    put_char(+Char)
 %!    put_char(+Stream,+Char)
 %
 %     The *char* Char is written to Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid output *text* stream, defaults to the current output stream.
-%     @Char     *char*, must be nonvar
+%     @param  Char     *char*, must be nonvar
 
 %!    put_code(+Code)
 %!    put_code(+Stream,+Code)
 %
 %     The *code* Code is written to the stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid output *text* stream, defaults to the current output stream.
-%     @Code     *code*, must be nonvar
+%     @param  Code     *code*, must be nonvar
 
 %!    :- multifile 'SU_messages':query_abbreviation/3.
 %
@@ -2046,11 +2035,11 @@ stream, in a format similar togprof(1).
 %     A way to specify one letter abbreviations for responses to queries
 %     from the Prolog System.
 %
-%     @QueryClass   *atom*
+%     @param  QueryClass   *atom*
 %     The query class being defined.
-%     @Prompt       *atom*
+%     @param  Prompt       *atom*
 %     The prompt to be used, typically indicating appropriate abbreviations.
-%     @Pairs        *list of pair*
+%     @param  Pairs        *list of pair*
 %     A list of word\-abbreviation pairs, defining the characters accepted
 %     and the corresponding abstract answers.
 
@@ -2059,17 +2048,17 @@ stream, in a format similar togprof(1).
 %     `'SU_messages':query_class(+QueryClass, -Prompt, -InputMethod, -MapMethod, -FailureMode)`
 %     Access the parameters of a given QueryClass.
 %
-%     @QueryClass    *term*
+%     @param  QueryClass    *term*
 %     Determines the allowed values for the atom Answer.
-%     @Prompt        *atom*
+%     @param  Prompt        *atom*
 %     The prompt to display at the terminal.
-%     @InputMethod   *term*
+%     @param  InputMethod   *term*
 %     A ground term, which specifies how to obtain
 %     input from the user
-%     @MapMethod     *term*
+%     @param  MapMethod     *term*
 %     A ground term, which specifies how to process the
 %     input to get the abstract answer to the query.
-%     @FailureMode   *term*
+%     @param  FailureMode   *term*
 %     An atom determining what to print in case of
 %     an input error, before re\-querying the user. Possible values are:
 %     * \- `help_query` \- print the help message and print the query text
@@ -2086,15 +2075,15 @@ stream, in a format similar togprof(1).
 %     processing. This way the default query class characteristics can be
 %     changed.
 %
-%     @QueryClass    *term*
+%     @param  QueryClass    *term*
 %     Determines the allowed values for the atom Answer.
-%     @Prompt        *atom*
+%     @param  Prompt        *atom*
 %     The prompt to display at the terminal.
-%     @InputMethod   *term*
+%     @param  InputMethod   *term*
 %     The input method to use.
-%     @MapMethod     *term*
+%     @param  MapMethod     *term*
 %     The map method to use.
-%     @FailureMode   *term*
+%     @param  FailureMode   *term*
 %     The failure mode to use.
 
 %!    :- multifile 'SU_messages':query_hook/6.
@@ -2103,17 +2092,17 @@ stream, in a format similar togprof(1).
 %     Provides a method of overriding Prolog's default keyboard based
 %     input requests.
 %
-%     @QueryClass    *term*
+%     @param  QueryClass    *term*
 %     Determines the allowed values for the atom Answer.
-%     @Prompt        *term*
+%     @param  Prompt        *term*
 %     A message term.
-%     @PromptLines   *list of pair*
+%     @param  PromptLines   *list of pair*
 %     The message generated from the Prompt message term.
-%     @Help          *term*
+%     @param  Help          *term*
 %     A message term.
-%     @HelpLines     *list of pair*
+%     @param  HelpLines     *list of pair*
 %     The message generated from the Help message term.
-%     @Answer        *term*
+%     @param  Answer        *term*
 %     See QueryClass
 
 %!    :- multifile 'SU_messages':query_input/3.
@@ -2123,11 +2112,11 @@ stream, in a format similar togprof(1).
 %     with Prompt, input is read according to InputMethod, and the
 %     result is returned in RawInput.
 %
-%     @InputMethod   *term*
+%     @param  InputMethod   *term*
 %     The input method to use.
-%     @Prompt        *atom*
+%     @param  Prompt        *atom*
 %     The prompt to display at the terminal.
-%     @RawInput      *term*
+%     @param  RawInput      *term*
 
 %!    :- multifile user:query_input_hook/3.
 %
@@ -2137,11 +2126,11 @@ stream, in a format similar togprof(1).
 %     processing. This way the implementation of the default input methods
 %     can be changed.
 %
-%     @InputMethod   *term*
+%     @param  InputMethod   *term*
 %     The input method to use.
-%     @Prompt        *atom*
+%     @param  Prompt        *atom*
 %     The prompt to display at the terminal.
-%     @RawInput      *term*
+%     @param  RawInput      *term*
 
 %!    :- multifile 'SU_messages':query_map/4.
 %
@@ -2150,13 +2139,13 @@ stream, in a format similar togprof(1).
 %     received from `query_input/3`, is mapped to the abstract answer
 %     term Answer.
 %
-%     @MapMethod   *term*
+%     @param  MapMethod   *term*
 %     The map method to use.
-%     @RawInput    *atom*
+%     @param  RawInput    *atom*
 %     As received from `query_input/3`.
-%     @Result      *one of `[success,failure,failure(Warning)]`*
+%     @param  Result      *one of `[success,failure,failure(Warning)]`*
 %     Result of conversion.
-%     @Answer      *one of `[success,failure,failure(Warning)]`*
+%     @param  Answer      *one of `[success,failure,failure(Warning)]`*
 %     Abstract answer term.
 
 %!    :- multifile user:query_map_hook/4.
@@ -2167,18 +2156,18 @@ stream, in a format similar togprof(1).
 %     processing. This way the implementation of the default map methods
 %     can be changed.
 %
-%     @MapMethod   *term*
+%     @param  MapMethod   *term*
 %     The map method to use.
-%     @RawInput    *atom*
+%     @param  RawInput    *atom*
 %     As received from `query_input/3`.
-%     @Result      *one of `[success,failure,failure(Warning)]`*
+%     @param  Result      *one of `[success,failure,failure(Warning)]`*
 %     Result of conversion.
-%     @Answer      *one of `[success,failure,failure(Warning)]`*
+%     @param  Answer      *one of `[success,failure,failure(Warning)]`*
 %     Abstract answer term.
 
 %!    raise_exception(+Exception)
 %
-%     @Exception   *term*, must be nonvar
+%     @param  Exception   *term*, must be nonvar
 
 %!    read(-Term)
 %!    read(+Stream,-Term)
@@ -2188,9 +2177,9 @@ stream, in a format similar togprof(1).
 %     `read_term(Term, [])`
 %     `read_term(Stream, Term, [])`
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid Prolog input stream, defaults to the current input stream.
-%     @Term     *term*
+%     @param  Term     *term*
 %     The term to be read.
 
 %!    read_line(-Line)
@@ -2200,9 +2189,9 @@ stream, in a format similar togprof(1).
 %     *codes* with Line. On end of file, Line is unified with
 %     `end_of_file`.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *text* stream, defaults to the current input stream.
-%     @Line     *codes* or *one of \[`end_of_file`]*
+%     @param  Line     *codes* or *one of \[`end_of_file`]*
 
 %!    read_term(-Term,+Options)
 %!    read_term(+Stream,-Term,+Options)
@@ -2210,11 +2199,11 @@ stream, in a format similar togprof(1).
 %     Read a term from Stream,
 %     optionally returning extra information about the term.
 %
-%     @Stream    *stream\_object*, must be ground
+%     @param  Stream    *stream\_object*, must be ground
 %     A valid Prolog input stream, defaults to the current input stream.
-%     @Term      *term*
+%     @param  Term      *term*
 %     The term that is read.
-%     @Options   *list of term*, must be ground, except Vars, Names, and Layout
+%     @param  Options   *list of term*, must be ground, except Vars, Names, and Layout
 %     as described below.
 %     A list of zero or more of the following:
 %     `syntax_errors(Val)`
@@ -2268,7 +2257,7 @@ stream, in a format similar togprof(1).
 %     same as:
 %     `consult(Files)`
 %
-%     @:Files   *file\_spec* or *list of file\_spec*, must be ground
+%     @param  :Files   *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
 %     extensions optional.
 
@@ -2278,9 +2267,9 @@ stream, in a format similar togprof(1).
 %     for the principal functor of Key; a database reference to the newly\-recorded
 %     term is returned in Ref.
 %
-%     @Key    *term*, must be nonvar
-%     @Term   *term*
-%     @Ref    *db\_reference*, must be var
+%     @param  Key    *term*, must be nonvar
+%     @param  Term   *term*
+%     @param  Ref    *db\_reference*, must be var
 
 %!    recorded(-Key,-Term,+Ref)
 %
@@ -2289,9 +2278,9 @@ stream, in a format similar togprof(1).
 %     functor of Key that unifies with Term, and whose database
 %     reference unifies with Ref.
 %
-%     @Key    *term*
-%     @Term   *term*
-%     @Ref    *db\_reference*
+%     @param  Key    *term*
+%     @param  Term   *term*
+%     @param  Ref    *db\_reference*
 
 %!    recordz(+Key,+Term,-Ref)
 %
@@ -2299,15 +2288,15 @@ stream, in a format similar togprof(1).
 %     for the principal functor of Key; a database reference to the newly\-recorded
 %     term is returned in Ref.
 %
-%     @Key    *term*, must be nonvar
-%     @Term   *term*
-%     @Ref    *db\_reference*, must be var
+%     @param  Key    *term*, must be nonvar
+%     @param  Term   *term*
+%     @param  Ref    *db\_reference*, must be var
 
 %!    remove_breakpoints(+BIDs)
 %
 %     Removes the breakpoints specified by BIDs.
 %
-%     @BIDs   *list of integer*, must be ground
+%     @param  BIDs   *list of integer*, must be ground
 %     Breakpoint identifiers.
 
 %!    repeat
@@ -2319,7 +2308,7 @@ stream, in a format similar togprof(1).
 %
 %     Restores a saved state.
 %
-%     @FileSpec   *file\_spec*, must be ground
+%     @param  FileSpec   *file\_spec*, must be ground
 %     The name of a saved state, '`.sav`' extension optional.
 
 %!    retract(+Clause)
@@ -2327,14 +2316,14 @@ stream, in a format similar togprof(1).
 %     Removes the first occurrence of dynamic clause Clause from
 %     module M.
 %
-%     @:Clause   *callable*, must be nonvar
+%     @param  :Clause   *callable*, must be nonvar
 %     A valid Prolog clause.
 
 %!    retractall(+Head)
 %
 %     Removes every clause in module M whose head matches Head.
 %
-%     @:Head   *callable*, must be nonvar
+%     @param  :Head   *callable*, must be nonvar
 %     Head of a Prolog clause.
 
 %!    user:runtime_entry(Event)
@@ -2367,29 +2356,29 @@ stream, in a format similar togprof(1).
 %     as well as from any file included by them,
 %     is saved into File in PO format.
 %
-%     @SourceFiles   *file\_spec* or *list of file\_spec*, must be ground
+%     @param  SourceFiles   *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
 %     extensions optional.
-%     @File          *file\_spec*, must be ground
+%     @param  File          *file\_spec*, must be ground
 %     A file specification, '`.po`' extension optional.
 
 %!    save_modules(+Modules,+File)
 %
 %     Saves all predicates in Modules in PO format to File.
 %
-%     @Modules   *atom* or *list of atom*, must be ground
+%     @param  Modules   *atom* or *list of atom*, must be ground
 %     An atom representing a current module, or a list of such atoms
 %     representing a list of modules.
-%     @File      *file\_spec*, must be ground
+%     @param  File      *file\_spec*, must be ground
 %     A file specification, '`.po`' extension optional.
 
 %!    save_predicates(+PredSpecs,+File)
 %
 %     Saves all predicates in PredSpecs in PO format to File.
 %
-%     @:PredSpecs   *pred\_spec\_tree*
+%     @param  :PredSpecs   *pred\_spec\_tree*
 %     A predicate specification, or a list of such.
-%     @File         *file\_spec*, must be ground
+%     @param  File         *file\_spec*, must be ground
 %     A file specification, '`.po`' extension optional.
 
 %!    save_program(+File)
@@ -2399,31 +2388,31 @@ stream, in a format similar togprof(1).
 %     File. A goal, Goal, to be called upon
 %     execution/restoring of the saved state, may be specified.
 %
-%     @File    *file\_spec*, must be ground
+%     @param  File    *file\_spec*, must be ground
 %     A file specification, '`.sav`' extension optional.
-%     @:Goal   *callable*, must be nonvar
+%     @param  :Goal   *callable*, must be nonvar
 %     A goal, defaults to `true`.
 
 %!    see(+FileOrStream)Makes fileFileOrStreamthe current input stream.
 %
-%     @FileOrStream   *file\_spec* or *stream\_object*, must be ground
+%     @param  FileOrStream   *file\_spec* or *stream\_object*, must be ground
 
 %!    seeing(-FileOrStream)
 %
 %     Unifies FileOrStream with the current input stream or file.
 %
-%     @FileOrStream   *file\_spec* or *stream\_object*
+%     @param  FileOrStream   *file\_spec* or *stream\_object*
 
 %!    seek(+Stream,+Offset,+Method,-NewLocation)
 %
 %     Seeks to an arbitrary position in Stream.
 %
-%     @Stream        *stream\_object*, must be ground
+%     @param  Stream        *stream\_object*, must be ground
 %     A valid Prolog stream.
-%     @Offset        *integer*, must be nonvar
+%     @param  Offset        *integer*, must be nonvar
 %     The offset, in *items*, to seek relative to the specified Method.
 %     Items are bytes for binary streams, characters for text streams.
-%     @Method        *one of `[bof,current,eof]`*, must be nonvar
+%     @param  Method        *one of `[bof,current,eof]`*, must be nonvar
 %     Where start seeking, one of the following:
 %     `bof`
 %     Seek from beginning of the file stream.
@@ -2431,7 +2420,7 @@ stream, in a format similar togprof(1).
 %     Seek from current position of the file stream.
 %     `eof`
 %     Seek from end of the file stream.
-%     @NewLocation   *integer*
+%     @param  NewLocation   *integer*
 %     The offset from beginning of the file after
 %     seeking operation.
 
@@ -2443,7 +2432,7 @@ stream, in a format similar togprof(1).
 %
 %     makes Stream the current input stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input stream.
 
 %!    set_module(+ModuleName)
@@ -2452,14 +2441,14 @@ stream, in a format similar togprof(1).
 %     ModuleName. Thus subsequent top\-level goals use ModuleName as
 %     their source module.
 %
-%     @ModuleName   *atom*, must be nonvar
+%     @param  ModuleName   *atom*, must be nonvar
 %     The name of a module.
 
 %!    set_output(+Stream)
 %
 %     makes Stream the current output stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid output stream.
 
 %!    set_prolog_flag(+FlagName,+Value)
@@ -2467,16 +2456,16 @@ stream, in a format similar togprof(1).
 %     same as:
 %     `prolog_flag(FlagName, _, Value)`
 %
-%     @FlagName   *atom*, must be nonvar
-%     @Value      *term*, must be nonvar and belong to proper type/domain
+%     @param  FlagName   *atom*, must be nonvar
+%     @param  Value      *term*, must be nonvar and belong to proper type/domain
 
 %!    set_stream_position(+Stream,+Position)
 %
 %     Sets the current position of Stream to Position.
 %
-%     @Stream     *stream\_object*, must be ground
+%     @param  Stream     *stream\_object*, must be ground
 %     An open stream.
-%     @Position   *term*
+%     @param  Position   *term*
 %     Stream position object representing the
 %     current position of Stream.
 
@@ -2485,16 +2474,16 @@ stream, in a format similar togprof(1).
 %     Returns the non\-empty set Set of all instances of Template such
 %     that Generator is provable.
 %
-%     @Template     *term*
-%     @:Generator   *callable*, must be nonvar
+%     @param  Template     *term*
+%     @param  :Generator   *callable*, must be nonvar
 %     A goal to be proved as if by `call/1`.
-%     @Set          *list of term*
+%     @param  Set          *list of term*
 
 %!    simple(+Term)
 %
 %     Term is currently not instantiated to a compound term.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    skip_byte(+Byte)
 %!    skip_byte(+Stream,+Byte)
@@ -2502,9 +2491,9 @@ stream, in a format similar togprof(1).
 %     read up to and including the first occurrence of Byte on the
 %     current input stream or on the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *binary* stream, defaults to the current input stream.
-%     @Byte     *byte*
+%     @param  Byte     *byte*
 
 %!    skip_char(+Char)
 %!    skip_char(+Stream,+Char)
@@ -2512,9 +2501,9 @@ stream, in a format similar togprof(1).
 %     Read up to and including the first occurrence of Char on the
 %     current input stream or on the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *text* stream.
-%     @Char     *char*
+%     @param  Char     *char*
 
 %!    skip_code(+Code)
 %!    skip_code(+Stream,+Code)
@@ -2522,16 +2511,16 @@ stream, in a format similar togprof(1).
 %     read up to and including the first occurrence of Code on the
 %     current input stream or on the input stream Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *text* stream, defaults to the current input stream.
-%     @Code     *code*
+%     @param  Code     *code*
 
 %!    skip_line
 %!    skip_line(+Stream)
 %
 %     Skip the remaining input characters on the current line on Stream.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid input *text* stream, defaults to the current input stream.
 
 %!    sort(+List,-Sorted)
@@ -2540,8 +2529,8 @@ stream, in a format similar togprof(1).
 %     standard order, and removes any multiple occurrences of an element.
 %     The resulting sorted list is unified with the list Sorted.
 %
-%     @List     *list of term*, must be a proper list
-%     @Sorted   *list of term*
+%     @param  List     *list of term*, must be a proper list
+%     @param  Sorted   *list of term*
 
 %!    source_file(?AbsFile)
 %!    source_file(?Pred,?AbsFile)
@@ -2551,9 +2540,9 @@ stream, in a format similar togprof(1).
 %     AbsFile will be `user` if the special file specification `user` was loaded, and
 %     Pred is a predicate with clauses from `user`.
 %
-%     @:Pred     *callable*
+%     @param  :Pred     *callable*
 %     Selected predicate specification.
-%     @AbsFile   *atom*
+%     @param  AbsFile   *atom*
 %     Absolute filename.
 
 %!    spy+PredSpecs
@@ -2562,21 +2551,20 @@ stream, in a format similar togprof(1).
 %     `spy(+PredSpecs, +Conditions)`
 %     Sets conditional spypoints on all the predicates represented by PredSpecs.
 %
-%     @:PredSpecs    *pred\_spec\_tree*
+%     @param  :PredSpecs    *pred\_spec\_tree*
 %     A predicate specification, or a list of such.
-%     @:Conditions   *term*, must be ground
+%     @param  :Conditions   *term*, must be ground
 %     Spypoint conditions.
 
 %!    statistics
-%!    Displays statistics relating to memory usage and
-execution time.
+%!    Displays statistics relating to memory usage and execution time.
 %
 %     `statistics(?Keyword, ?List)`
 %     Obtains individual statistics.
 %
-%     @Keyword   *atom*
+%     @param  Keyword   *atom*
 %     Statistics key (see [ref\-mgc\-ove\-sta](ref_002dmgc_002dove_002dsta.html)).
-%     @List      *list of integer*
+%     @param  List      *list of integer*
 %     List of statistics.
 
 %!    stream_code(-Stream,+CStream)
@@ -2585,9 +2573,9 @@ execution time.
 %     Converts between Prolog representation, Stream, and
 %     C representation, CStream, of a stream.
 %
-%     @Stream    *stream\_object*
+%     @param  Stream    *stream\_object*
 %     A valid Prolog stream.
-%     @CStream   *integer*
+%     @param  CStream   *integer*
 %     Representing an `SP_stream *` pointer.
 
 %!    stream_position(+Stream,-Position)
@@ -2595,9 +2583,9 @@ execution time.
 %     True when Position represents the current position of
 %     Stream.
 %
-%     @Stream     *stream\_object*, must be ground
+%     @param  Stream     *stream\_object*, must be ground
 %     An open stream.
-%     @Position   *term*
+%     @param  Position   *term*
 %     Stream position object representing the current position of Stream.
 
 %!    stream_position_data(?Field,?Position,?Value)
@@ -2605,20 +2593,20 @@ execution time.
 %     Value is the value of the Field field of stream position
 %     object Position.
 %
-%     @Field      *one of `[byte_count,line_count,character_count,line_position]`*
+%     @param  Field      *one of `[byte_count,line_count,character_count,line_position]`*
 %     Note that `byte_count` is meaningful only for binary streams and
 %     that the other values are meaningful only for text streams.
-%     @Position   *term*
+%     @param  Position   *term*
 %     Stream position object representing the
 %     current position of Stream.
-%     @Value      *integer*
+%     @param  Value      *integer*
 
 %!    stream_property(?Stream,?Property)
 %
 %     Stream Stream has stream property Property.
 %
-%     @Stream     *stream\_object*
-%     @Property   *term*
+%     @param  Stream     *stream\_object*
+%     @param  Property   *term*
 %     A stream property, one of the following:
 %     `file_name(F)`
 %     F is the file name associated with the Stream.
@@ -2701,15 +2689,15 @@ execution time.
 %     is Before, the number of characters after SubAtom is
 %     After, and the length of SubAtom is Length.
 %
-%     @Atom      *atom*, must be nonvar
+%     @param  Atom      *atom*, must be nonvar
 %     The atom from which a part is selected.
-%     @Before    *integer*
+%     @param  Before    *integer*
 %     The number of characters preceding SubAtom.
-%     @Length    *integer*
+%     @param  Length    *integer*
 %     The number of characters of SubAtom.
-%     @After     *integer*
+%     @param  After     *integer*
 %     The number of characters following SubAtom.
-%     @SubAtom   *atom*
+%     @param  SubAtom   *atom*
 %     The selected part of Atom.
 
 %!    subsumes_term(+General,+Specific)
@@ -2718,27 +2706,27 @@ execution time.
 %     Specific and that does not affect Specific. It
 %     does not bind any variables.
 %
-%     @General    any term.
-%     @Specific   any term.
+%     @param  General    any term.
+%     @param  Specific   any term.
 
 %!    tell(+FileOrStream)
 %
 %     Makes file FileOrStream the current output stream.
 %
-%     @FileOrStream   *file\_spec* or *stream\_object*, must be ground
+%     @param  FileOrStream   *file\_spec* or *stream\_object*, must be ground
 
 %!    telling(-FileOrStream)
 %
 %     Unifies FileOrStream with the current output stream or file.
 %
-%     @FileOrStream   *file\_spec* or *stream\_object*
+%     @param  FileOrStream   *file\_spec* or *stream\_object*
 
 %!    +Term1==+Term2
 %
 %     Succeeds if Term1 and Term2 are *identical terms*.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    :- multifile user:term_expansion/6.
 %
@@ -2746,71 +2734,70 @@ execution time.
 %     Overrides or complements the standard transformations to be done by
 %     `expand_term/2`.
 %
-%     @Term1     *term*
+%     @param  Term1     *term*
 %     Term to transform.
-%     @Layout1   *term*
+%     @param  Layout1   *term*
 %     Layout term of Term1.
-%     @Tokens1   *list of atom*
-%     @Term2     *term*
+%     @param  Tokens1   *list of atom*
+%     @param  Term2     *term*
 %     Transformed term.
-%     @Layout2   *term*
+%     @param  Layout2   *term*
 %     Layout term of Term2.
-%     @Tokens2   *list of atom*
+%     @param  Tokens2   *list of atom*
 
 %!    +Term1@>+Term2
 %
 %     Succeeds if Term1 is *after* Term2 in the standard order.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    +Term1@<+Term2
 %
 %     Succeeds if Term1 is *before* Term2 in the standard order.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    +Term1\==+Term2
 %
 %     Succeeds if Term1 and Term2 are *non\-identical terms*.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    +Term1@=<+Term2
 %
 %     Succeeds if Term1 is *not after* Term2 in the standard order.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    +Term1@>=+Term2
 %
 %     Succeeds if Term1 is *not before* Term2 in the standard order.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    ?=(+Term1,+Term2)
 %
 %     Succeeds if Term1 and Term2 are *identical terms*,
 %     or if they are syntactically non\-unifiable.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
-%!    term_variables(+Term,-Variables)since release 4.3True ifVariablesis the list of variables occurring inTerm,
-without duplicates, in first occurrence order.
+%!    term_variables(+Term,-Variables)since release 4.3True ifVariablesis the list of variables occurring inTerm, without duplicates, in first occurrence order.
 %
-%     @Term         Any *term*, a cyclic term is also accepted.
-%     @-Variables   The variables in the term. Must be a variable or a list.
+%     @param  Term         Any *term*, a cyclic term is also accepted.
+%     @param  -Variables   The variables in the term. Must be a variable or a list.
 
 %!    throw(+Exception)
 %
 %     Exception is thrown as an exception.
 %
-%     @Exception   *term*, must be nonvar
+%     @param  Exception   *term*, must be nonvar
 
 %!    told
 %
@@ -2832,15 +2819,15 @@ without duplicates, in first occurrence order.
 %
 %     *unifies* Term1 and Term2.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    unify_with_occurs_check(+Term1,+Term2)
 %
 %     Term1 and Term2 unify to a finite (acyclic) term.
 %
-%     @Term1   *term*
-%     @Term2   *term*
+%     @param  Term1   *term*
+%     @param  Term2   *term*
 
 %!    +Term=..-List
 %
@@ -2849,9 +2836,9 @@ without duplicates, in first occurrence order.
 %     to the principal functor of Term and whose tail is a list of
 %     the arguments of Term.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 %     any term
-%     @List   *list of term*
+%     @param  List   *list of term*
 %     and not empty
 
 %!    unknown(-OldAction,+NewAction)
@@ -2861,19 +2848,19 @@ without duplicates, in first occurrence order.
 %     current action to NewAction, and prints a message about the
 %     change.
 %
-%     @OldAction   *one of `[error,fail,trace,warning]`*
-%     @NewAction   *one of `[error,fail,trace,warning]`*, must be nonvar
+%     @param  OldAction   *one of `[error,fail,trace,warning]`*
+%     @param  NewAction   *one of `[error,fail,trace,warning]`*, must be nonvar
 
 %!    :- multifile user:unknown_predicate_handler/3.
 %
 %     `user:unknown_predicate_handler(+Goal, +Module, -NewGoal)`
 %     User definable hook to trap calls to unknown predicates.
 %
-%     @Goal      *callable*
+%     @param  Goal      *callable*
 %     The goal to trap.
-%     @Module    *atom*
+%     @param  Module    *atom*
 %     Any atom that is a current module
-%     @NewGoal   *callable*
+%     @param  NewGoal   *callable*
 %     The goal to call instead.
 
 %!    unload_foreign_resource(:Resource)
@@ -2881,7 +2868,7 @@ without duplicates, in first occurrence order.
 %     Unload the foreign resource Resource from Prolog. Relies on the
 %     hook predicates `foreign_resource/2` and `foreign/[2,3]`.
 %
-%     @:Resource   *file\_spec*, must be ground
+%     @param  :Resource   *file\_spec*, must be ground
 %     The foreign resource to be unloaded. The file extension can be omitted.
 
 %!    update_mutable(+Datum,+Mutable)
@@ -2889,12 +2876,11 @@ without duplicates, in first occurrence order.
 %     Updates the current value of the mutable term Mutable to
 %     become Datum.
 %
-%     @Datum     *term*, must be nonvar
-%     @Mutable   *mutable*, must be nonvar
+%     @param  Datum     *term*, must be nonvar
+%     @param  Mutable   *mutable*, must be nonvar
 
 %!    use_module(+File)
-%!    Loads the module file(s)File, if not already
-loaded and up-to-date. Imports all exported predicates.
+%!    Loads the module file(s)File, if not already loaded and up-to-date. Imports all exported predicates.
 %!    use_module(+File,+Imports)
 %
 %     Loads module file File, if not already
@@ -2910,14 +2896,14 @@ loaded and up-to-date. Imports all exported predicates.
 %     does. Finally, the Module argument is bound to the loaded
 %     module.
 %
-%     @:File     *file\_spec* or *list of file\_spec*, must be ground
+%     @param  :File     *file\_spec* or *list of file\_spec*, must be ground
 %     Any legal file specification. Only `use_module/1` accepts a list
 %     of file specifications, file extensions optional.
-%     @Imports   *list of simple\_pred\_spec* or the atom `all`, must be ground
+%     @param  Imports   *list of simple\_pred\_spec* or the atom `all`, must be ground
 %     Either a list of predicate specifications in the Name/Arity form
 %     to import into the calling module, or the atom `all`, meaning all
 %     predicates exported by the loaded module are to be imported.
-%     @Module    *atom*
+%     @param  Module    *atom*
 %     The module name in File, or a
 %     variable, in which case the module name is returned.
 
@@ -2925,14 +2911,14 @@ loaded and up-to-date. Imports all exported predicates.
 %
 %     Term is currently uninstantiated.
 %
-%     @Term   *term*
+%     @param  Term   *term*
 
 %!    :- volatile+PredSpecs
 %
 %     Declares PredSpecs to be volatile. Clauses of volatile predicates are not
 %     saved by the '`save_*`' predicates.
 %
-%     @:PredSpecs   *pred\_spec\_forest*, must be ground
+%     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
 
@@ -2940,7 +2926,7 @@ loaded and up-to-date. Imports all exported predicates.
 %
 %     Blocks Goal until the Condition is true.
 %
-%     @Condition   *callable*, must be nonvar and one of:
+%     @param  Condition   *callable*, must be nonvar and one of:
 %     `nonvar(X)`
 %     False until X is nonvar.
 %     `ground(X)`
@@ -2951,16 +2937,16 @@ loaded and up-to-date. Imports all exported predicates.
 %     True if both conditions are true.
 %     `Condition;Condition`
 %     True if at least one condition is true.
-%     @:Goal       *callable*, must be nonvar
+%     @param  :Goal       *callable*, must be nonvar
 
 %!    write(+Stream,+Term)
 %!    write(+Term)
 %
 %     Writes Term on Stream, without quoting atoms.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open Prolog stream, defaults to the current output stream.
-%     @Term     *term*
+%     @param  Term     *term*
 
 %!    write_canonical(+Stream,+Term)
 %!    write_canonical(+Term)
@@ -2968,19 +2954,19 @@ loaded and up-to-date. Imports all exported predicates.
 %     Writes Term on Stream, quoting atoms,
 %     in functional notation, without treating `'$VAR'/1` terms specially.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open Prolog stream, defaults to the current output stream.
-%     @Term     *term*
+%     @param  Term     *term*
 
 %!    write_term(+Stream,+Term,+Options)
 %!    write_term(+Term,+Options)
 %
 %     Writes Term on Stream, subject to \+Options.
 %
-%     @Stream    *stream\_object*, must be ground
+%     @param  Stream    *stream\_object*, must be ground
 %     A valid open Prolog stream, defaults to the current output stream.
-%     @Term      *term*
-%     @Options   *list of term*.
+%     @param  Term      *term*
+%     @param  Options   *list of term*.
 %     A list of zero or more of the following,
 %     where Boolean must be `true` or `false` (`false` is
 %     the default).
@@ -3050,9 +3036,9 @@ loaded and up-to-date. Imports all exported predicates.
 %
 %     Writes Term on Stream, quoting atoms.
 %
-%     @Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream\_object*, must be ground
 %     A valid open Prolog stream, defaults to the current output stream.
-%     @Term     *term*
+%     @param  Term     *term*
 
 %!    zip
 %

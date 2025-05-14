@@ -1,10 +1,11 @@
-from tree_sitter import Node
+from tree_sitter import Node,Parser,Language
 from .model import Term, Functor, Predicate, Variable, Scope
 from .utils import node_to_range,node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
-
+import tree_sitter_pldoc  as pldoc
 from dataclasses import dataclass
+
 
 
 @dataclass
@@ -24,6 +25,10 @@ class PrologVisitor(TreeVisitor):
         self.current_scope = None
         self.scopes = {}
         self.directive_counter = 0
+
+        self.comment_parser = Parser(Language(pldoc.language()))
+
+        self.all_comments = []
 
         self.comments = []
 
@@ -228,6 +233,8 @@ class PrologVisitor(TreeVisitor):
 
     def visit_comment(self, node: Node, opts: Opts):
         self.comments.append(bytes.decode(node.text, "utf-8"))
+        result = self.comment_parser.parse(node.text)
+        # print(result.root_node)
         return
 
     def get_predicate(self, t: Term) -> Predicate:
