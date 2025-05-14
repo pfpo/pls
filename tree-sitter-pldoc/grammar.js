@@ -18,7 +18,7 @@ const pldoc_c_style_start_comment = token(prec(1, '/** '))
 const instantiation_modifiers = ['++', '+', '-', '--', '?', ':', '@', '!']
 const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', 'undefined']
 
-const word = /[a-zA-Z0-9]+/
+const word = /[^\s]+/
 
 const name = word
 const text = word
