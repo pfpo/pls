@@ -8,7 +8,12 @@ class Markup:
 
     def predicate_description(self, element: Predicate):
         res = [f"## Predicate:{element.name}"]
-        res.extend(element.comments)
+        for c in element.comments:
+            comment = c
+            if type(c) is not str:
+                comment = str(c)
+            res.append(comment) 
+
         return res
 
     def node_description(self, node: Node):

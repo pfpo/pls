@@ -233,7 +233,6 @@ class PrologVisitor(TreeVisitor):
                 self.visit(item, opts)
 
     def visit_comment(self, node: Node, opts: Opts):
-        self.comments.append(bytes.decode(node.text, "utf-8"))
         result = self.comment_parser.parse(node.text)
         v = PlDocVisitor()
         v.start(result.root_node)
@@ -243,6 +242,8 @@ class PrologVisitor(TreeVisitor):
             for template in pldoc.templates:
                 predicate = self.get_predicate(template)
                 predicate.comments.append(pldoc)
+        else:
+            self.comments.append(bytes.decode(node.text, "utf-8"))
         return
 
     def get_predicate(self, t: Term) -> Predicate:

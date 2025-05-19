@@ -15,7 +15,7 @@ class Tag:
     value: str | None
 
     def __str__(self)-> str:
-        return rf"@{self.type} `{self.name}` {self.value}"
+        return rf"@*{self.type}* `{self.name}`: {self.value}"
 
 @dataclass
 class Arg:
@@ -40,9 +40,9 @@ class PlDocComment:
     tags : list[Tag]
 
     def __str__(self)-> str:
-        r = f"Desc: {self.description}\n"
+        r = f"{self.description}\n"
         for t in self.tags:
-            r+=  str(t)
+            r+=  f"- {t}\n"
         return r 
     
 

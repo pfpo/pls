@@ -269,7 +269,7 @@ def debug():
             with open(self.uri) as f:
                 self.source = f.read()
 
-    uri = "./examples/use_comment.pl"
+    uri = "./test/commented_prolog_cliques_distinct.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
