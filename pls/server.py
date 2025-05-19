@@ -21,6 +21,13 @@ PROLOG = Language(prolog())
 
 parser = Parser(PROLOG)
 
+class MyDoc:
+    def __init__(self, uri: str):
+        self.uri = uri
+        self.source = ""
+        self.version = 0
+        with open(self.uri) as f:
+            self.source = f.read()
 
 class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
@@ -30,6 +37,12 @@ class PLS(LanguageServer):
         self.tables: map[str, SymbolTable] = {}
         self.trees: map[str, Tree] = {}
         self.current_uri = ""
+        self.builtin_uri = "sicstus-doc-scraper/builtins.pl"
+        self.start_up()
+    
+    def start_up(self):
+        doc = MyDoc(self.builtin_uri)
+        self.parse(doc)
 
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
@@ -37,7 +50,6 @@ class PLS(LanguageServer):
 
     def semantic_tokens(self, tree: Tree, uri: str):
         tokens_visitor = HighlightVisitor(self.tables.get(uri))
-
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -98,7 +110,13 @@ class PLS(LanguageServer):
             else:
                 functor = Functor(bytes.decode(node.text), [])
 
-            return table.predicate_index.get(functor.key())
+            return self.get_predicate(functor.key(),uri)
+
+    def get_predicate(self,key:str, uri:str):
+        res = self.tables[uri].predicate_index.get(key)
+        if res is None or len(res.definitions) == 0:
+            res = self.tables[self.builtin_uri].predicate_index.get(key)
+        return res
 
     def discover_node(
         self, tree, position: types.Position, uri: str
@@ -261,15 +279,9 @@ def rec_print(node: Node, tab=0):
 
 
 def debug():
-    class MyDoc:
-        def __init__(self, uri: str):
-            self.uri = uri
-            self.source = ""
-            self.version = 0
-            with open(self.uri) as f:
-                self.source = f.read()
 
     uri = "./test/commented_prolog_cliques_distinct.pl"
+    uri = "sicstus-doc-scraper/builtins.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
@@ -289,7 +301,7 @@ def debug():
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    print(server.semantic_tokens(t, uri))
+    #print(server.semantic_tokens(t, uri))
 
     # comment_parser = Parser(Language(pldoc.language()))
     # with open(uri,"r") as f:
