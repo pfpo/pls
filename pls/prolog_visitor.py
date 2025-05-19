@@ -6,7 +6,7 @@ from .annotations import Annotations
 import tree_sitter_pldoc  as pldoc
 from dataclasses import dataclass
 
-from .pldoc_comment_visitor import PlDocVisitor
+from .pldoc_comment_visitor import PlDocVisitor,PlDocComment
 
 
 @dataclass
@@ -237,6 +237,12 @@ class PrologVisitor(TreeVisitor):
         result = self.comment_parser.parse(node.text)
         v = PlDocVisitor()
         v.start(result.root_node)
+        pldoc = v.get_comment()
+        print(pldoc)
+        if pldoc:
+            for template in pldoc.templates:
+                predicate = self.get_predicate(template)
+                predicate.comments.append(pldoc)
         return
 
     def get_predicate(self, t: Term) -> Predicate:

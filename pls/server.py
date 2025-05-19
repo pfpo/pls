@@ -282,6 +282,7 @@ def debug():
             print(key)
             print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
             print(f"Refs {len(predicate.references)}{predicate.references}")
+            print(f"Comments: {predicate.comments}")
             print("========")
 
     #print(
@@ -291,12 +292,12 @@ def debug():
     print(server.semantic_tokens(t,uri))
 
 
-    comment_parser = Parser(Language(pldoc.language()))
-    with open(uri,"r") as f:
-        t = comment_parser.parse(bytes(f.read(),"utf-8"))
-        s = PlDocVisitor()
-        s.start(t.root_node)
-        print(s.get_comment())
+    # comment_parser = Parser(Language(pldoc.language()))
+    # with open(uri,"r") as f:
+    #     t = comment_parser.parse(bytes(f.read(),"utf-8"))
+    #     s = PlDocVisitor()
+    #     s.start(t.root_node)
+    #     print(s.get_comment())
 
 
         

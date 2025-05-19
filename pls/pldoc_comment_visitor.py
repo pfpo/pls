@@ -3,7 +3,6 @@ from .model import Term, Functor, Predicate, Variable, Scope
 from .utils import node_to_range,node_and_parent_with_text,node_with_text
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
-import tree_sitter_pldoc  as pldoc
 from dataclasses import dataclass
 import logging
 
@@ -24,10 +23,19 @@ class Arg:
     name: str
     type : str
 
+
+class Template(Term):
+
+    def __init__(self, name,args:list[Arg]):
+        super().__init__(name)
+        self.args = args
+        self.arity = len(args)
+
+
 @dataclass
 class PlDocComment:
     
-    predicates: list[Predicate]
+    templates: list[Template]
     description: str
     tags : list[Tag]
 
@@ -43,10 +51,10 @@ class PlDocVisitor(TreeVisitor):
         super().__init__()
         self.tags = []
         self.description = ""
-        self.predicates = []
+        self.templates= []
     
     def get_comment(self):
-        return PlDocComment(predicates=self.predicates,tags=self.tags,description=self.description)
+        return PlDocComment(templates=self.templates,tags=self.tags,description=self.description)
 
     def start(self, node: Node):
         self.visit_all_children(node)
@@ -100,9 +108,7 @@ class PlDocVisitor(TreeVisitor):
                 predicate_name = self.get_text(child)
             elif child.type == 'arg_spec':
                 args.append(self.visit(child))
-        print(predicate_name)
-        print(args)
-        return
+        self.templates.append(Template(predicate_name,args))
     def visit_description(self,node:Node):
         # print(node_with_text(node))
         text = self.pl_tag_text(node)
