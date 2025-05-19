@@ -26,10 +26,11 @@ class Arg:
 
 class Template(Term):
 
-    def __init__(self, name,args:list[Arg]):
+    def __init__(self, name,args:list[Arg],text):
         super().__init__(name)
         self.args = args
         self.arity = len(args)
+        self.text =  text
 
 
 @dataclass
@@ -40,11 +41,24 @@ class PlDocComment:
     tags : list[Tag]
 
     def __str__(self)-> str:
-        r = f"{self.description}\n"
+        r = ""
+        if len(self.templates) > 0:
+            r +="```pl\n"
+            for template in self.templates:
+                r += template.text + "\n"
+            r +="```\n"
+            r +="---\n\n"
+
+
+
+        r +="### Description\n"
+        r += f"{self.description}\n"
         for t in self.tags:
             r+=  f"- {t}\n"
         return r 
     
+    def to_markdown(self)-> str:
+        return str(self)
 
 class PlDocVisitor(TreeVisitor):
     def __init__(self):
@@ -108,7 +122,7 @@ class PlDocVisitor(TreeVisitor):
                 predicate_name = self.get_text(child)
             elif child.type == 'arg_spec':
                 args.append(self.visit(child))
-        self.templates.append(Template(predicate_name,args))
+        self.templates.append(Template(predicate_name,args,text=self.get_text(node)))
     def visit_description(self,node:Node):
         # print(node_with_text(node))
         text = self.pl_tag_text(node)
