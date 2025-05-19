@@ -20,24 +20,24 @@ const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', '
 
 const word = /[^\s]+/
 
-const name = word
+const name = alias(token(word),'name')
 const text = word
 
 const c_style_line_begin = /[^\S\n]*\*?[^\S\n]*/
 
 const tags = [
-  (e) => seq(token(prec(1, '@arg')), name, e),
-  (e) => seq(token(prec(1, '@param')), name, e),
-  (e) => seq(token(prec(1, '@error')), name, e),
-  (e) => seq(token(prec(1, '@author')), name, e),
-  (e) => seq(token(prec(1, '@version')), name, e),
-  (e) => seq(token(prec(1, '@see')), e),
-  (e) => seq(token(prec(1, '@deprecated')), e),
-  (e) => seq(token(prec(1, '@compat')), e),
-  (e) => seq(token(prec(1, '@copyright')), e),
-  (e) => seq(token(prec(1, '@license')), e),
-  (e) => seq(token(prec(1, '@bug')), e),
-  (e) => seq(token(prec(1, '@tbd')), e),
+  (name,desc) => seq(token(prec(1, '@arg')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@param')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@error')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@author')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@version')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@see')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@deprecated')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@compat')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@copyright')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@license')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@bug')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@tbd')), field("description",desc)),
 
 ]
 
@@ -145,8 +145,14 @@ module.exports = grammar({
     c_style_description: $ => repeat1(seq(multi_line_comment_line, /\n?/)),
 
 
-    pl_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/, optional($.prolog_style_description))))))),
-    c_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/, optional($.c_style_description))))))),
+    // c_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/, optional($.c_style_description))))))),
+    // pl_tag: $ => choice(...(tags.map(((e) => e(name))))),
+    // c_tag: $ => choice(...(tags.map(((e) => e(name))))),
+
+    tag_name :$=> name,
+    pl_tag_text: $ => seq(/([^@\s].*)|(\s+[^@].*)/ ,optional($.prolog_style_description)),
+    pl_tag: $ => choice(...(tags.map(((e) => e($.tag_name,$.pl_tag_text))))),
+    c_tag: $ => choice(...(tags.map(((e) => e($.tag_name, optional($.c_style_description)))))),
   }
 
 });
