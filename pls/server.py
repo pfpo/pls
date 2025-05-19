@@ -16,6 +16,8 @@ from .highlight import HighlightVisitor, TokenTypes, TokenModifier
 from .markup import descriptions
 import sys
 from .my_logging import print,logging,old_print
+import tree_sitter_pldoc  as pldoc
+from .pldoc_comment_visitor import PlDocVisitor
 
 PROLOG = Language(prolog())
 
@@ -287,6 +289,17 @@ def debug():
     #)
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
     print(server.semantic_tokens(t,uri))
+
+
+    comment_parser = Parser(Language(pldoc.language()))
+    with open(uri,"r") as f:
+        t = comment_parser.parse(bytes(f.read(),"utf-8"))
+        s = PlDocVisitor()
+        s.start(t.root_node)
+        print(s.get_comment())
+
+
+        
     
 
 
