@@ -1,12 +1,12 @@
 from tree_sitter import Node
 from .model import Predicate, Variable
 
+
 class Markup:
     def variable_description(self, element: Variable):
         return ["## Variable", element.name]
 
     def predicate_description(self, element: Predicate):
-
         string_comments = []
         other_comments = []
         for c in element.comments:
@@ -14,7 +14,7 @@ class Markup:
                 string_comments.append(c)
             else:
                 other_comments.append(c)
-    
+
         res = [f"### Predicate: {element.key()}"]
         for c in element.comments:
             res.append(c.to_markdown())

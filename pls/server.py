@@ -15,9 +15,7 @@ from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight import HighlightVisitor, TokenTypes, TokenModifier
 from .markup import descriptions
 import sys
-from .my_logging import print,logging,old_print
-import tree_sitter_pldoc  as pldoc
-from .pldoc_comment_visitor import PlDocVisitor
+from .my_logging import print, logging, old_print
 
 PROLOG = Language(prolog())
 
@@ -61,7 +59,7 @@ class PLS(LanguageServer):
 
     def _parse(self, doc: str):
         tree = parser.parse(bytes(doc, "utf-8"))
-        
+
         try:
             prolog_visitor = PrologVisitor(self.current_uri)
             prolog_visitor.visit(tree.root_node, Opts())
@@ -72,9 +70,9 @@ class PLS(LanguageServer):
             )
 
             return tree, symbol_table
-        except TypeError as e:
-            logging.log(logging.DEBUG,f"{traceback.format_exc()}")
-            return tree,None
+        except TypeError:
+            logging.log(logging.DEBUG, f"{traceback.format_exc()}")
+            return tree, None
 
     def transform_in_variable_or_predicate(
         self, node: Node, position: types.Position, uri: str
@@ -254,15 +252,17 @@ def main():
     )
     server.start_io()
 
-def rec_print(node:Node,tab=0):
-    log = lambda n : f"{bytes.decode(n.text,'utf-8')}"
+
+def rec_print(node: Node, tab=0):
+    log = lambda n: f"{bytes.decode(n.text, 'utf-8')}"
     print(f"{'  ' * tab}{node.type} - {log(node)}")
     for child in node.children:
-        rec_print(child,tab+1)
+        rec_print(child, tab + 1)
+
 
 def debug():
     class MyDoc:
-        def __init__(self,uri:str):
+        def __init__(self, uri: str):
             self.uri = uri
             self.source = ""
             self.version = 0
@@ -276,7 +276,7 @@ def debug():
     # for child in t.root_node.children:
     #     rec_print(child,0)
     # print(t.root_node)
-    
+
     if uri in server.tables:
         for key, predicate in server.tables[uri].predicate_index.items():
             print(key)
@@ -285,12 +285,11 @@ def debug():
             print(f"Comments: {predicate.comments}")
             print("========")
 
-    #print(
+    # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
-    #)
+    # )
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    print(server.semantic_tokens(t,uri))
-
+    print(server.semantic_tokens(t, uri))
 
     # comment_parser = Parser(Language(pldoc.language()))
     # with open(uri,"r") as f:
@@ -298,10 +297,6 @@ def debug():
     #     s = PlDocVisitor()
     #     s.start(t.root_node)
     #     print(s.get_comment())
-
-
-        
-    
 
 
 if __name__ == "__main__":
