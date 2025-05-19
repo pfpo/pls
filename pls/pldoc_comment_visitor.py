@@ -16,11 +16,18 @@ class Tag:
     value: str | None
 
     def __str__(self)-> str:
-        return rf"@{self.type} {self.name} {self.value}"
+        return rf"@{self.type} `{self.name}` {self.value}"
+
+@dataclass
+class Arg:
+    instantiation: str
+    name: str
+    type : str
 
 @dataclass
 class PlDocComment:
     
+    predicates: list[Predicate]
     description: str
     tags : list[Tag]
 
@@ -36,9 +43,10 @@ class PlDocVisitor(TreeVisitor):
         super().__init__()
         self.tags = []
         self.description = ""
+        self.predicates = []
     
     def get_comment(self):
-        return PlDocComment(tags=self.tags,description=self.description)
+        return PlDocComment(predicates=self.predicates,tags=self.tags,description=self.description)
 
     def start(self, node: Node):
         self.visit_all_children(node)
@@ -54,10 +62,47 @@ class PlDocVisitor(TreeVisitor):
 
         self.add_visit("pl_tag_text",self.pl_tag_text)
         self.add_visit("prolog_style_description",self.visit_description)
+        self.add_visit("arg_spec",self.arg_spec)
+
+
+        # Templates
+        self.add_visit("functor_template",self.visit_functor)
     def default_visit(self,node:Node):
         # print(node_with_text(node))
         self.visit_all_children(node)
 
+    def arg_spec(self,node:Node)-> Arg:
+        fields = {"instantiation":"","name":"","type":""}
+        for name in fields.keys():
+            if field:=node.child_by_field_name(name):
+                fields[name] = self.get_text(field).strip()
+        
+        return Arg(name=fields["name"],type=fields["type"],instantiation=fields["instantiation"])
+    def visit_description(self,node:Node):
+        # print(node_with_text(node))
+        text = self.pl_tag_text(node)
+        self.description = text
+    def pl_tag_text(self,node:Node)-> str:
+        text = self.get_text(node)
+        lines = text.split('\n')
+        result = ""
+        for l in lines:
+            
+            i = 1 if len(l) > 0 and l[0] == '%'  else 0
+            result += l[i:] + '\n'
+        return result 
+
+    def visit_functor(self,node:Node):
+        predicate_name = ""
+        args = []
+        for child in node.named_children:
+            if child.type == 'functor':
+                predicate_name = self.get_text(child)
+            elif child.type == 'arg_spec':
+                args.append(self.visit(child))
+        print(predicate_name)
+        print(args)
+        return
     def visit_description(self,node:Node):
         # print(node_with_text(node))
         text = self.pl_tag_text(node)
@@ -78,14 +123,14 @@ class PlDocVisitor(TreeVisitor):
     def visit_tag(self,node: Node)-> Tag:
         tag_type = node.children[0].type[1:]
         #print(node.text)
-        desc = self.visit(node.child_by_field_name("description"))
-        name = (node.child_by_field_name("name"))
-        print(node.named_children)
-        #if desc:
-            #print("desc:",desc)
-        #if name:
-            #print("Name:",self.get_text(name))
-        print(tag_type)
+        desc = ""
+        if n:= node.child_by_field_name("description"):
+            desc = self.visit(n)
+
+        name = ""
+        if n:= node.child_by_field_name("name"):
+            name= self.get_text(n).strip()
+
         self.tags.append(Tag(type=tag_type,name=name,value=desc))
 
 
