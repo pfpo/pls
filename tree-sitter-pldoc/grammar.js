@@ -61,9 +61,9 @@ module.exports = grammar({
     normal_single_line_comment: $ => seq('%', /.*/, choice('\n', '\0')),
     normal_multiline_comment: $ => multi_line_comment,
 
-    template: $=> choice(
+    _template: $=> choice(
       $.functor_template,
-      $.operator_template,
+      //$.operator_template,
       $.directive_template,
     ),
     operator_template: $=> choice(
@@ -71,10 +71,10 @@ module.exports = grammar({
       seq(word,$.arg_spec),
       seq($.arg_spec,word),
     ),
-    functor_template: $ => seq($.head, optional(seq('is', choice(...determinism_modifiers)))),
+    functor_template: $ => seq($._head, optional(seq('is', choice(...determinism_modifiers)))),
     directive_template: $=> seq(':-',choice($.functor_template,$.operator_template)),
 
-    head: $ => seq(
+    _head: $ => seq(
       $.functor,
       optional(seq(
         '(',
@@ -92,16 +92,16 @@ module.exports = grammar({
         $.type,
       ))
     ),
-    functor: $ => word,
+    functor: $ =>/[a-zA-Z0-9_$]+/,
     type: $ => word,
-    arg_name: $ => word,
+    arg_name: $ =>/[a-zA-Z0-9_$]+/,
 
 
 
 
     pldoc_comment: $ => choice($.pldoc_prolog_style, $.pldoc_c_style),
 
-    pldoc_prolog_directive: $ => seq(pldoc_start_comment, $.template),
+    pldoc_prolog_directive: $ => seq(pldoc_start_comment, $._template),
 
     pldoc_prolog_style: $ => seq(
       repeat1($.pldoc_prolog_directive),
@@ -127,7 +127,7 @@ module.exports = grammar({
 
     pldoc_c_style: $ => seq(
       pldoc_c_style_start_comment,
-      repeat1(seq('*', $.template, '\n')),
+      repeat1(seq('*', $._template, '\n')),
       optional(seq(
         repeat1(seq(optional('*'), '\n')),
         $.c_style_body)),

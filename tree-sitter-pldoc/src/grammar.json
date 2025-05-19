@@ -89,16 +89,12 @@
         ]
       }
     },
-    "template": {
+    "_template": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
           "name": "functor_template"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "operator_template"
         },
         {
           "type": "SYMBOL",
@@ -159,7 +155,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "head"
+          "name": "_head"
         },
         {
           "type": "CHOICE",
@@ -231,7 +227,7 @@
         }
       ]
     },
-    "head": {
+    "_head": {
       "type": "SEQ",
       "members": [
         {
@@ -358,7 +354,7 @@
     },
     "functor": {
       "type": "PATTERN",
-      "value": "[^\\s]+"
+      "value": "[a-zA-Z0-9_$]+"
     },
     "type": {
       "type": "PATTERN",
@@ -366,7 +362,7 @@
     },
     "arg_name": {
       "type": "PATTERN",
-      "value": "[^\\s]+"
+      "value": "[a-zA-Z0-9_$]+"
     },
     "pldoc_comment": {
       "type": "CHOICE",
@@ -415,7 +411,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "template"
+          "name": "_template"
         }
       ]
     },
@@ -584,7 +580,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "template"
+                "name": "_template"
               },
               {
                 "type": "STRING",
