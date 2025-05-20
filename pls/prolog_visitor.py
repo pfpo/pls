@@ -134,6 +134,7 @@ class PrologVisitor(TreeVisitor):
         name = bytes.decode(node.text, "utf-8")
         if name not in self.current_scope.variables:
             v = Variable(bytes.decode(node.text, "utf-8"), self.current_scope)
+            v.scope = self.current_scope
             v.is_parameter = opts.parameter_definition
             self.current_scope.variables[name] = v
 
@@ -208,11 +209,15 @@ class PrologVisitor(TreeVisitor):
         self.comments = []
         self.notes[parent] = predicate
 
+
         predicate.add_definition(parent)
         predicate.uri = self.current_uri
         key = predicate.key()
 
         self.current_scope.name = f"{key}_{len(predicate.definitions)}"
+        self.current_scope.predicate = predicate
+        predicate.scopes.append(self.current_scope)
+
         self.save_scope()
         return predicate
 

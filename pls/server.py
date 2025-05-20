@@ -41,7 +41,7 @@ class PLS(LanguageServer):
         self.trees: map[str, Tree] = {}
         self.current_uri = ""
         self.builtin_uri = "sicstus-doc-scraper/builtins.pl"
-        # self.start_up()
+        self.start_up()
 
     def start_up(self):
         doc = MyDoc(self.builtin_uri)
