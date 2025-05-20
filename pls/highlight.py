@@ -3,7 +3,7 @@ import attrs
 from .utils import node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from tree_sitter import Node
-from .model import Variable, SymbolTable,Predicate,Term
+from .model import Variable, SymbolTable
 from collections import defaultdict
 
 
@@ -40,7 +40,11 @@ class HighlightVisitor(TreeVisitor):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
-        self.notes = symbol_table.notes if symbol_table is not None else defaultdict(lambda : None)
+        self.notes = (
+            symbol_table.notes
+            if symbol_table is not None
+            else defaultdict(lambda: None)
+        )
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
@@ -67,31 +71,28 @@ class HighlightVisitor(TreeVisitor):
         self.create_token(node, 5, 0)
 
     def visit_comment(self, node: Node):
-
         # TODO Find a better solution
-        lines = max(node.end_point.row - node.start_point.row -1,0)
-        if lines ==  0:
-            self.create_token(node,6,0)    
-            return 
+        lines = max(node.end_point.row - node.start_point.row - 1, 0)
+        if lines == 0:
+            self.create_token(node, 6, 0)
+            return
 
         # Multiline Comment
         start_line = node.start_point.row
         col = node.start_point.column
-        text_per_lines = bytes.decode(node.text,'utf-8').split('\n')
-        for i in range(lines+2):
+        text_per_lines = bytes.decode(node.text, "utf-8").split("\n")
+        for i in range(lines + 2):
             current_row = start_line + i
             current_line_len = len(text_per_lines[i])
 
-            line_offset = current_row  - self.current_token.line
-            col_offset =  col
+            line_offset = current_row - self.current_token.line
+            col_offset = col
             if not current_row > self.current_token.line:
                 col_offset -= self.current_token.offset
 
             self.current_token = Token(current_row, col, "")
             col = 0
-            self.token_list.extend(
-                [line_offset, col_offset,current_line_len ,6,0]
-            )
+            self.token_list.extend([line_offset, col_offset, current_line_len, 6, 0])
 
     def visit_variable_term(self, node: Node):
         may_be_variable: Variable | None = self.notes[node]
@@ -109,15 +110,14 @@ class HighlightVisitor(TreeVisitor):
         notes = self.notes[node]
         if notes is None:
             return
-        text = bytes.decode(node.text,'utf-8')
+        text = bytes.decode(node.text, "utf-8")
         # TODO: This is not totally correct because it should not be highlighted as strings
-        return 
-        if len(text) > 1 and text[0] == text[-1] and text[0] == '\'':
+        return
+        if len(text) > 1 and text[0] == text[-1] and text[0] == "'":
             self.create_token(node, 5, 0)
             return
-            
-    def visit_functional_notation(self, node: Node):
 
+    def visit_functional_notation(self, node: Node):
         children = self.filter_children(node)
         match children:
             case [atom, _, arg_list, _]:
@@ -128,16 +128,18 @@ class HighlightVisitor(TreeVisitor):
                         self.create_token(child, 3, 0)
             case _:
                 raise TypeError(
-                    f"Invalid shape of argument list: {node.children}"+ node_and_parent_with_text(node)
+                    f"Invalid shape of argument list: {node.children}"
+                    + node_and_parent_with_text(node)
                 )
 
         return
 
-    def filter_children(self,node:Node):
-        return [child for child in node.children if child.type not in ("comment","ERROR")]
+    def filter_children(self, node: Node):
+        return [
+            child for child in node.children if child.type not in ("comment", "ERROR")
+        ]
 
     def visit_operator_notation(self, node: Node):
-
         children = self.filter_children(node)
         match children:
             case [open, operand, close] if (
@@ -159,7 +161,10 @@ class HighlightVisitor(TreeVisitor):
                     self.visit(child)
                 return operand
             case children:
-                raise TypeError(f"Unhandeled operator notation: \n{children}\n"+node_and_parent_with_text(node))
+                raise TypeError(
+                    f"Unhandeled operator notation: \n{children}\n"
+                    + node_and_parent_with_text(node)
+                )
 
     def create_token(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line

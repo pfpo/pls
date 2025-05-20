@@ -15,12 +15,19 @@ from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight import HighlightVisitor, TokenTypes, TokenModifier
 from .markup import descriptions
 import sys
-from .my_logging import print,logging,old_print
+from .my_logging import print, logging, old_print
 
 PROLOG = Language(prolog())
 
 parser = Parser(PROLOG)
 
+class MyDoc:
+    def __init__(self, uri: str):
+        self.uri = uri
+        self.source = ""
+        self.version = 0
+        with open(self.uri) as f:
+            self.source = f.read()
 
 class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
@@ -30,6 +37,12 @@ class PLS(LanguageServer):
         self.tables: map[str, SymbolTable] = {}
         self.trees: map[str, Tree] = {}
         self.current_uri = ""
+        self.builtin_uri = "sicstus-doc-scraper/builtins.pl"
+        self.start_up()
+    
+    def start_up(self):
+        doc = MyDoc(self.builtin_uri)
+        self.parse(doc)
 
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
@@ -37,7 +50,6 @@ class PLS(LanguageServer):
 
     def semantic_tokens(self, tree: Tree, uri: str):
         tokens_visitor = HighlightVisitor(self.tables.get(uri))
-
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -59,7 +71,7 @@ class PLS(LanguageServer):
 
     def _parse(self, doc: str):
         tree = parser.parse(bytes(doc, "utf-8"))
-        
+
         try:
             prolog_visitor = PrologVisitor(self.current_uri)
             prolog_visitor.visit(tree.root_node, Opts())
@@ -70,9 +82,9 @@ class PLS(LanguageServer):
             )
 
             return tree, symbol_table
-        except TypeError as e:
-            logging.log(logging.DEBUG,f"{traceback.format_exc()}")
-            return tree,None
+        except TypeError:
+            logging.log(logging.DEBUG, f"{traceback.format_exc()}")
+            return tree, None
 
     def transform_in_variable_or_predicate(
         self, node: Node, position: types.Position, uri: str
@@ -98,7 +110,13 @@ class PLS(LanguageServer):
             else:
                 functor = Functor(bytes.decode(node.text), [])
 
-            return table.predicate_index.get(functor.key())
+            return self.get_predicate(functor.key(),uri)
+
+    def get_predicate(self,key:str, uri:str):
+        res = self.tables[uri].predicate_index.get(key)
+        if res is None or len(res.definitions) == 0:
+            res = self.tables[self.builtin_uri].predicate_index.get(key)
+        return res
 
     def discover_node(
         self, tree, position: types.Position, uri: str
@@ -252,43 +270,45 @@ def main():
     )
     server.start_io()
 
-def rec_print(node:Node,tab=0):
-    log = lambda n : f"{bytes.decode(n.text,'utf-8')}"
+
+def rec_print(node: Node, tab=0):
+    log = lambda n: f"{bytes.decode(n.text, 'utf-8')}"
     print(f"{'  ' * tab}{node.type} - {log(node)}")
     for child in node.children:
-        rec_print(child,tab+1)
+        rec_print(child, tab + 1)
+
 
 def debug():
-    class MyDoc:
-        def __init__(self,uri:str):
-            self.uri = uri
-            self.source = ""
-            self.version = 0
-            with open(self.uri) as f:
-                self.source = f.read()
 
-    uri = "./examples/highlight/comment.pl"
-    uri = "./test/t.pl"
+    uri = "./test/commented_prolog_cliques_distinct.pl"
+    uri = "sicstus-doc-scraper/builtins.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
-    for child in t.root_node.children:
-        rec_print(child,0)
-    print(t.root_node)
-    
+    # for child in t.root_node.children:
+    #     rec_print(child,0)
+    # print(t.root_node)
+
     if uri in server.tables:
         for key, predicate in server.tables[uri].predicate_index.items():
             print(key)
             print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
             print(f"Refs {len(predicate.references)}{predicate.references}")
+            print(f"Comments: {predicate.comments}")
             print("========")
 
-    #print(
+    # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
-    #)
+    # )
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    print(server.semantic_tokens(t,uri))
-    
+    #print(server.semantic_tokens(t, uri))
+
+    # comment_parser = Parser(Language(pldoc.language()))
+    # with open(uri,"r") as f:
+    #     t = comment_parser.parse(bytes(f.read(),"utf-8"))
+    #     s = PlDocVisitor()
+    #     s.start(t.root_node)
+    #     print(s.get_comment())
 
 
 if __name__ == "__main__":

@@ -1,8 +1,7 @@
 from tree_sitter import Node
 from lsprotocol import types
 
-import logging
-from .utils import node_to_range,node_and_parent_with_text
+from .utils import node_to_range
 from .tree_visitor import TreeVisitor
 
 

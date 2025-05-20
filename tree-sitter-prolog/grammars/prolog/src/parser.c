@@ -617,7 +617,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       END_STATE();
     case 1:
       if ((!eof && lookahead == 00)) ADVANCE(99);
-      if (lookahead == '\n') ADVANCE(98);
+      if (lookahead == '\n') ADVANCE(100);
       if (lookahead != 0) ADVANCE(1);
       END_STATE();
     case 2:
@@ -1357,8 +1357,13 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
     case 99:
       ACCEPT_TOKEN(sym_comment);
       if ((!eof && lookahead == 00)) ADVANCE(99);
-      if (lookahead == '\n') ADVANCE(98);
+      if (lookahead == '\n') ADVANCE(100);
+      if (lookahead == '%') ADVANCE(1);
       if (lookahead != 0) ADVANCE(1);
+      END_STATE();
+    case 100:
+      ACCEPT_TOKEN(sym_comment);
+      if (lookahead == '%') ADVANCE(1);
       END_STATE();
     default:
       return false;

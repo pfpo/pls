@@ -18,32 +18,32 @@ const pldoc_c_style_start_comment = token(prec(1, '/** '))
 const instantiation_modifiers = ['++', '+', '-', '--', '?', ':', '@', '!']
 const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', 'undefined']
 
-const word = /[a-zA-Z0-9]+/
+const word = /[^\s]+/
 
-const name = word
+const name = alias(token(word),'name')
 const text = word
 
 const c_style_line_begin = /[^\S\n]*\*?[^\S\n]*/
 
 const tags = [
-  seq(token(prec(1, '@arg')), name, text),
-  seq(token(prec(1, '@param')), name, text),
-  seq(token(prec(1, '@error')), name, text),
-  seq(token(prec(1, '@author')), name, text),
-  seq(token(prec(1, '@version')), name, text),
-  seq(token(prec(1, '@see')), text),
-  seq(token(prec(1, '@deprecated')), text),
-  seq(token(prec(1, '@compat')), text),
-  seq(token(prec(1, '@copyright')), text),
-  seq(token(prec(1, '@license')), text),
-  seq(token(prec(1, '@bug')), text),
-  seq(token(prec(1, '@tbd')), text),
+  (name,desc) => seq(token(prec(1, '@arg')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@param')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@error')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@author')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@version')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@see')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@deprecated')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@compat')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@copyright')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@license')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@bug')), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@tbd')), field("description",desc)),
 
 ]
 
 module.exports = grammar({
   name: "pldoc",
-  conflicts: $ => [[$.pldoc_prolog_style], [$.prolog_style_body], [$.prolog_style_description]],
+  conflicts: $ => [[$.pldoc_prolog_style], [$.prolog_style_body],[$.operator_template,$.arg_name]],
 
   rules: {
     // TODO: add the actual grammar rules
@@ -55,15 +55,26 @@ module.exports = grammar({
     ),
     normal_comment: $ => choice(
       $.normal_single_line_comment,
-      $.normal_multiline_comment,
+      // $.normal_multiline_comment,
     ),
 
     normal_single_line_comment: $ => seq('%', /.*/, choice('\n', '\0')),
     normal_multiline_comment: $ => multi_line_comment,
 
-    template: $ => seq($.head, optional(seq('is', choice(...determinism_modifiers)))),
+    _template: $=> choice(
+      $.functor_template,
+      //$.operator_template,
+      $.directive_template,
+    ),
+    operator_template: $=> choice(
+      seq($.arg_spec,word,$.arg_spec),
+      seq(word,$.arg_spec),
+      seq($.arg_spec,word),
+    ),
+    functor_template: $ => seq($._head, optional(seq('is', choice(...determinism_modifiers)))),
+    directive_template: $=> seq(':-',choice($.functor_template,$.operator_template)),
 
-    head: $ => seq(
+    _head: $ => seq(
       $.functor,
       optional(seq(
         '(',
@@ -81,59 +92,67 @@ module.exports = grammar({
         $.type,
       ))
     ),
-    functor: $ => word,
+    functor: $ =>/[a-zA-Z0-9_$]+/,
     type: $ => word,
-    arg_name: $ => word,
+    arg_name: $ =>/[a-zA-Z0-9_$]+/,
 
 
 
 
     pldoc_comment: $ => choice($.pldoc_prolog_style, $.pldoc_c_style),
 
-    pldoc_prolog_directive: $ => seq(pldoc_start_comment, $.template),
+    pldoc_prolog_directive: $ => seq(pldoc_start_comment, $._template),
 
     pldoc_prolog_style: $ => seq(
       repeat1($.pldoc_prolog_directive),
-      repeat1(seq('%','\n')),
-      optional($.prolog_style_body)
+      optional(seq(
+        repeat1(seq('%', '\n')),
+        $.prolog_style_body))
     ),
 
     prolog_style_body: $ => choice(
       seq(
         $.prolog_style_description,
-        repeat1(seq('%', $.tag))
+        repeat1(seq('%', $.pl_tag))
       ),
       $.prolog_style_description,
-      repeat1(seq('%', $.tag)),
+      repeat1(seq('%', $.pl_tag)),
     ),
 
     _prolog_style_description: $ => repeat1(seq('%', /([^@\s].*)|(\s+[^@].*)/, choice('\n', '\0'))),
-    prolog_style_description: $ => repeat1( choice(
-                                              /%[\r\t\f\v ]*[^@\s].*\n/,
-                                              /%\s*\n/,
-                                    )),
+    prolog_style_description: $ => repeat1(choice(
+      /%[\r\t\f\v ]*[^@\s].*\n/,
+      /%\s*\n/,
+    )),
 
     pldoc_c_style: $ => seq(
       pldoc_c_style_start_comment,
-      repeat1(seq('*', $.template, '\n')),
-      optional($.c_style_body),
+      repeat1(seq('*', $._template, '\n')),
+      optional(seq(
+        repeat1(seq(optional('*'), '\n')),
+        $.c_style_body)),
       '*/'),
 
     c_style_body: $ => choice(
       seq(
         $.c_style_description,
-        repeat1(seq(optional('*'), $.tag, '\n'))
+        repeat1(seq(optional('*'), $.c_tag, '\n'))
       ),
       $.c_style_description,
-      repeat1(seq(optional('*'), $.tag, '\n')),
+      repeat1(seq(optional('*'), $.c_tag, '\n')),
     ),
-
-
-
+    
     c_style_description: $ => repeat1(seq(multi_line_comment_line, /\n?/)),
 
 
-    tag: $ => choice(...tags),
+    // c_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/, optional($.c_style_description))))))),
+    // pl_tag: $ => choice(...(tags.map(((e) => e(name))))),
+    // c_tag: $ => choice(...(tags.map(((e) => e(name))))),
+
+    tag_name :$=> name,
+    pl_tag_text: $ => seq(/([^@\s].*)|(\s+[^@].*)/ ,optional($.prolog_style_description)),
+    pl_tag: $ => choice(...(tags.map(((e) => e($.tag_name,$.pl_tag_text))))),
+    c_tag: $ => choice(...(tags.map(((e) => e($.tag_name, optional($.c_style_description)))))),
   }
 
 });

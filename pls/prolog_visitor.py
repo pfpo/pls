@@ -1,10 +1,12 @@
-from tree_sitter import Node
+from tree_sitter import Node, Parser, Language
 from .model import Term, Functor, Predicate, Variable, Scope
-from .utils import node_to_range,node_and_parent_with_text
+from .utils import node_to_range, node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
-
+import tree_sitter_pldoc as pldoc
 from dataclasses import dataclass
+
+from .pldoc_comment_visitor import PlDocVisitor
 
 
 @dataclass
@@ -24,6 +26,10 @@ class PrologVisitor(TreeVisitor):
         self.current_scope = None
         self.scopes = {}
         self.directive_counter = 0
+
+        self.comment_parser = Parser(Language(pldoc.language()))
+
+        self.all_comments = []
 
         self.comments = []
 
@@ -51,7 +57,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("list_notation", self.visit_list_notation)
         self.add_visit("double_quoted_list_notation", self.text_visit)
         self.add_visit("|", self.visit_list_extend)
-        self.add_visit("curly_bracketed_notation",self.curly_braces_visit)
+        self.add_visit("curly_bracketed_notation", self.curly_braces_visit)
 
         self.add_visit("ERROR", self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
@@ -59,12 +65,14 @@ class PrologVisitor(TreeVisitor):
     def visit_list_extend(self, node: Node, _opts: Opts):
         # TODO
         return
+
     def curly_braces_visit(self, node: Node, opts: Opts):
         children = node.children
         match children:
-            case [brace_left,body,brace_right] if brace_right.type == "open_curly" and brace_left.type == "open_curly":
-                self.visit(body,opts)
-
+            case [brace_left, body, brace_right] if (
+                brace_right.type == "open_curly" and brace_left.type == "open_curly"
+            ):
+                self.visit(body, opts)
 
     def visit_atom(self, node: Node, _opts: Opts) -> str:
         assert node.type == "atom"
@@ -83,7 +91,10 @@ class PrologVisitor(TreeVisitor):
         assert node.type == "arg_list"
         args = []
         for i in range(len(node.children)):
-            if node.children[i].type in ("comment", "arg_list_separator") or node.is_error:
+            if (
+                node.children[i].type in ("comment", "arg_list_separator")
+                or node.is_error
+            ):
                 continue
             else:
                 args.append(node.children[i])
@@ -112,7 +123,8 @@ class PrologVisitor(TreeVisitor):
                 return f
             case _:
                 raise TypeError(
-                    f"Invalid shape of argument list: {node.children}" + node_and_parent_with_text(node)
+                    f"Invalid shape of argument list: {node.children}"
+                    + node_and_parent_with_text(node)
                 )
 
         return
@@ -132,8 +144,10 @@ class PrologVisitor(TreeVisitor):
         v.references.append(definition_range)
         return v
 
-    def filter_children(self,node:Node):
-        return [child for child in node.children if child.type not in ("comment","ERROR")]
+    def filter_children(self, node: Node):
+        return [
+            child for child in node.children if child.type not in ("comment", "ERROR")
+        ]
 
     def visit_operator_notation(self, node: Node, opts: Opts):
         assert node.type == "operator_notation"
@@ -158,7 +172,8 @@ class PrologVisitor(TreeVisitor):
                 return operand
             case _:
                 raise TypeError(
-                    f"Unhandeled operator notation:`{node.children}`\n"+ node_and_parent_with_text(node)
+                    f"Unhandeled operator notation:`{node.children}`\n"
+                    + node_and_parent_with_text(node)
                 )
 
     def functor_is_parameter_start_point(self, opts: Opts):
@@ -227,7 +242,16 @@ class PrologVisitor(TreeVisitor):
                 self.visit(item, opts)
 
     def visit_comment(self, node: Node, opts: Opts):
-        self.comments.append(bytes.decode(node.text, "utf-8"))
+        result = self.comment_parser.parse(node.text)
+        v = PlDocVisitor()
+        v.start(result.root_node)
+        pldoc = v.get_comment()
+        if pldoc:
+            for template in pldoc.templates:
+                predicate = self.get_predicate(template)
+                predicate.comments.append(pldoc)
+        else:
+            self.comments.append(bytes.decode(node.text, "utf-8"))
         return
 
     def get_predicate(self, t: Term) -> Predicate:

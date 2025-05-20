@@ -83,10 +83,10 @@ const fields = {
     back_quote_char,
   ),
   // 6.4.1 Layout text
-  single_line_comment = seq(
+  single_line_comment = repeat1(seq(
     end_line_comment_char,
     /.*/,
-    choice(new_line_char, end_of_file_char),
+    choice(new_line_char, end_of_file_char)),
   ),
   bracketed_comment = seq(
     '/*',
