@@ -6,6 +6,9 @@ a([X|XS],[Y|YS],F):-
 
 add_1(X,Y):- Y is X + 1.
 
-main:-
+main(Z):- write(Y).
+
+
+main(_):-
 	a([1,2,3],X,add_1),
 	write(X).

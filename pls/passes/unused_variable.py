@@ -24,11 +24,11 @@ class UnusedVariablePass(TreeVisitor):
         variable = self.table.notes[node]
         if variable is None or type(variable) is not Variable:
             return 
-        if len(variable.references) == 1:
+        if len(variable.references) == 1 and not variable.name.startswith('_'): 
             severity = types.DiagnosticSeverity.Warning
             message = "Unused Variable"
             report =  types.Diagnostic(
-                message=message + variable.name,
+                message=message + " " + variable.name,
                 severity=severity,
                 range=node_to_range(node),
             )
