@@ -1,39 +1,11 @@
-import enum
-import attrs
-from .utils import node_and_parent_with_text
-from .tree_visitor import TreeVisitor
+
+from pls.utils import node_and_parent_with_text
+from pls.tree_visitor import TreeVisitor
 from tree_sitter import Node
-from .model import Variable, SymbolTable
+from pls.model import Variable, SymbolTable
 from collections import defaultdict
-
-
-class TokenModifier(enum.IntFlag):
-    deprecated = enum.auto()
-    readonly = enum.auto()
-    defaultLibrary = enum.auto()
-    definition = enum.auto()
-
-
-@attrs.define
-class Token:
-    line: int
-    offset: int
-    text: str
-
-    tok_type: str = ""
-    tok_modifiers: list[TokenModifier] = attrs.field(factory=list)
-
-
-TokenTypes = [
-    "number",
-    "variable",
-    "parameter",
-    "function",
-    "operator",
-    "string",
-    "comment",
-]
-
+from .highlight import Token
+from .pld_doc_highlight import PlDocHighlightVisitor
 
 class HighlightVisitor(TreeVisitor):
     def __init__(self, symbol_table: SymbolTable):
@@ -71,6 +43,19 @@ class HighlightVisitor(TreeVisitor):
         self.create_token(node, 5, 0)
 
     def visit_comment(self, node: Node):
+        added_tokens = False
+        if self.notes[node]:
+            v = PlDocHighlightVisitor(self.current_token)
+            v.start(self.notes[node])
+            added_tokens = len(v.token_list) > 0
+            self.token_list.extend(v.token_list)
+        if not added_tokens:
+            self.visit_normal_comment(node)
+        else:
+            # self.current_token = Token(node.start_point.row, node.start_point.column, "")
+            pass
+    
+    def visit_normal_comment(self, node: Node):
         # TODO Find a better solution
         lines = max(node.end_point.row - node.start_point.row - 1, 0)
         if lines == 0:

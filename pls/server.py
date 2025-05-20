@@ -12,7 +12,8 @@ from .utils import node_at_position, position_inside_node
 
 from .prolog_visitor import PrologVisitor, Opts
 from .syntax_error_visitor import SyntaxErrorVisitor
-from .highlight import HighlightVisitor, TokenTypes, TokenModifier
+from .highlight.highlight_visitor import HighlightVisitor
+from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
 import sys
 from .my_logging import print, logging, old_print
@@ -282,6 +283,7 @@ def debug():
 
     uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "sicstus-doc-scraper/builtins.pl"
+    uri = "examples/comments/functor.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
@@ -301,7 +303,7 @@ def debug():
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    #print(server.semantic_tokens(t, uri))
+    print(server.semantic_tokens(t, uri))
 
     # comment_parser = Parser(Language(pldoc.language()))
     # with open(uri,"r") as f:
