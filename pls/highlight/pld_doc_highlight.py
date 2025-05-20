@@ -42,12 +42,9 @@ class PlDocHighlightVisitor(TreeVisitor):
 
 
     def arg_spec(self, node: Node):
-        print("Here")
         fields = {"instantiation": (4,0), "name": (1,0), "type": (7,0)}
-        print(node.children)
         for name in fields.keys():
             if field := node.child_by_field_name(name):
-                print(field)
                 self.create_token(field,*fields[name])
             
 

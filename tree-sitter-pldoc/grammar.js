@@ -85,11 +85,11 @@ module.exports = grammar({
     ),
 
     arg_spec: $ => seq(
-      optional(choice(...instantiation_modifiers)),
-      $.arg_name,
+      field("instantiation",optional(choice(...instantiation_modifiers))),
+      field("name",$.arg_name),
       optional(seq(
         ':',
-        $.type,
+        field("type",$.type),
       ))
     ),
     functor: $ =>/[a-zA-Z0-9_$]+/,
