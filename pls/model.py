@@ -30,6 +30,7 @@ class Predicate(Term):
         self.uri = ""
         self.references = []
         self.comments = []
+        self.scopes : list["Scope"] = []
 
     def add_reference(self, node: Node):
         self.references.append(node_to_range(node))
@@ -70,6 +71,7 @@ class Variable(Term):
         self.definition = definition
         self.references = []
         self.is_parameter = False
+        self.scope:"Scope" = None
 
 
 class Scope:
@@ -77,3 +79,4 @@ class Scope:
         self.name = ""
         self.variables = {}
         self.node = None
+        self.predicate :None | "Predicate"

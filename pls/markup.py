@@ -1,10 +1,28 @@
 from tree_sitter import Node
 from .model import Predicate, Variable
+from .pldoc_comment_visitor import PlDocComment
 
+import logging
 
 class Markup:
     def variable_description(self, element: Variable):
-        return ["## Variable", element.name]
+        if element.scope and element.scope.predicate and element.is_parameter:
+            predicate = element.scope.predicate
+            pldocs = [c for c in predicate.comments if type(c) is PlDocComment ]
+            # todo: can there be more than one pldoc?
+            if len(pldocs) > 0:
+                pldoc = pldocs[0]
+                args, tags = pldoc.parameter(element.name)
+                logging.debug(args)
+                logging.debug(tags)
+
+                r =  [f"### Parameter `{element.name}`", " or ".join([f"`{a}`" for a in args])]
+                for t in tags:
+                    r.append(f"\n- {t.value}")
+
+                return r
+            
+        return [f"### Variable `{element.name}`"]
 
     def predicate_description(self, element: Predicate):
         string_comments = []
