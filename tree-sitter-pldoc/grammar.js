@@ -8,12 +8,12 @@
 // @ts-check
 const multi_line_comment_line = /(([^*\n]\/)|([^*\/\n])|\*|(\*[^\/\n]))*/
 const multi_line_comment1 = /\/\*(([^*]\/)|([^*\/])|\*|(\*[^\/]))*\*\//
-const multi_line_comment = token(seq('/*', repeat(seq(multi_line_comment_line, /\n?/)), '*/'))
+const multi_line_comment = alias(token(seq('/*', repeat(seq(multi_line_comment_line, /\n?/)), '*/')),"comment_token")
 const prolog_start_comment = '%'
 const pldoc_new_start_token = '! '
 const pldoc_old_start_token = '% '
-const pldoc_start_comment = token(prec(1, seq('%', choice(pldoc_new_start_token, pldoc_old_start_token))))
-const pldoc_c_style_start_comment = token(prec(1, '/** '))
+const pldoc_start_comment = alias(token(prec(1, seq('%', choice(pldoc_new_start_token, pldoc_old_start_token)))),"comment_token")
+const pldoc_c_style_start_comment = alias(token(prec(1, '/** ')),"comment_token")
 
 const instantiation_modifiers = ['++', '+', '-', '--', '?', ':', '@', '!']
 const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', 'undefined']
@@ -85,11 +85,11 @@ module.exports = grammar({
     ),
 
     arg_spec: $ => seq(
-      optional(choice(...instantiation_modifiers)),
-      $.arg_name,
+      field("instantiation",optional(choice(...instantiation_modifiers))),
+      field("name",$.arg_name),
       optional(seq(
         ':',
-        $.type,
+        field("type",$.type),
       ))
     ),
     functor: $ =>/[a-zA-Z0-9_$]+/,
@@ -101,7 +101,7 @@ module.exports = grammar({
 
     pldoc_comment: $ => choice($.pldoc_prolog_style, $.pldoc_c_style),
 
-    pldoc_prolog_directive: $ => seq(pldoc_start_comment, $._template),
+    pldoc_prolog_directive: $ => seq(alias(pldoc_start_comment,"comment_token"), $._template),
 
     pldoc_prolog_style: $ => seq(
       repeat1($.pldoc_prolog_directive),
