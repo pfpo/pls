@@ -62,7 +62,7 @@ code-insiders --install-extension pls-vscode-extension.vsix
 - [ ] Completion
 - [ ] Cut operator (red/green).
 - [ ] Determinism analysis.
-- [ ] Unused variables
+- [x] Unused variables
 - [ ] Detect and report this:
 ```
 Warning: /home/martim/Desktop/pls/examples/go_to_definition.pl:23:
@@ -79,7 +79,8 @@ Warning:    Use :- discontiguous list/1. to suppress this message
 - [ ] Handle dynamic directives
 - [ ] Handle operator directives
 
-- [ ] Parse Sicstus documentation
+- [x] Parse Sicstus documentation
+    -  [ ] Use llm to generate documentation?
 - [ ] Redifining predicates
 - [ ] handling is operator
     - Lhs must be a variable that is not grounded
@@ -121,9 +122,13 @@ Warning:    Use :- discontiguous list/1. to suppress this message
 - [x] understand why other examples are not working
 - [x] hover documentation (just for example the token type)
 - [x] hover documentation using the above and in between comments
-- [ ] parse comments
-- [ ] sicstus documentation parsing
+- [x] parse comments
+- [x] sicstus documentation parsing
 - `[X1,X1|XS]` not working error
+
+- [ ]  Highlight Unused Variables
+- [ ]  Actions for unused variables, add underscore substitute with underscore see if there is a similar variable.
+
 
 ## Highlighting
 

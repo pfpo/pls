@@ -17,6 +17,7 @@ from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
 import sys
 from .my_logging import print, logging, old_print
+from .passes.unused_variable import UnusedVariablePass
 
 PROLOG = Language(prolog())
 
@@ -50,6 +51,16 @@ class PLS(LanguageServer):
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
         return syntax_error_visitor.visit(tree.root_node)
+    def unused_variables(self,tree:Tree,table: SymbolTable)-> list[types.Diagnostic]:
+        analysis = UnusedVariablePass(table)
+        analysis.start(tree.root_node)
+        return analysis.reports
+
+    def run_passes(self,tree:Tree,table: SymbolTable)-> list[types.Diagnostic]:
+        result = []
+        result.extend(self.tree_diagnostics(tree))
+        result.extend(self.unused_variables(tree,table))
+        return result
 
     def semantic_tokens(self, tree: Tree, uri: str):
         tokens_visitor = HighlightVisitor(self.tables.get(uri))
@@ -63,7 +74,8 @@ class PLS(LanguageServer):
 
         if symbol_table:
             self.tables[document.uri] = symbol_table
-        self.diagnostics[document.uri] = (document.version, self.tree_diagnostics(tree))
+        self.diagnostics[document.uri] = (document.version, self.run_passes(tree,symbol_table))
+
         self.tokens[document.uri] = (
             document.version,
             self.semantic_tokens(tree, document.uri),
