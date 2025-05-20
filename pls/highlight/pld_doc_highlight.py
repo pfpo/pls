@@ -32,6 +32,7 @@ class PlDocHighlightVisitor(TreeVisitor):
 
         # Tags
         self.add_visit("pl_tag", self.visit_tag)
+        self.add_visit("normal_comment",self.visit_normal_comment)
 
         self.set_default_visitor(self.default_visit)
 
