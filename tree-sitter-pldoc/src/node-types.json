@@ -394,10 +394,6 @@
     "named": false
   },
   {
-    "type": "/** ",
-    "named": false
-  },
-  {
     "type": ":",
     "named": false
   },
@@ -459,6 +455,10 @@
   },
   {
     "type": "@version",
+    "named": false
+  },
+  {
+    "type": "comment_token",
     "named": false
   },
   {
