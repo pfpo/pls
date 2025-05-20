@@ -30,4 +30,3 @@ TokenTypes = [
     "type",
     "keyword",
 ]
-

@@ -1,4 +1,3 @@
-
 from pls.utils import node_and_parent_with_text
 from pls.tree_visitor import TreeVisitor
 from tree_sitter import Node
@@ -6,6 +5,7 @@ from pls.model import Variable, SymbolTable
 from collections import defaultdict
 from .highlight import Token
 from .pld_doc_highlight import PlDocHighlightVisitor
+
 
 class HighlightVisitor(TreeVisitor):
     def __init__(self, symbol_table: SymbolTable):
@@ -45,27 +45,36 @@ class HighlightVisitor(TreeVisitor):
     def visit_comment(self, node: Node):
         added_tokens = False
         if self.notes[node]:
-            v = PlDocHighlightVisitor(self.current_token)
+            # print("=======New Node========")
+            # print(node.start_point)
+            v = PlDocHighlightVisitor(self.current_token, node)
             v.start(self.notes[node])
             added_tokens = len(v.token_list) > 0
             self.token_list.extend(v.token_list)
+            # print(v.token_list)
         if not added_tokens:
             self.visit_normal_comment(node)
         else:
-            # self.current_token = Token(node.start_point.row, node.start_point.column, "")
-            pass
-    
+            # print("Here")
+            # print(self.current_token)
+            # print(node.text)
+            self.handle_normal_comment(node)
+            # print(self.current_token)
+
     def visit_normal_comment(self, node: Node):
+        self.token_list.extend(self.handle_normal_comment(node))
+
+    def handle_normal_comment(self, node: Node):
         # TODO Find a better solution
         lines = max(node.end_point.row - node.start_point.row - 1, 0)
         if lines == 0:
-            self.create_token(node, 6, 0)
-            return
+            return self.token_values(node, 6, 0)
 
         # Multiline Comment
         start_line = node.start_point.row
         col = node.start_point.column
         text_per_lines = bytes.decode(node.text, "utf-8").split("\n")
+        result = []
         for i in range(lines + 2):
             current_row = start_line + i
             current_line_len = len(text_per_lines[i])
@@ -77,7 +86,12 @@ class HighlightVisitor(TreeVisitor):
 
             self.current_token = Token(current_row, col, "")
             col = 0
-            self.token_list.extend([line_offset, col_offset, current_line_len, 6, 0])
+            result.extend([line_offset, col_offset, current_line_len, 6, 0])
+
+        # After this loop the current token is one line greater than it should be
+        # TODO : Investigate why and why it is not necessary in pldoc_highlight
+        self.current_token.line -= 1
+        return result
 
     def visit_variable_term(self, node: Node):
         may_be_variable: Variable | None = self.notes[node]
@@ -96,8 +110,6 @@ class HighlightVisitor(TreeVisitor):
         if notes is None:
             return
         text = bytes.decode(node.text, "utf-8")
-        # TODO: This is not totally correct because it should not be highlighted as strings
-        return
         if len(text) > 1 and text[0] == text[-1] and text[0] == "'":
             self.create_token(node, 5, 0)
             return
@@ -151,13 +163,14 @@ class HighlightVisitor(TreeVisitor):
                     + node_and_parent_with_text(node)
                 )
 
-    def create_token(self, node: Node, index: int, modifiers: int):
+    def token_values(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line
         col_offset = node.start_point.column
         if not node.start_point.row > self.current_token.line:
             col_offset -= self.current_token.offset
 
         self.current_token = Token(node.start_point.row, node.start_point.column, "")
-        self.token_list.extend(
-            [line_offset, col_offset, len(node.text), index, modifiers]
-        )
+        return [line_offset, col_offset, len(node.text), index, modifiers]
+
+    def create_token(self, node: Node, index: int, modifiers: int):
+        self.token_list.extend(self.token_values(node, index, modifiers))

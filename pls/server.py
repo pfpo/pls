@@ -22,6 +22,7 @@ PROLOG = Language(prolog())
 
 parser = Parser(PROLOG)
 
+
 class MyDoc:
     def __init__(self, uri: str):
         self.uri = uri
@@ -29,6 +30,7 @@ class MyDoc:
         self.version = 0
         with open(self.uri) as f:
             self.source = f.read()
+
 
 class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
@@ -39,8 +41,8 @@ class PLS(LanguageServer):
         self.trees: map[str, Tree] = {}
         self.current_uri = ""
         self.builtin_uri = "sicstus-doc-scraper/builtins.pl"
-        self.start_up()
-    
+        # self.start_up()
+
     def start_up(self):
         doc = MyDoc(self.builtin_uri)
         self.parse(doc)
@@ -111,9 +113,9 @@ class PLS(LanguageServer):
             else:
                 functor = Functor(bytes.decode(node.text), [])
 
-            return self.get_predicate(functor.key(),uri)
+            return self.get_predicate(functor.key(), uri)
 
-    def get_predicate(self,key:str, uri:str):
+    def get_predicate(self, key: str, uri: str):
         res = self.tables[uri].predicate_index.get(key)
         if res is None or len(res.definitions) == 0:
             res = self.tables[self.builtin_uri].predicate_index.get(key)
@@ -280,7 +282,6 @@ def rec_print(node: Node, tab=0):
 
 
 def debug():
-
     uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/comments/functor.pl"
@@ -303,7 +304,11 @@ def debug():
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )
     print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    print(server.semantic_tokens(t, uri))
+    ts = server.semantic_tokens(t, uri)
+    for i in range(0, len(ts), 5):
+        for k in range(0, 5):
+            print(ts[i + k], end=",")
+        print()
 
     # comment_parser = Parser(Language(pldoc.language()))
     # with open(uri,"r") as f:
