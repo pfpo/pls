@@ -5,6 +5,7 @@ from pls.model import Variable, SymbolTable
 from collections import defaultdict
 from .highlight import Token
 from .pld_doc_highlight import PlDocHighlightVisitor
+import logging
 
 
 class HighlightVisitor(TreeVisitor):
@@ -117,10 +118,11 @@ class HighlightVisitor(TreeVisitor):
                     elif child == atom:
                         self.create_token(child, 3, 0)
             case _:
-                raise TypeError(
+                self.visit_all_children(node)
+                logging.debug(TypeError(
                     f"Invalid shape of argument list: {node.children}"
                     + node_and_parent_with_text(node)
-                )
+                ))
 
         return
 
@@ -151,12 +153,11 @@ class HighlightVisitor(TreeVisitor):
                     self.visit(child)
                 return operand
             case children:
-                # self.visit_all_children(node)
-                return
-                raise TypeError(
+                self.visit_all_children(node)
+                logging.debug(TypeError(
                      f"Unhandeled operator notation: \n{children}\n"
                      + node_and_parent_with_text(node)
-                 )
+                 ))
 
     def token_values(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line
