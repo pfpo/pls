@@ -22,6 +22,7 @@ class SymbolTable:
     builtins :"SymbolTable"
     imports: list["SymbolTable"]
     consults: list["SymbolTable"]
+    consult_paths : list[str]
 
 
     

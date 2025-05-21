@@ -106,6 +106,7 @@ class PLS(LanguageServer):
                 builtins= None,
                 imports = None,
                 consults = None,
+                consult_paths = prolog_visitor.consult_paths
             )
 
             return tree, symbol_table
@@ -311,9 +312,10 @@ def debug():
     uri = "examples/comments/functor.pl"
     uri = "./test/nested_parameter_not_detected.pl"
     uri = "./test/simplex.pl"
-    uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "./test/functor_not_being_recognized.pl"
     uri = "sicstus-doc-scraper/builtins.pl"
+    uri = "examples/consult.pl"
+    uri = "./test/commented_prolog_cliques_distinct.pl"
     doc = MyDoc(uri)
     server.start_up()
     server.parse(doc)
@@ -324,14 +326,19 @@ def debug():
 
     if uri in server.tables:
         print("Symbol table of: ",uri)
-        for key, predicate in server.tables[uri].predicate_index.items():
+        table = server.tables[uri]
+        for key, predicate in table.predicate_index.items():
             print(key)
             print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
             print(f"Refs {len(predicate.references)}{predicate.references}")
             print(f"Comments: {predicate.comments}")
             print("========")
-
-    print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
+        if len(table.consult_paths) > 0:
+            print("Consult Paths:")
+            for p in table.consult_paths:
+                print(p)
+    # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
+    
     
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"

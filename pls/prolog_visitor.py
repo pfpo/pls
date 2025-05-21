@@ -27,6 +27,7 @@ class PrologVisitor(TreeVisitor):
         self.scopes = {}
         self.directive_counter = 0
 
+        self.consult_paths = []
         self.comment_parser = Parser(Language(pldoc.language()))
 
         self.all_comments = []
@@ -62,7 +63,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("comma",self.visit_binary_operator)
         self.add_visit("arg_list",self.visit_arg_list)
         
-        ignore = ["open"]
+        ignore = ["open","end"]
         for t in ignore:
             self.add_visit(t,self.ignore)
 
@@ -258,6 +259,29 @@ class PrologVisitor(TreeVisitor):
 
     def visit_directive(self, node: Node, opts: Opts):
         self.new_scope(node)
+        print(node.children)
+        def is_consult(functor : Functor)-> bool:
+            return functor.name == 'consult' and len(functor.args) == 1
+
+        def is_use_module(functor : Functor)-> bool:
+            return False
+        def string_from_atom(atom_string : str)-> str:
+            if len(atom_string) >= 2 and atom_string[0] == "'" and atom_string[-1] == "'":
+                return atom_string[1:-1]
+            return atom_string
+            
+
+        for child in node.children:
+            if child.type == 'functional_notation':
+                functor = self.visit(child,opts)
+                if is_consult(functor):
+                    consult_path = string_from_atom(functor.args[0].name)
+                    self.consult_paths.append(consult_path)
+                elif is_use_module(functor):
+                    # TODO: Handle Modules
+                    pass
+            else:
+                self.visit(child,opts)
         self.save_scope()
         return
 
