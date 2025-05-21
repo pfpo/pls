@@ -21,6 +21,8 @@ class UnusedVariablePass(TreeVisitor):
         self.set_default_visitor(self.visit_all_children)
 
     def visit_variable_term(self, node: Node):
+        if self.table is None:
+            return
         variable = self.table.notes[node]
         if variable is None or type(variable) is not Variable:
             return 

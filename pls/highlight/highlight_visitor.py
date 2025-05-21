@@ -45,21 +45,14 @@ class HighlightVisitor(TreeVisitor):
     def visit_comment(self, node: Node):
         added_tokens = False
         if self.notes[node]:
-            # print("=======New Node========")
-            # print(node.start_point)
             v = PlDocHighlightVisitor(self.current_token, node)
             v.start(self.notes[node])
             added_tokens = len(v.token_list) > 0
             self.token_list.extend(v.token_list)
-            # print(v.token_list)
         if not added_tokens:
             self.visit_normal_comment(node)
         else:
-            # print("Here")
-            # print(self.current_token)
-            # print(node.text)
             self.handle_normal_comment(node)
-            # print(self.current_token)
 
     def visit_normal_comment(self, node: Node):
         self.token_list.extend(self.handle_normal_comment(node))
@@ -158,10 +151,12 @@ class HighlightVisitor(TreeVisitor):
                     self.visit(child)
                 return operand
             case children:
+                # self.visit_all_children(node)
+                return
                 raise TypeError(
-                    f"Unhandeled operator notation: \n{children}\n"
-                    + node_and_parent_with_text(node)
-                )
+                     f"Unhandeled operator notation: \n{children}\n"
+                     + node_and_parent_with_text(node)
+                 )
 
     def token_values(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line

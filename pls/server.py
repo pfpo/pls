@@ -297,6 +297,7 @@ def debug():
     uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/comments/functor.pl"
+    uri = "./test/nested_parameter_not_detected.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
@@ -305,6 +306,7 @@ def debug():
     # print(t.root_node)
 
     if uri in server.tables:
+        print("Symbol table of: ",uri)
         for key, predicate in server.tables[uri].predicate_index.items():
             print(key)
             print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
@@ -315,12 +317,12 @@ def debug():
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )
-    print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    ts = server.semantic_tokens(t, uri)
-    for i in range(0, len(ts), 5):
-        for k in range(0, 5):
-            print(ts[i + k], end=",")
-        print()
+    # print(f"Diagnostics:{server.tree_diagnostics(t)}")
+    # ts = server.semantic_tokens(t, uri)
+    # for i in range(0, len(ts), 5):
+    #     for k in range(0, 5):
+    #         print(ts[i + k], end=",")
+    #     print()
 
     # comment_parser = Parser(Language(pldoc.language()))
     # with open(uri,"r") as f:
