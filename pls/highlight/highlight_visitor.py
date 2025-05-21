@@ -54,6 +54,7 @@ class HighlightVisitor(TreeVisitor):
             self.visit_normal_comment(node)
         else:
             self.handle_normal_comment(node)
+            self.current_token.line -= 1
 
     def visit_normal_comment(self, node: Node):
         self.token_list.extend(self.handle_normal_comment(node))
@@ -82,9 +83,6 @@ class HighlightVisitor(TreeVisitor):
             col = 0
             result.extend([line_offset, col_offset, current_line_len, 6, 0])
 
-        # After this loop the current token is one line greater than it should be
-        # TODO : Investigate why and why it is not necessary in pldoc_highlight
-        self.current_token.line -= 1
         return result
 
     def visit_variable_term(self, node: Node):

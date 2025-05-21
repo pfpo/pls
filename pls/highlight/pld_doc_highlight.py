@@ -22,17 +22,18 @@ class PlDocHighlightVisitor(TreeVisitor):
         self.token_list = []
         self.current_token = current_token
         self.start_token = Token(current_node.start_point.row, 0, "")
+        self.ended = False
         # print(self.start_token)
 
     def start(self, node: Node):
-        self.visit_all_children(node)
+        self.default_visit(node)
 
     def build_visitors(self):
-        self.add_visit("ERROR", self.visit_all_children)
+        self.add_visit("ERROR", self.end)
+        self.add_visit("normal_comment", self.end)
 
         # Tags
         self.add_visit("pl_tag", self.visit_tag)
-        self.add_visit("normal_comment",self.visit_normal_comment)
 
         self.set_default_visitor(self.default_visit)
 
@@ -45,8 +46,16 @@ class PlDocHighlightVisitor(TreeVisitor):
         # Templates
         self.add_visit("functor_template", self.visit_functor)
 
+    def end(self,node:Node):
+        self.ended = True
+        self.token_list = []
+        return
     def default_visit(self, node: Node):
-        self.visit_all_children(node)
+        for child in node.children:
+            if self.ended:
+                self.token_list = []
+                break
+            self.visit(child)
 
     def arg_spec(self, node: Node):
         fields = {"instantiation": (4, 0), "name": (1, 0), "type": (7, 0)}
@@ -107,7 +116,6 @@ class PlDocHighlightVisitor(TreeVisitor):
             self.current_token = Token(current_row, col, "")
             col = 0
             self.token_list.extend([line_offset, col_offset, current_line_len, 6, 0])
-
     def relative_node_range(self, node: Node):
         return Range(
             Point(
