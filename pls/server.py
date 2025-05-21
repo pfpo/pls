@@ -18,6 +18,7 @@ from .markup import descriptions
 import sys
 from .my_logging import print, logging, old_print
 from .passes.unused_variable import UnusedVariablePass
+from .passes.undefined_predicate import UndefinedPredicate
 
 PROLOG = Language(prolog())
 
@@ -42,6 +43,7 @@ class PLS(LanguageServer):
         self.trees: map[str, Tree] = {}
         self.current_uri = ""
         self.builtin_uri = "sicstus-doc-scraper/builtins.pl"
+        self.builtin_table: SymbolTable = None
         self.start_up()
 
     def start_up(self):
@@ -55,11 +57,16 @@ class PLS(LanguageServer):
         analysis = UnusedVariablePass(table)
         analysis.start(tree.root_node)
         return analysis.reports
+    def undefined_predicate(self,tree:Tree,table: SymbolTable)-> list[types.Diagnostic]:
+        analysis = UndefinedPredicate(table)
+        analysis.start(tree.root_node)
+        return analysis.reports
 
     def run_passes(self,tree:Tree,table: SymbolTable)-> list[types.Diagnostic]:
         result = []
         result.extend(self.tree_diagnostics(tree))
         result.extend(self.unused_variables(tree,table))
+        result.extend(self.undefined_predicate(tree,table))
         return result
 
     def semantic_tokens(self, tree: Tree, uri: str):
@@ -71,7 +78,8 @@ class PLS(LanguageServer):
         self.predicate_index = {}
         self.current_uri = document.uri
         tree, symbol_table = self._parse(document.source)
-
+        if symbol_table and document.uri != self.builtin_uri:
+            symbol_table.builtins = self.tables[self.builtin_uri]
         if symbol_table:
             self.tables[document.uri] = symbol_table
         self.diagnostics[document.uri] = (document.version, self.run_passes(tree,symbol_table))
@@ -87,6 +95,7 @@ class PLS(LanguageServer):
     def _parse(self, doc: str):
         tree = parser.parse(bytes(doc, "utf-8"))
 
+        # Try catch dangerous
         try:
             prolog_visitor = PrologVisitor(self.current_uri)
             prolog_visitor.visit(tree.root_node, Opts())
@@ -94,6 +103,9 @@ class PLS(LanguageServer):
                 scopes=prolog_visitor.scopes,
                 notes=prolog_visitor.notes,
                 predicate_index=prolog_visitor.predicate_index,
+                builtins= None,
+                imports = None,
+                consults = None,
             )
 
             return tree, symbol_table
@@ -296,13 +308,14 @@ def rec_print(node: Node, tab=0):
 
 
 def debug():
-    uri = "./test/commented_prolog_cliques_distinct.pl"
-    uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/comments/functor.pl"
     uri = "./test/nested_parameter_not_detected.pl"
     uri = "./test/simplex.pl"
+    uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "./test/functor_not_being_recognized.pl"
+    uri = "sicstus-doc-scraper/builtins.pl"
     doc = MyDoc(uri)
+    server.start_up()
     server.parse(doc)
     t = server.trees[uri]
     # for child in t.root_node.children:

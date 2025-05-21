@@ -19,6 +19,12 @@ class SymbolTable:
     scopes: map
     predicate_index: map
     notes: Annotations
+    builtins :"SymbolTable"
+    imports: list["SymbolTable"]
+    consults: list["SymbolTable"]
+
+
+    
 
 
 class Predicate(Term):
