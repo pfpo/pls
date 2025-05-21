@@ -1,8 +1,10 @@
-import logging 
+import logging
 from tree_sitter import Node
 import sys
-from .the_server import server,MyDoc
+from .the_server import server, MyDoc
 from .my_logging import old_print
+
+
 def main():
     logging.basicConfig(
         filename="/home/martim/Desktop/pls/pygls.log", filemode="w", level=logging.DEBUG
@@ -34,7 +36,7 @@ def debug():
     # print(t.root_node)
 
     if uri in server.tables:
-        print("Symbol table of: ",uri)
+        print("Symbol table of: ", uri)
         table = server.tables[uri]
         for key, predicate in table.predicate_index.items():
             print(key)
@@ -47,8 +49,7 @@ def debug():
             for p in table.consult_paths:
                 print(p)
     # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
-    
-    
+
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )

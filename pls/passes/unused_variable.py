@@ -1,17 +1,15 @@
-from tree_sitter import Node, Parser, Language
-from pls.model import Term, Functor, Predicate, Variable, Scope,SymbolTable
-from pls.utils import node_to_range, node_and_parent_with_text
+from tree_sitter import Node
+from pls.model import Variable, SymbolTable
+from pls.utils import node_to_range
 from pls.tree_visitor import TreeVisitor
-from pls.annotations import Annotations
 from lsprotocol import types
 
 
 class UnusedVariablePass(TreeVisitor):
-    def __init__(self,table: SymbolTable):
+    def __init__(self, table: SymbolTable):
         super().__init__()
         self.table = table
         self.reports = []
-
 
     def start(self, node: Node):
         self.visit_all_children(node)
@@ -25,14 +23,13 @@ class UnusedVariablePass(TreeVisitor):
             return
         variable = self.table.notes[node]
         if variable is None or type(variable) is not Variable:
-            return 
-        if len(variable.references) == 1 and not variable.name.startswith('_'): 
+            return
+        if len(variable.references) == 1 and not variable.name.startswith("_"):
             severity = types.DiagnosticSeverity.Warning
             message = "Unused Variable"
-            report =  types.Diagnostic(
+            report = types.Diagnostic(
                 message=message + " " + variable.name,
                 severity=severity,
                 range=node_to_range(node),
             )
             self.reports.append(report)
-

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 class Tag:
     type: str
     name: str = ""
-    value: str  =""
+    value: str = ""
 
     def __str__(self) -> str:
         return rf"@*{self.type}* `{self.name}`: {self.value}"
@@ -53,7 +53,7 @@ class PlDocComment:
             r += f"- {t}\n"
         return r
 
-    def parameter(self, name : str):
+    def parameter(self, name: str):
         args = []
         tags = []
         for t in self.templates:
@@ -62,12 +62,10 @@ class PlDocComment:
                     args.append(a)
 
         for tag in self.tags:
-            if tag.type == 'arg' or tag.type=='param' and tag.name == name:
+            if tag.type == "arg" or tag.type == "param" and tag.name == name:
                 tags.append(tag)
 
-        return args,tags
-                    
-
+        return args, tags
 
     def to_markdown(self) -> str:
         return str(self)

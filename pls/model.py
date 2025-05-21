@@ -19,13 +19,10 @@ class SymbolTable:
     scopes: map
     predicate_index: map
     notes: Annotations
-    builtins :"SymbolTable"
+    builtins: "SymbolTable"
     imports: list["SymbolTable"]
     consults: list["SymbolTable"]
-    consult_paths : list[str]
-
-
-    
+    consult_paths: list[str]
 
 
 class Predicate(Term):
@@ -37,7 +34,7 @@ class Predicate(Term):
         self.uri = ""
         self.references = []
         self.comments = []
-        self.scopes : list["Scope"] = []
+        self.scopes: list["Scope"] = []
 
     def add_reference(self, node: Node):
         self.references.append(node_to_range(node))
@@ -78,7 +75,7 @@ class Variable(Term):
         self.definition = definition
         self.references = []
         self.is_parameter = False
-        self.scope:"Scope" = None
+        self.scope: "Scope" = None
 
 
 class Scope:
@@ -86,4 +83,4 @@ class Scope:
         self.name = ""
         self.variables = {}
         self.node = None
-        self.predicate :None | "Predicate"
+        self.predicate: None | "Predicate"

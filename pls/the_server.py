@@ -52,20 +52,26 @@ class PLS(LanguageServer):
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
         return syntax_error_visitor.visit(tree.root_node)
-    def unused_variables(self,tree:Tree,table: SymbolTable)-> list[types.Diagnostic]:
+
+    def unused_variables(
+        self, tree: Tree, table: SymbolTable
+    ) -> list[types.Diagnostic]:
         analysis = UnusedVariablePass(table)
         analysis.start(tree.root_node)
         return analysis.reports
-    def undefined_predicate(self,tree:Tree,table: SymbolTable)-> list[types.Diagnostic]:
+
+    def undefined_predicate(
+        self, tree: Tree, table: SymbolTable
+    ) -> list[types.Diagnostic]:
         analysis = UndefinedPredicate(table)
         analysis.start(tree.root_node)
         return analysis.reports
 
-    def run_passes(self,tree:Tree,table: SymbolTable)-> list[types.Diagnostic]:
+    def run_passes(self, tree: Tree, table: SymbolTable) -> list[types.Diagnostic]:
         result = []
         result.extend(self.tree_diagnostics(tree))
-        result.extend(self.unused_variables(tree,table))
-        result.extend(self.undefined_predicate(tree,table))
+        result.extend(self.unused_variables(tree, table))
+        result.extend(self.undefined_predicate(tree, table))
         return result
 
     def semantic_tokens(self, tree: Tree, uri: str):
@@ -81,7 +87,10 @@ class PLS(LanguageServer):
             symbol_table.builtins = self.tables[self.builtin_uri]
         if symbol_table:
             self.tables[document.uri] = symbol_table
-        self.diagnostics[document.uri] = (document.version, self.run_passes(tree,symbol_table))
+        self.diagnostics[document.uri] = (
+            document.version,
+            self.run_passes(tree, symbol_table),
+        )
 
         self.tokens[document.uri] = (
             document.version,
@@ -102,10 +111,10 @@ class PLS(LanguageServer):
                 scopes=prolog_visitor.scopes,
                 notes=prolog_visitor.notes,
                 predicate_index=prolog_visitor.predicate_index,
-                builtins= None,
-                imports = None,
-                consults = None,
-                consult_paths = prolog_visitor.consult_paths
+                builtins=None,
+                imports=None,
+                consults=None,
+                consult_paths=prolog_visitor.consult_paths,
             )
 
             return tree, symbol_table
@@ -142,7 +151,7 @@ class PLS(LanguageServer):
     def get_predicate(self, key: str, uri: str):
         res = self.tables[uri].predicate_index.get(key)
         if res is None or len(res.definitions) == 0:
-            builtin= self.tables[self.builtin_uri].predicate_index.get(key)
+            builtin = self.tables[self.builtin_uri].predicate_index.get(key)
             if builtin:
                 res = builtin
         return res
@@ -288,4 +297,3 @@ def completions(params: types.CompletionParams):
         types.CompletionItem(label="friend"),
         types.CompletionItem(label="Elsa"),
     ]
-
