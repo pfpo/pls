@@ -20,13 +20,23 @@ class UndefinedPredicate(TreeVisitor):
         self.add_visit("functional_notation", self.visit_functional_notation)
         self.set_default_visitor(self.visit_all_children)
 
+    def is_undefined(self, predicate:Predicate)-> bool:
+        if len(predicate.definitions) > 0:
+            return False
+        if self.table is None or self.table.builtins is None:
+            return True
+        
+        if self.table.builtins.predicate_index.get(predicate.key()):
+            return False
+        return True
+
     def visit_functional_notation(self, node: Node):
         if self.table is None:
             return
         predicate = self.table.notes[node]
         if  predicate is None or type(predicate) is not Predicate:
             return 
-        if len(predicate.definitions) == 0:
+        if self.is_undefined(predicate):
             severity = types.DiagnosticSeverity.Warning
             message = "Undefined Predicate "
             report =  types.Diagnostic(
