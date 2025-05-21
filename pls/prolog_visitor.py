@@ -58,10 +58,19 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("double_quoted_list_notation", self.text_visit)
         self.add_visit("|", self.visit_list_extend)
         self.add_visit("curly_bracketed_notation", self.curly_braces_visit)
+        self.add_visit("binary_operator",self.visit_binary_operator)
+        self.add_visit("comma",self.visit_binary_operator)
+        self.add_visit("arg_list",self.visit_arg_list)
+        
+        ignore = ["open"]
+        for t in ignore:
+            self.add_visit(t,self.ignore)
 
         self.add_visit("ERROR", self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
 
+    def ignore(self, node: Node, _opts: Opts):
+        return
     def visit_list_extend(self, node: Node, _opts: Opts):
         # TODO
         return
@@ -70,9 +79,15 @@ class PrologVisitor(TreeVisitor):
         children = node.children
         match children:
             case [brace_left, body, brace_right] if (
-                brace_right.type == "open_curly" and brace_left.type == "open_curly"
+                brace_left.type == "open_curly" and brace_right.type == "close_curly"
             ):
                 self.visit(body, opts)
+            case _:
+                
+                raise TypeError(
+                    f"Invalid shape of curly brace notation: {node.children}"
+                     + node_and_parent_with_text(node)
+                )
 
     def visit_atom(self, node: Node, _opts: Opts) -> str:
         assert node.type == "atom"
@@ -81,6 +96,15 @@ class PrologVisitor(TreeVisitor):
         p = self.get_predicate(t)
         p.add_reference(node)
         return t
+
+    def visit_binary_operator(self, node: Node, _opts: Opts) -> str:
+        t = Functor(bytes.decode(node.text, 'utf-8'),[None,None])
+        operator = self.get_predicate(t)
+        self.notes[node] = operator
+        p = self.get_predicate(operator)
+        p.add_reference(node)
+        return operator
+
 
     def text_visit(self, node: Node, opts: Opts) -> str:
         res = Term(bytes.decode(node.text, "utf-8"))
@@ -172,10 +196,11 @@ class PrologVisitor(TreeVisitor):
                 operand = self.visit(operand, opts)
                 return operand
             case _:
-                raise TypeError(
-                    f"Unhandeled operator notation:`{node.children}`\n"
-                    + node_and_parent_with_text(node)
-                )
+                self.visit_all_children(node,opts)
+                # raise TypeError(
+                #     f"Unhandeled operator notation:`{node.children}`\n"
+                #     + node_and_parent_with_text(node)
+                # )
 
     def functor_is_parameter_start_point(self, opts: Opts):
         return opts.predicate_definition and not opts.started_predicate_definition
@@ -247,6 +272,7 @@ class PrologVisitor(TreeVisitor):
                 self.visit(item, opts)
 
     def visit_comment(self, node: Node, opts: Opts):
+        # Detected cases where the parser hangs
         result = self.comment_parser.parse(node.text)
         self.notes[node] = result.root_node
         v = PlDocVisitor()

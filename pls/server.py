@@ -130,7 +130,9 @@ class PLS(LanguageServer):
     def get_predicate(self, key: str, uri: str):
         res = self.tables[uri].predicate_index.get(key)
         if res is None or len(res.definitions) == 0:
-            res = self.tables[self.builtin_uri].predicate_index.get(key)
+            builtin= self.tables[self.builtin_uri].predicate_index.get(key)
+            if builtin:
+                res = builtin
         return res
 
     def discover_node(
@@ -297,6 +299,9 @@ def debug():
     uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/comments/functor.pl"
+    uri = "./test/nested_parameter_not_detected.pl"
+    uri = "./test/simplex.pl"
+    uri = "./test/functor_not_being_recognized.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
@@ -305,6 +310,7 @@ def debug():
     # print(t.root_node)
 
     if uri in server.tables:
+        print("Symbol table of: ",uri)
         for key, predicate in server.tables[uri].predicate_index.items():
             print(key)
             print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
@@ -312,15 +318,17 @@ def debug():
             print(f"Comments: {predicate.comments}")
             print("========")
 
+    print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
+    
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )
-    print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    ts = server.semantic_tokens(t, uri)
-    for i in range(0, len(ts), 5):
-        for k in range(0, 5):
-            print(ts[i + k], end=",")
-        print()
+    # print(f"Diagnostics:{server.tree_diagnostics(t)}")
+    # ts = server.semantic_tokens(t, uri)
+    # for i in range(0, len(ts), 5):
+    #     for k in range(0, 5):
+    #         print(ts[i + k], end=",")
+    #     print()
 
     # comment_parser = Parser(Language(pldoc.language()))
     # with open(uri,"r") as f:

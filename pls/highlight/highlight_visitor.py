@@ -5,6 +5,7 @@ from pls.model import Variable, SymbolTable
 from collections import defaultdict
 from .highlight import Token
 from .pld_doc_highlight import PlDocHighlightVisitor
+import logging
 
 
 class HighlightVisitor(TreeVisitor):
@@ -45,21 +46,15 @@ class HighlightVisitor(TreeVisitor):
     def visit_comment(self, node: Node):
         added_tokens = False
         if self.notes[node]:
-            # print("=======New Node========")
-            # print(node.start_point)
             v = PlDocHighlightVisitor(self.current_token, node)
             v.start(self.notes[node])
             added_tokens = len(v.token_list) > 0
             self.token_list.extend(v.token_list)
-            # print(v.token_list)
         if not added_tokens:
             self.visit_normal_comment(node)
         else:
-            # print("Here")
-            # print(self.current_token)
-            # print(node.text)
             self.handle_normal_comment(node)
-            # print(self.current_token)
+            self.current_token.line -= 1
 
     def visit_normal_comment(self, node: Node):
         self.token_list.extend(self.handle_normal_comment(node))
@@ -88,9 +83,6 @@ class HighlightVisitor(TreeVisitor):
             col = 0
             result.extend([line_offset, col_offset, current_line_len, 6, 0])
 
-        # After this loop the current token is one line greater than it should be
-        # TODO : Investigate why and why it is not necessary in pldoc_highlight
-        self.current_token.line -= 1
         return result
 
     def visit_variable_term(self, node: Node):
@@ -124,10 +116,11 @@ class HighlightVisitor(TreeVisitor):
                     elif child == atom:
                         self.create_token(child, 3, 0)
             case _:
-                raise TypeError(
+                self.visit_all_children(node)
+                logging.debug(TypeError(
                     f"Invalid shape of argument list: {node.children}"
                     + node_and_parent_with_text(node)
-                )
+                ))
 
         return
 
@@ -158,10 +151,11 @@ class HighlightVisitor(TreeVisitor):
                     self.visit(child)
                 return operand
             case children:
-                raise TypeError(
-                    f"Unhandeled operator notation: \n{children}\n"
-                    + node_and_parent_with_text(node)
-                )
+                self.visit_all_children(node)
+                logging.debug(TypeError(
+                     f"Unhandeled operator notation: \n{children}\n"
+                     + node_and_parent_with_text(node)
+                 ))
 
     def token_values(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line
