@@ -130,7 +130,9 @@ class PLS(LanguageServer):
     def get_predicate(self, key: str, uri: str):
         res = self.tables[uri].predicate_index.get(key)
         if res is None or len(res.definitions) == 0:
-            res = self.tables[self.builtin_uri].predicate_index.get(key)
+            builtin= self.tables[self.builtin_uri].predicate_index.get(key)
+            if builtin:
+                res = builtin
         return res
 
     def discover_node(
@@ -298,6 +300,8 @@ def debug():
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/comments/functor.pl"
     uri = "./test/nested_parameter_not_detected.pl"
+    uri = "./test/simplex.pl"
+    uri = "./test/functor_not_being_recognized.pl"
     doc = MyDoc(uri)
     server.parse(doc)
     t = server.trees[uri]
@@ -314,6 +318,8 @@ def debug():
             print(f"Comments: {predicate.comments}")
             print("========")
 
+    print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
+    
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )

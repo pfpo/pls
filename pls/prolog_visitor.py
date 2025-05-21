@@ -272,6 +272,7 @@ class PrologVisitor(TreeVisitor):
                 self.visit(item, opts)
 
     def visit_comment(self, node: Node, opts: Opts):
+        # Detected cases where the parser hangs
         result = self.comment_parser.parse(node.text)
         self.notes[node] = result.root_node
         v = PlDocVisitor()
