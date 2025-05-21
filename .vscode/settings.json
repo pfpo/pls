@@ -1,12 +1,12 @@
 {
     "editor.semanticHighlighting.enabled": true,
-    "editor.semanticTokenColorCustomizations": {
-        "rules": {
-            "number:prolog": "#52d60a",
-            "operator:prolog": "#e7680682",
-            "variable:prolog": "#204e94",
-            "function:prolog": "#c4c41d"
+    // "editor.semanticTokenColorCustomizations": {
+        // "rules": {
+            // "number:prolog": "#52d60a",
+            // "operator:prolog": "#e7680682",
+            // "variable:prolog": "#204e94",
+            // "function:prolog": "#c4c41d"
 
-        }
+        // }
     },
 }
