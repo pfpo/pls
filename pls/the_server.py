@@ -17,7 +17,7 @@ from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
-import logging
+from .my_logging import logging
 
 
 PROLOG = Language(prolog())
@@ -93,6 +93,8 @@ class PLS(LanguageServer):
 
     
     def run_analysis(self,document:TextDocument,tree:Tree,symbol_table:SymbolTable):
+        if document.uri.endswith('distinct.pl'):
+            pass
         if symbol_table and document.uri != self.builtin_uri:
             symbol_table.builtins = self.tables[self.builtin_uri]
         if symbol_table:
@@ -128,17 +130,21 @@ class PLS(LanguageServer):
     def document_from_workspace_or_fs(self,uri):
         try:
             document = server.workspace.get_document(uri)
+            
             return document
         except RuntimeError as e:
-            logging.debug(f"{e}")
+            logging.error(f"Could Not get file: {uri}")
+            logging.error(f"{e}")
             return MyDoc(uri)
 
     def parse_with_dependencies(self, document: TextDocument):
         tree, symbol_table = self._parse(document.source)
 
+        logging.error(f"Initial Parse Of: {document.uri}")
         for consult_relative_path in symbol_table.consult_paths.keys():
             consult_path = add_paths(document.uri,consult_relative_path)
             if  consult_path not in self.tables:
+                logging.error(f"Parsing : {consult_path} dependency of {document.uri}")
                 consult_document = self.document_from_workspace_or_fs(consult_path)
                 self.parse_with_dependencies(consult_document)
             consult_table = self.tables[consult_path]
@@ -260,7 +266,7 @@ server = PLS("prolog-server", "v0.0.1")
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is opened"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
-    ls.parse(doc)
+    ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
         ls.publish_diagnostics(uri, diagnostics)

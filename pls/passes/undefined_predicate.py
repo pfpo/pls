@@ -1,9 +1,9 @@
 from tree_sitter import Node
 from pls.model import Predicate, SymbolTable
 from pls.utils import node_to_range
+from pls.my_logging import logging
 from pls.tree_visitor import TreeVisitor
 from lsprotocol import types
-
 
 class UndefinedPredicate(TreeVisitor):
     def __init__(self, table: SymbolTable):
@@ -18,15 +18,20 @@ class UndefinedPredicate(TreeVisitor):
         self.add_visit("functional_notation", self.visit_functional_notation)
         self.set_default_visitor(self.visit_all_children)
 
-    def is_undefined(self, predicate: Predicate) -> bool:
+    def is_undefined(self, predicate: Predicate) -> tuple[bool,Predicate]:
         if len(predicate.definitions) > 0:
-            return False
+            return False,predicate
         if self.table is None or self.table.builtins is None:
-            return True
+            return True,None
 
-        if self.table.builtins.predicate_index.get(predicate.key()):
-            return False
-        return True
+        if builtin_predicate:=self.table.builtins.predicate_index.get(predicate.key()):
+            return False,builtin_predicate
+
+        for table in self.table.consults.values():
+            if consulted_predicate:=table.predicate_index.get(predicate.key()):
+                return False,consulted_predicate
+        
+        return True,None
 
     def visit_functional_notation(self, node: Node):
         if self.table is None:
@@ -34,7 +39,9 @@ class UndefinedPredicate(TreeVisitor):
         predicate = self.table.notes[node]
         if predicate is None or type(predicate) is not Predicate:
             return
-        if self.is_undefined(predicate):
+        undefined , new_predicate= self.is_undefined(predicate)
+        # logging.debug("%s Is Undefined: %s",predicate.key(),undefined)
+        if undefined:
             severity = types.DiagnosticSeverity.Warning
             message = "Undefined Predicate "
             report = types.Diagnostic(
@@ -43,3 +50,6 @@ class UndefinedPredicate(TreeVisitor):
                 range=node_to_range(node),
             )
             self.reports.append(report)
+        else:
+            self.table.notes[node] = new_predicate
+            self.table.predicate_index[predicate.key()] = new_predicate
