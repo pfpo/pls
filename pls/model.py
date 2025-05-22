@@ -22,8 +22,8 @@ class SymbolTable:
     path: str
     notes: Annotations
     builtins: "SymbolTable"
-    imports: list["SymbolTable"]
-    consults: list["SymbolTable"]
+    imports: dict["str","SymbolTable"]
+    consults:dict["str","SymbolTable"]
     consult_paths : dict[str,list[types.Range]]
 
 

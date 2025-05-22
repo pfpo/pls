@@ -2,7 +2,7 @@ from tree_sitter import Node
 import sys
 from .the_server import server, MyDoc
 from .my_logging import logging, old_print, print
-from .utils import add_paths
+from .utils import add_paths,path_to_file_uri,Path
 
 
 def main():
@@ -24,9 +24,11 @@ def debug():
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/consult.pl"
     uri = "./test/commented_prolog_cliques_distinct.pl"
+
+    uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)
     server.start_up()
-    server.parse(doc)
+    server.parse_with_dependencies(doc)
     t = server.trees[uri]
     # for child in t.root_node.children:
     #     rec_print(child,0)

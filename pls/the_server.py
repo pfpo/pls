@@ -83,9 +83,16 @@ class PLS(LanguageServer):
     def parse(self, document: TextDocument):
         self.predicate_index = {}
         self.current_uri = document.uri
-        tree, symbol_table = self._parse(document.source)
+        # Try catch dangerous
+        try:
+            tree, symbol_table = self._parse(document.source)
+        except TypeError:
+            logging.log(logging.DEBUG, f"{traceback.format_exc()}")
         logging.info(f"Parsing: {self.current_uri}")
+        self.run_analysis(document,tree,symbol_table)
 
+    
+    def run_analysis(self,document:TextDocument,tree:Tree,symbol_table:SymbolTable):
         if symbol_table and document.uri != self.builtin_uri:
             symbol_table.builtins = self.tables[self.builtin_uri]
         if symbol_table:
@@ -100,31 +107,47 @@ class PLS(LanguageServer):
             self.semantic_tokens(tree, document.uri),
         )
         self.trees[document.uri] = tree
-
         logging.info("%s", self.diagnostics)
-
     def _parse(self, doc: str):
         tree = parser.parse(bytes(doc, "utf-8"))
 
-        # Try catch dangerous
-        try:
-            prolog_visitor = PrologVisitor(self.current_uri)
-            prolog_visitor.visit(tree.root_node, Opts())
-            symbol_table = SymbolTable(
-                scopes=prolog_visitor.scopes,
-                notes=prolog_visitor.notes,
-                predicate_index=prolog_visitor.predicate_index,
-                builtins=None,
-                imports=None,
-                consults=None,
-                consult_paths=prolog_visitor.consult_paths,
-                path = self.current_uri
-            )
+        prolog_visitor = PrologVisitor(self.current_uri)
+        prolog_visitor.visit(tree.root_node, Opts())
+        symbol_table = SymbolTable(
+            scopes=prolog_visitor.scopes,
+            notes=prolog_visitor.notes,
+            predicate_index=prolog_visitor.predicate_index,
+            builtins=None,
+            imports= {},
+            consults= {},
+            consult_paths=prolog_visitor.consult_paths,
+            path = self.current_uri
+        )
+        return tree, symbol_table
 
-            return tree, symbol_table
-        except TypeError:
-            logging.log(logging.DEBUG, f"{traceback.format_exc()}")
-            return tree, None
+    def document_from_workspace_or_fs(self,uri):
+        try:
+            document = server.workspace.get_document(uri)
+            return document
+        except RuntimeError as e:
+            logging.debug(f"{e}")
+            return MyDoc(uri)
+
+    def parse_with_dependencies(self, document: TextDocument):
+        tree, symbol_table = self._parse(document.source)
+
+        for consult_relative_path in symbol_table.consult_paths.keys():
+            consult_path = add_paths(document.uri,consult_relative_path)
+            if  consult_path not in self.tables:
+                consult_document = self.document_from_workspace_or_fs(consult_path)
+                self.parse_with_dependencies(consult_document)
+            consult_table = self.tables[consult_path]
+            symbol_table.consults[consult_path] = consult_table
+            
+        self.run_analysis(document,tree,symbol_table)
+
+
+
 
     def transform_in_variable_or_predicate(
         self, node: Node, position: types.Position, uri: str
@@ -308,7 +331,6 @@ def document_links(ls: PLS,params: types.DocumentLinkParams):
     """Return a list of links contained in the document. Currently Consult Links"""
     items = []
     document_uri = params.text_document.uri
-    document = server.workspace.get_text_document(document_uri)
     return ls.document_links(document_uri)
 
 
