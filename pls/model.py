@@ -18,6 +18,7 @@ class Term:
 class SymbolTable:
     scopes: map
     predicate_index: map
+    path: str
     notes: Annotations
     builtins: "SymbolTable"
     imports: list["SymbolTable"]

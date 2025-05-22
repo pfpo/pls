@@ -1,14 +1,11 @@
-import logging
 from tree_sitter import Node
 import sys
 from .the_server import server, MyDoc
-from .my_logging import old_print
+from .my_logging import logging, old_print, print
+from .utils import add_paths
 
 
 def main():
-    logging.basicConfig(
-        filename="/home/martim/Desktop/pls/pygls.log", filemode="w", level=logging.DEBUG
-    )
     server.start_io()
 
 
@@ -48,6 +45,7 @@ def debug():
             print("Consult Paths:")
             for p in table.consult_paths:
                 print(p)
+                print(f"This module includes: {add_paths(uri,p)}")
     # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
 
     # print(

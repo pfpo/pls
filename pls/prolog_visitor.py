@@ -7,6 +7,7 @@ import tree_sitter_pldoc as pldoc
 from dataclasses import dataclass
 
 from .pldoc_comment_visitor import PlDocVisitor
+from .my_logging import logging
 
 
 @dataclass
@@ -257,7 +258,6 @@ class PrologVisitor(TreeVisitor):
 
     def visit_directive(self, node: Node, opts: Opts):
         self.new_scope(node)
-        print(node.children)
 
         def is_consult(functor: Functor) -> bool:
             return functor.name == "consult" and len(functor.args) == 1

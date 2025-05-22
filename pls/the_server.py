@@ -8,7 +8,7 @@ from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
 from .model import Functor, Variable, Predicate, SymbolTable
-from .utils import node_at_position, position_inside_node
+from .utils import node_at_position, position_inside_node,path_to_file_uri,file_uri_to_path,  Path
 
 from .prolog_visitor import PrologVisitor, Opts
 from .syntax_error_visitor import SyntaxErrorVisitor
@@ -18,6 +18,7 @@ from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
 import logging
+
 
 PROLOG = Language(prolog())
 
@@ -29,7 +30,7 @@ class MyDoc:
         self.uri = uri
         self.source = ""
         self.version = 0
-        with open(self.uri) as f:
+        with open(file_uri_to_path(self.uri)) as f:
             self.source = f.read()
 
 
@@ -41,7 +42,7 @@ class PLS(LanguageServer):
         self.tables: map[str, SymbolTable] = {}
         self.trees: map[str, Tree] = {}
         self.current_uri = ""
-        self.builtin_uri = "sicstus-doc-scraper/builtins.pl"
+        self.builtin_uri = path_to_file_uri(Path("sicstus-doc-scraper/builtins.pl").resolve())
         self.builtin_table: SymbolTable = None
         self.start_up()
 
@@ -83,6 +84,8 @@ class PLS(LanguageServer):
         self.predicate_index = {}
         self.current_uri = document.uri
         tree, symbol_table = self._parse(document.source)
+        logging.info(f"Parsing: {self.current_uri}")
+
         if symbol_table and document.uri != self.builtin_uri:
             symbol_table.builtins = self.tables[self.builtin_uri]
         if symbol_table:
@@ -115,6 +118,7 @@ class PLS(LanguageServer):
                 imports=None,
                 consults=None,
                 consult_paths=prolog_visitor.consult_paths,
+                path = self.current_uri
             )
 
             return tree, symbol_table
