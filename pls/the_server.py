@@ -7,8 +7,15 @@ import traceback
 from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
-from .model import Functor, Variable, Predicate, SymbolTable,Term
-from .utils import node_at_position, position_inside_node,path_to_file_uri,file_uri_to_path,  Path,add_paths
+from .model import Functor, Variable, Predicate, SymbolTable
+from .utils import (
+    node_at_position,
+    position_inside_node,
+    path_to_file_uri,
+    file_uri_to_path,
+    Path,
+    add_paths,
+)
 
 from .prolog_visitor import PrologVisitor, Opts
 from .syntax_error_visitor import SyntaxErrorVisitor
@@ -42,7 +49,9 @@ class PLS(LanguageServer):
         self.tables: map[str, SymbolTable] = {}
         self.trees: map[str, Tree] = {}
         self.current_uri = ""
-        self.builtin_uri = path_to_file_uri(Path("sicstus-doc-scraper/builtins.pl").resolve())
+        self.builtin_uri = path_to_file_uri(
+            Path("sicstus-doc-scraper/builtins.pl").resolve()
+        )
         self.builtin_table: SymbolTable = None
         self.start_up()
 
@@ -89,11 +98,12 @@ class PLS(LanguageServer):
         except TypeError:
             logging.log(logging.DEBUG, f"{traceback.format_exc()}")
         logging.info(f"Parsing: {self.current_uri}")
-        self.run_analysis(document,tree,symbol_table)
+        self.run_analysis(document, tree, symbol_table)
 
-    
-    def run_analysis(self,document:TextDocument,tree:Tree,symbol_table:SymbolTable):
-        if document.uri.endswith('distinct.pl'):
+    def run_analysis(
+        self, document: TextDocument, tree: Tree, symbol_table: SymbolTable
+    ):
+        if document.uri.endswith("distinct.pl"):
             pass
         if symbol_table and document.uri != self.builtin_uri:
             symbol_table.builtins = self.tables[self.builtin_uri]
@@ -110,6 +120,7 @@ class PLS(LanguageServer):
         )
         self.trees[document.uri] = tree
         logging.info("%s", self.diagnostics)
+
     def _parse(self, doc: str):
         tree = parser.parse(bytes(doc, "utf-8"))
 
@@ -120,17 +131,17 @@ class PLS(LanguageServer):
             notes=prolog_visitor.notes,
             predicate_index=prolog_visitor.predicate_index,
             builtins=None,
-            imports= {},
-            consults= {},
+            imports={},
+            consults={},
             consult_paths=prolog_visitor.consult_paths,
-            path = self.current_uri
+            path=self.current_uri,
         )
         return tree, symbol_table
 
-    def document_from_workspace_or_fs(self,uri):
+    def document_from_workspace_or_fs(self, uri):
         try:
             document = server.workspace.get_document(uri)
-            
+
             return document
         except RuntimeError as e:
             logging.error(f"Could Not get file: {uri}")
@@ -142,18 +153,15 @@ class PLS(LanguageServer):
 
         logging.error(f"Initial Parse Of: {document.uri}")
         for consult_relative_path in symbol_table.consult_paths.keys():
-            consult_path = add_paths(document.uri,consult_relative_path)
-            if  consult_path not in self.tables:
+            consult_path = add_paths(document.uri, consult_relative_path)
+            if consult_path not in self.tables:
                 logging.error(f"Parsing : {consult_path} dependency of {document.uri}")
                 consult_document = self.document_from_workspace_or_fs(consult_path)
                 self.parse_with_dependencies(consult_document)
             consult_table = self.tables[consult_path]
             symbol_table.consults[consult_path] = consult_table
-            
-        self.run_analysis(document,tree,symbol_table)
 
-
-
+        self.run_analysis(document, tree, symbol_table)
 
     def transform_in_variable_or_predicate(
         self, node: Node, position: types.Position, uri: str
@@ -196,8 +204,10 @@ class PLS(LanguageServer):
         return self.transform_in_variable_or_predicate(node, position, uri)
 
     def go_to_definition(self, tree, position: types.Position, uri: str):
-        node : Node | None = node_at_position(tree.root_node, position)
-        element: Variable | Predicate | None = self.transform_in_variable_or_predicate(node, position, uri)
+        node: Node | None = node_at_position(tree.root_node, position)
+        element: Variable | Predicate | None = self.transform_in_variable_or_predicate(
+            node, position, uri
+        )
 
         if type(element) is Variable and len(element.references) > 0:
             return types.Location(uri=uri, range=element.references[0])
@@ -240,23 +250,22 @@ class PLS(LanguageServer):
                 end=types.Position(line=position.line + 1, character=0),
             ),
         )
-    
+
     def document_links(self, uri: str):
         if uri not in self.tables:
             return []
 
-        table: SymbolTable= self.tables[uri]
+        table: SymbolTable = self.tables[uri]
         result = []
-        for consult_path,ranges in table.consult_paths.items():
+        for consult_path, ranges in table.consult_paths.items():
             for r in ranges:
                 result.append(
                     types.DocumentLink(
                         range=r,
-                        target=add_paths(uri,consult_path),
+                        target=add_paths(uri, consult_path),
                     ),
                 )
         return result
-
 
 
 server = PLS("prolog-server", "v0.0.1")
@@ -266,6 +275,7 @@ server = PLS("prolog-server", "v0.0.1")
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is opened"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
+    # ls.parse(doc)
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
@@ -276,7 +286,7 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
 def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is changed"""
     doc = ls.workspace.get_text_document(params.text_document.uri)
-    ls.parse(doc)
+    ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
         ls.publish_diagnostics(uri, diagnostics)
@@ -330,10 +340,11 @@ def hover(ls: PLS, params: types.HoverParams):
     result = ls.hover(tree, params.position, doc.uri)
     return result
 
+
 @server.feature(
     types.TEXT_DOCUMENT_DOCUMENT_LINK,
 )
-def document_links(ls: PLS,params: types.DocumentLinkParams):
+def document_links(ls: PLS, params: types.DocumentLinkParams):
     """Return a list of links contained in the document. Currently Consult Links"""
     items = []
     document_uri = params.text_document.uri

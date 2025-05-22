@@ -22,9 +22,9 @@ class SymbolTable:
     path: str
     notes: Annotations
     builtins: "SymbolTable"
-    imports: dict["str","SymbolTable"]
-    consults:dict["str","SymbolTable"]
-    consult_paths : dict[str,list[types.Range]]
+    imports: dict["str", "SymbolTable"]
+    consults: dict["str", "SymbolTable"]
+    consult_paths: dict[str, list[types.Range]]
 
 
 class Predicate(Term):

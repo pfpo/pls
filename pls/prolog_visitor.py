@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from lsprotocol import types
 from collections import defaultdict
 from .pldoc_comment_visitor import PlDocVisitor
-from .my_logging import logging
 
 
 @dataclass
@@ -29,7 +28,7 @@ class PrologVisitor(TreeVisitor):
         self.scopes = {}
         self.directive_counter = 0
 
-        self.consult_paths : dict[str,list[types.Ranges]]= defaultdict(list)
+        self.consult_paths: dict[str, list[types.Ranges]] = defaultdict(list)
         self.comment_parser = Parser(Language(pldoc.language()))
 
         self.all_comments = []

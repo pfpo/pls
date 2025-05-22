@@ -2,7 +2,7 @@ from tree_sitter import Node
 import sys
 from .the_server import server, MyDoc
 from .my_logging import logging, old_print, print
-from .utils import add_paths,path_to_file_uri,Path
+from .utils import add_paths, path_to_file_uri, Path
 
 
 def main():
@@ -47,7 +47,7 @@ def debug():
             print("Consult Paths:")
             for p in table.consult_paths:
                 print(p)
-                print(f"This module includes: {add_paths(uri,p)}")
+                print(f"This module includes: {add_paths(uri, p)}")
     # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
 
     # print(
