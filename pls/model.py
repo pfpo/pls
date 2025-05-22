@@ -9,6 +9,7 @@ class Term:
     def __init__(self, name):
         self.name: str = name
         self.arity = 0
+        self.data = {}
 
     def key(self) -> str:
         return f"{self.name}/{self.arity}"
@@ -23,7 +24,7 @@ class SymbolTable:
     builtins: "SymbolTable"
     imports: list["SymbolTable"]
     consults: list["SymbolTable"]
-    consult_paths: list[str]
+    consult_paths : dict[str,list[types.Range]]
 
 
 class Predicate(Term):

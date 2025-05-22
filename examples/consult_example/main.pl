@@ -1,4 +1,5 @@
 :- use_module(maths).
+:- consult('maths.pl').
 
 %!  run_demo is det
 %
