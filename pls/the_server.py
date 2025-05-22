@@ -7,8 +7,8 @@ import traceback
 from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
-from .model import Functor, Variable, Predicate, SymbolTable
-from .utils import node_at_position, position_inside_node,path_to_file_uri,file_uri_to_path,  Path
+from .model import Functor, Variable, Predicate, SymbolTable,Term
+from .utils import node_at_position, position_inside_node,path_to_file_uri,file_uri_to_path,  Path,add_paths
 
 from .prolog_visitor import PrologVisitor, Opts
 from .syntax_error_visitor import SyntaxErrorVisitor
@@ -167,11 +167,12 @@ class PLS(LanguageServer):
         return self.transform_in_variable_or_predicate(node, position, uri)
 
     def go_to_definition(self, tree, position: types.Position, uri: str):
-        element: Variable | Predicate | None = self.discover_node(tree, position, uri)
+        node : Node | None = node_at_position(tree.root_node, position)
+        element: Variable | Predicate | None = self.transform_in_variable_or_predicate(node, position, uri)
 
-        if type(element) is Variable:
+        if type(element) is Variable and len(element.references) > 0:
             return types.Location(uri=uri, range=element.references[0])
-        elif type(element) is Predicate:
+        elif type(element) is Predicate and len(element.definitions) > 0:
             return types.Location(uri=uri, range=element.definitions[0])
         elif element is None:
             return None
@@ -210,6 +211,23 @@ class PLS(LanguageServer):
                 end=types.Position(line=position.line + 1, character=0),
             ),
         )
+    
+    def document_links(self, uri: str):
+        if uri not in self.tables:
+            return []
+
+        table: SymbolTable= self.tables[uri]
+        result = []
+        for consult_path,ranges in table.consult_paths.items():
+            for r in ranges:
+                result.append(
+                    types.DocumentLink(
+                        range=r,
+                        target=add_paths(uri,consult_path),
+                    ),
+                )
+        return result
+
 
 
 server = PLS("prolog-server", "v0.0.1")
@@ -282,6 +300,16 @@ def hover(ls: PLS, params: types.HoverParams):
         return []
     result = ls.hover(tree, params.position, doc.uri)
     return result
+
+@server.feature(
+    types.TEXT_DOCUMENT_DOCUMENT_LINK,
+)
+def document_links(ls: PLS,params: types.DocumentLinkParams):
+    """Return a list of links contained in the document. Currently Consult Links"""
+    items = []
+    document_uri = params.text_document.uri
+    document = server.workspace.get_text_document(document_uri)
+    return ls.document_links(document_uri)
 
 
 @server.feature(

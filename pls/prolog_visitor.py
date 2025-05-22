@@ -5,7 +5,8 @@ from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 import tree_sitter_pldoc as pldoc
 from dataclasses import dataclass
-
+from lsprotocol import types
+from collections import defaultdict
 from .pldoc_comment_visitor import PlDocVisitor
 from .my_logging import logging
 
@@ -28,7 +29,7 @@ class PrologVisitor(TreeVisitor):
         self.scopes = {}
         self.directive_counter = 0
 
-        self.consult_paths = []
+        self.consult_paths : dict[str,list[types.Ranges]]= defaultdict(list)
         self.comment_parser = Parser(Language(pldoc.language()))
 
         self.all_comments = []
@@ -279,7 +280,8 @@ class PrologVisitor(TreeVisitor):
                 functor = self.visit(child, opts)
                 if is_consult(functor):
                     consult_path = string_from_atom(functor.args[0].name)
-                    self.consult_paths.append(consult_path)
+                    functor.args[0].data["link"] = consult_path
+                    self.consult_paths[consult_path].append(node_to_range(child))
                 elif is_use_module(functor):
                     # TODO: Handle Modules
                     pass
