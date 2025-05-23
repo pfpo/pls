@@ -24,6 +24,7 @@ from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
+from .passes.consults import ConsultPaths
 from .my_logging import logging
 
 
@@ -100,19 +101,32 @@ class PLS(LanguageServer):
         logging.info(f"Parsing: {self.current_uri}")
         self.run_analysis(document, tree, symbol_table)
 
+    def add_diagnostics(self,document:TextDocument,diagnostics:list):
+        if document.uri not in self.diagnostics:
+            self.diagnostics[document.uri] = (
+                document.version,
+                diagnostics
+            )
+        else:
+            version, new_diagnostics = self.diagnostics[document.uri]
+            if version != document.version:
+                new_diagnostics = []
+            new_diagnostics.extend(diagnostics)
+            self.diagnostics[document.uri] = (
+                document.version,
+                new_diagnostics
+            )
+
     def run_analysis(
         self, document: TextDocument, tree: Tree, symbol_table: SymbolTable
     ):
-        if document.uri.endswith("distinct.pl"):
-            pass
         if symbol_table and document.uri != self.builtin_uri:
             symbol_table.builtins = self.tables[self.builtin_uri]
         if symbol_table:
             self.tables[document.uri] = symbol_table
-        self.diagnostics[document.uri] = (
-            document.version,
-            self.run_passes(tree, symbol_table),
-        )
+        
+        diagnostics = self.run_passes(tree, symbol_table)
+        self.add_diagnostics(document,diagnostics)
 
         self.tokens[document.uri] = (
             document.version,
@@ -141,25 +155,24 @@ class PLS(LanguageServer):
     def document_from_workspace_or_fs(self, uri):
         try:
             document = server.workspace.get_document(uri)
-
             return document
-        except RuntimeError as e:
+        except Exception as e:
             logging.error(f"Could Not get file: {uri}")
             logging.error(f"{e}")
-            return MyDoc(uri)
+            raise Exception
 
     def parse_with_dependencies(self, document: TextDocument):
         tree, symbol_table = self._parse(document.source)
-
+        c = ConsultPaths(document.uri,symbol_table,self.tables)
+        consult_warnings, files_to_parse = c.analyse() 
+        self.add_diagnostics(document,consult_warnings)
         logging.error(f"Initial Parse Of: {document.uri}")
-        for consult_relative_path in symbol_table.consult_paths.keys():
-            consult_path = add_paths(document.uri, consult_relative_path)
-            if consult_path not in self.tables:
-                logging.error(f"Parsing : {consult_path} dependency of {document.uri}")
-                consult_document = self.document_from_workspace_or_fs(consult_path)
-                self.parse_with_dependencies(consult_document)
-            consult_table = self.tables[consult_path]
-            symbol_table.consults[consult_path] = consult_table
+        for file in files_to_parse:
+            logging.error(f"Parsing : {file} dependency of {document.uri}")
+            consult_document = self.document_from_workspace_or_fs(file)
+            self.parse_with_dependencies(consult_document)
+            consult_table = self.tables[file]
+            symbol_table.consults[file] = consult_table
 
         self.run_analysis(document, tree, symbol_table)
 
