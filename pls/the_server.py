@@ -49,8 +49,8 @@ class PLS(LanguageServer):
         super().__init__(*args, **kwargs)
         self.diagnostics = {}
         self.tokens = {}
-        self.dg = DependencyGraph()
         self.tables: map[str, SymbolTable] = {}
+        self.dg = DependencyGraph()
         self.trees: map[str, Tree] = {}
         self.builtin_uri = path_to_file_uri(
             Path("/home/martim/Desktop/pls/sicstus-doc-scraper/builtins.pl").resolve()
@@ -164,7 +164,9 @@ class PLS(LanguageServer):
             return MyDoc(uri)
 
     
-    def should_reanalyse(self, document: TextDocument):
+    def should_reanalyse(self, document: TextDocument,dependencies_changed:bool = False):
+        if dependencies_changed:
+            return True,"Dependencies Changed"
         if document.uri not in self.diagnostics:
             return True,"Not Yet Parsed"
         version, _ = self.diagnostics[document.uri]
@@ -173,26 +175,47 @@ class PLS(LanguageServer):
 
         return False , ""
 
-    def parse_with_dependencies(self, document: TextDocument):
-        should , reason = self.should_reanalyse(document)
-        if not should:
-            logging.error(f"\n Already Analysed: {document.filename}\n")
-            return
-        logging.error(f"{document.filename}: {reason}")
+    def start_parse_chain(self,document: TextDocument):
         tree, symbol_table = self._parse(document)
         self.dg.add_file(document.uri)
         c = ConsultPaths(document.uri,symbol_table,self.tables,self.dg)
-        consult_warnings, files_to_parse , files_to_consult = c.analyse() 
+        consult_warnings = c.analyse() 
         self.add_diagnostics(document,consult_warnings)
-        for file in files_to_parse:
-            logging.error(f"\nParsing : {file} dependency of {document.uri}\n")
-            consult_document = self.document_from_workspace_or_fs(file)
-            self.parse_with_dependencies(consult_document)
-        for file in files_to_consult:
-            consult_table = self.tables[file]
-            symbol_table.consults[file] = consult_table
+
+        chain = self.dg.get_files_to_analyse(document.uri)
+        logging.error(f"Parse Chain triggered by: {document.filename}: {chain}")
+        while len(chain) > 0:
+            next = chain.pop(0)
+            if document.uri in self.diagnostics:
+                old_version, old_diagnostics = self.diagnostics[document.uri]
+                if document.version == old_version:
+                    document.version +=1
+
+            next_document = self.document_from_workspace_or_fs(next)
+            self.parse_assuming_dependencies_are_handled(next_document)
+
+
+    def parse_assuming_dependencies_are_handled(self,document:TextDocument):
+        self.diagnostics[document.uri] = (document.version,[])
+        tree, symbol_table = self._parse(document)
+        self.dg.add_file(document.uri)
+        c = ConsultPaths(document.uri,symbol_table,self.tables,self.dg)
+        consult_warnings = c.analyse() 
+        self.add_diagnostics(document,consult_warnings)
+        
+        file_deps = self.dg.get_file(document.uri)
+
+        for file in file_deps.includes.values():
+            consult_table = self.tables[file.uri]
+            symbol_table.consults[file.uri] = consult_table
 
         self.run_analysis(document, tree, symbol_table)
+        logging.error(f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings")
+
+
+    def parse_with_dependencies(self, document: TextDocument):
+
+        self.start_parse_chain(document)
 
     def transform_in_variable_or_predicate(
         self, node: Node, position: types.Position, uri: str
@@ -307,7 +330,8 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        ls.publish_diagnostics(uri, diagnostics)
+        logging.error(f"{diagnostics}")
+        ls.publish_diagnostics(uri, diagnostics,version)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
@@ -317,7 +341,8 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        ls.publish_diagnostics(uri, diagnostics)
+        logging.error(f"{diagnostics}")
+        ls.publish_diagnostics(uri, diagnostics,version)
 
 
 @server.feature("textDocument/definition")

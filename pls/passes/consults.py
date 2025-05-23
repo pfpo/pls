@@ -24,7 +24,6 @@ class ConsultPaths():
         self.reports.append(report)
 
     def analyse(self):
-        files_to_analyse ,files_to_consult = [], []
         for relative_path, locations in self.table.consult_paths.items():
             consult_uri = add_paths(self.uri,relative_path)
             if not self.dg.file_exists(consult_uri):
@@ -32,8 +31,5 @@ class ConsultPaths():
                     self.add_missing_file_report(relative_path,l)
             else: 
                 self.dg.file_includes_other(self.uri,consult_uri)
-                if consult_uri not in self.all_tables: 
-                    files_to_analyse.append(consult_uri)
-                files_to_consult.append(consult_uri)
-        return self.reports, files_to_analyse, files_to_consult
+        return self.reports
                 
