@@ -22,13 +22,15 @@ class ConsultPaths():
         self.reports.append(report)
 
     def analyse(self):
-        files_to_analyse = []
+        files_to_analyse ,files_to_consult = [], []
         for relative_path, locations in self.table.consult_paths.items():
             uri = add_paths(self.uri,relative_path)
             if not file_uri_to_path(uri).exists():
                 for l in locations:
                     self.add_missing_file_report(relative_path,l)
-            elif uri not in self.all_tables: 
-                files_to_analyse.append(uri)
-        return self.reports, files_to_analyse
+            else: 
+                if uri not in self.all_tables: 
+                    files_to_analyse.append(uri)
+                files_to_consult.append(uri)
+        return self.reports, files_to_analyse, files_to_consult
                 

@@ -50,7 +50,7 @@ class PLS(LanguageServer):
         self.tables: map[str, SymbolTable] = {}
         self.trees: map[str, Tree] = {}
         self.builtin_uri = path_to_file_uri(
-            Path("sicstus-doc-scraper/builtins.pl").resolve()
+            Path("/home/martim/Desktop/pls/sicstus-doc-scraper/builtins.pl").resolve()
         )
         self.builtin_table: SymbolTable = None
         self.start_up()
@@ -163,13 +163,14 @@ class PLS(LanguageServer):
     def parse_with_dependencies(self, document: TextDocument):
         tree, symbol_table = self._parse(document)
         c = ConsultPaths(document.uri,symbol_table,self.tables)
-        consult_warnings, files_to_parse = c.analyse() 
+        consult_warnings, files_to_parse , files_to_consult = c.analyse() 
         self.add_diagnostics(document,consult_warnings)
         logging.error(f"Initial Parse Of: {document.uri}")
         for file in files_to_parse:
             logging.error(f"Parsing : {file} dependency of {document.uri}")
             consult_document = self.document_from_workspace_or_fs(file)
             self.parse_with_dependencies(consult_document)
+        for file in files_to_consult:
             consult_table = self.tables[file]
             symbol_table.consults[file] = consult_table
 
