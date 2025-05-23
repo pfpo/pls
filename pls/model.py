@@ -1,5 +1,5 @@
 from lsprotocol import types
-from .utils import node_to_range
+from .utils import node_to_location
 from tree_sitter import Node
 from dataclasses import dataclass
 from .annotations import Annotations
@@ -24,25 +24,25 @@ class SymbolTable:
     builtins: "SymbolTable"
     imports: dict["str", "SymbolTable"]
     consults: dict["str", "SymbolTable"]
-    consult_paths: dict[str, list[types.Range]]
+    consult_paths: dict[str, list[types.Location]]
 
 
 class Predicate(Term):
     def __init__(self, name, arity):
         super().__init__(name)
         self.arity: int = arity
-        self.definitions: list[types.Range] = []
+        self.definitions: list[types.Location] = []
         self.clauses: list[Clause] = []
         self.uri = ""
-        self.references = []
+        self.references :list[types.Location]= []
         self.comments = []
         self.scopes: list["Scope"] = []
 
-    def add_reference(self, node: Node):
-        self.references.append(node_to_range(node))
+    def add_reference(self, uri:str,node: Node):
+        self.references.append(node_to_location(uri,node))
 
-    def add_definition(self, node: Node):
-        r = node_to_range(node)
+    def add_definition(self, uri:str,node: Node):
+        r = node_to_location(uri,node)
         self.definitions.append(r)
         # self.references.append(r)
 

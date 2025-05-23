@@ -1,6 +1,6 @@
 from tree_sitter import Node, Parser, Language
 from .model import Term, Functor, Predicate, Variable, Scope
-from .utils import node_to_range, node_and_parent_with_text
+from .utils import node_to_location, node_and_parent_with_text
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 import tree_sitter_pldoc as pldoc
@@ -18,17 +18,17 @@ class Opts:
 
 
 class PrologVisitor(TreeVisitor):
-    def __init__(self, current_uri):
+    def __init__(self, uri:str):
         super().__init__()
         self.predicate_index = {}
-        self.current_uri = current_uri
+        self.uri = uri
 
         self.notes = Annotations()
         self.current_scope = None
         self.scopes = {}
         self.directive_counter = 0
 
-        self.consult_paths: dict[str, list[types.Ranges]] = defaultdict(list)
+        self.consult_paths: dict[str, list[types.Location]] = defaultdict(list)
         self.comment_parser = Parser(Language(pldoc.language()))
 
         self.all_comments = []
@@ -96,7 +96,7 @@ class PrologVisitor(TreeVisitor):
         t = Term(bytes.decode(node.text, "utf-8"))
         self.notes[node] = t
         p = self.get_predicate(t)
-        p.add_reference(node)
+        p.add_reference(self.uri,node)
         return t
 
     def visit_binary_operator(self, node: Node, _opts: Opts) -> str:
@@ -104,7 +104,7 @@ class PrologVisitor(TreeVisitor):
         operator = self.get_predicate(t)
         self.notes[node] = operator
         p = self.get_predicate(operator)
-        p.add_reference(node)
+        p.add_reference(self.uri,node)
         return operator
 
     def text_visit(self, node: Node, opts: Opts) -> str:
@@ -142,7 +142,7 @@ class PrologVisitor(TreeVisitor):
                 f = Functor(name.name, args)
                 p = self.get_predicate(f)
                 self.notes[node] = p
-                p.add_reference(node)
+                p.add_reference(self.uri,node)
                 if is_parameter_definition:
                     opts = self.un_set_parameter_definitions(opts)
                 return f
@@ -166,8 +166,8 @@ class PrologVisitor(TreeVisitor):
         v = self.current_scope.variables[name]
         self.notes[node] = v
 
-        definition_range = node_to_range(node)
-        v.references.append(definition_range)
+        definition_loc = node_to_location(self.uri,node)
+        v.references.append(definition_loc)
         return v
 
     def filter_children(self, node: Node):
@@ -235,8 +235,9 @@ class PrologVisitor(TreeVisitor):
         self.comments = []
         self.notes[parent] = predicate
 
-        predicate.add_definition(parent)
-        predicate.uri = self.current_uri
+        predicate.add_definition(self.uri,parent)
+        #TODO WHy
+        predicate.uri = self.uri
         key = predicate.key()
 
         self.current_scope.name = f"{key}_{len(predicate.definitions)}"
@@ -280,7 +281,7 @@ class PrologVisitor(TreeVisitor):
                 if is_consult(functor):
                     consult_path = string_from_atom(functor.args[0].name)
                     functor.args[0].data["link"] = consult_path
-                    self.consult_paths[consult_path].append(node_to_range(child))
+                    self.consult_paths[consult_path].append(node_to_location(self.uri,child))
                 elif is_use_module(functor):
                     # TODO: Handle Modules
                     pass

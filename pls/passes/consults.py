@@ -12,22 +12,22 @@ class ConsultPaths():
         self.reports = []
         self.all_tables = all_tables
 
-    def add_missing_file_report(self,consult_path,r:types.Range):
+    def add_missing_file_report(self,consult_path,l:types.Location):
         message = f"File Not Founed {consult_path}-> {add_paths(self.uri,consult_path)}"
         report = types.Diagnostic(
             message=message,
             severity = types.DiagnosticSeverity.Warning,
-            range=r,
+            range=l.range,
         )
         self.reports.append(report)
 
     def analyse(self):
         files_to_analyse = []
-        for relative_path, ranges in self.table.consult_paths.items():
+        for relative_path, locations in self.table.consult_paths.items():
             uri = add_paths(self.uri,relative_path)
             if not file_uri_to_path(uri).exists():
-                for r in ranges:
-                    self.add_missing_file_report(relative_path,r)
+                for l in locations:
+                    self.add_missing_file_report(relative_path,l)
             elif uri not in self.all_tables: 
                 files_to_analyse.append(uri)
         return self.reports, files_to_analyse

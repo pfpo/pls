@@ -49,7 +49,6 @@ class PLS(LanguageServer):
         self.tokens = {}
         self.tables: map[str, SymbolTable] = {}
         self.trees: map[str, Tree] = {}
-        self.current_uri = ""
         self.builtin_uri = path_to_file_uri(
             Path("sicstus-doc-scraper/builtins.pl").resolve()
         )
@@ -92,13 +91,13 @@ class PLS(LanguageServer):
 
     def parse(self, document: TextDocument):
         self.predicate_index = {}
-        self.current_uri = document.uri
+        current_uri = document.uri
         # Try catch dangerous
         try:
-            tree, symbol_table = self._parse(document.source)
+            tree, symbol_table = self._parse(document)
         except TypeError:
             logging.log(logging.DEBUG, f"{traceback.format_exc()}")
-        logging.info(f"Parsing: {self.current_uri}")
+        logging.info(f"Parsing: {current_uri}")
         self.run_analysis(document, tree, symbol_table)
 
     def add_diagnostics(self,document:TextDocument,diagnostics:list):
@@ -135,10 +134,10 @@ class PLS(LanguageServer):
         self.trees[document.uri] = tree
         logging.info("%s", self.diagnostics)
 
-    def _parse(self, doc: str):
-        tree = parser.parse(bytes(doc, "utf-8"))
+    def _parse(self, doc: TextDocument):
+        tree = parser.parse(bytes(doc.source, "utf-8"))
 
-        prolog_visitor = PrologVisitor(self.current_uri)
+        prolog_visitor = PrologVisitor(doc.uri)
         prolog_visitor.visit(tree.root_node, Opts())
         symbol_table = SymbolTable(
             scopes=prolog_visitor.scopes,
@@ -148,7 +147,7 @@ class PLS(LanguageServer):
             imports={},
             consults={},
             consult_paths=prolog_visitor.consult_paths,
-            path=self.current_uri,
+            path=doc.uri,
         )
         return tree, symbol_table
 
@@ -162,7 +161,7 @@ class PLS(LanguageServer):
             raise Exception
 
     def parse_with_dependencies(self, document: TextDocument):
-        tree, symbol_table = self._parse(document.source)
+        tree, symbol_table = self._parse(document)
         c = ConsultPaths(document.uri,symbol_table,self.tables)
         consult_warnings, files_to_parse = c.analyse() 
         self.add_diagnostics(document,consult_warnings)
@@ -223,9 +222,9 @@ class PLS(LanguageServer):
         )
 
         if type(element) is Variable and len(element.references) > 0:
-            return types.Location(uri=uri, range=element.references[0])
+            return element.references[0]
         elif type(element) is Predicate and len(element.definitions) > 0:
-            return types.Location(uri=uri, range=element.definitions[0])
+            return element.definitions[0]
         elif element is None:
             return None
         return None
@@ -235,10 +234,7 @@ class PLS(LanguageServer):
         locations = []
         if element is None:
             return locations
-
-        for reference in element.references:
-            locations.append(types.Location(uri=uri, range=reference))
-
+        locations.extend(element.references)
         return locations
 
     def hover(self, tree, position: types.Position, uri: str):
@@ -270,11 +266,11 @@ class PLS(LanguageServer):
 
         table: SymbolTable = self.tables[uri]
         result = []
-        for consult_path, ranges in table.consult_paths.items():
-            for r in ranges:
+        for consult_path, locations in table.consult_paths.items():
+            for l in locations:
                 result.append(
                     types.DocumentLink(
-                        range=r,
+                        range=l.range,
                         target=add_paths(uri, consult_path),
                     ),
                 )
