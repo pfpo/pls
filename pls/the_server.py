@@ -25,6 +25,7 @@ from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
 from .passes.consults import ConsultPaths
+from .dependency_graph import DependencyGraph
 from .my_logging import logging
 
 
@@ -36,6 +37,7 @@ parser = Parser(PROLOG)
 class MyDoc:
     def __init__(self, uri: str):
         self.uri = uri
+        self.filename = ""
         self.source = ""
         self.version = 0
         with open(file_uri_to_path(self.uri)) as f:
@@ -47,6 +49,7 @@ class PLS(LanguageServer):
         super().__init__(*args, **kwargs)
         self.diagnostics = {}
         self.tokens = {}
+        self.dg = DependencyGraph()
         self.tables: map[str, SymbolTable] = {}
         self.trees: map[str, Tree] = {}
         self.builtin_uri = path_to_file_uri(
@@ -158,16 +161,31 @@ class PLS(LanguageServer):
         except Exception as e:
             logging.error(f"Could Not get file: {uri}")
             logging.error(f"{e}")
-            raise Exception
+            return MyDoc(uri)
+
+    
+    def should_reanalyse(self, document: TextDocument):
+        if document.uri not in self.diagnostics:
+            return True,"Not Yet Parsed"
+        version, _ = self.diagnostics[document.uri]
+        if version != document.version:
+            return True,f"Document Has a Different Version Parsed:{version}, Received {document.version}"
+
+        return False , ""
 
     def parse_with_dependencies(self, document: TextDocument):
+        should , reason = self.should_reanalyse(document)
+        if not should:
+            logging.error(f"\n Already Analysed: {document.filename}\n")
+            return
+        logging.error(f"{document.filename}: {reason}")
         tree, symbol_table = self._parse(document)
-        c = ConsultPaths(document.uri,symbol_table,self.tables)
+        self.dg.add_file(document.uri)
+        c = ConsultPaths(document.uri,symbol_table,self.tables,self.dg)
         consult_warnings, files_to_parse , files_to_consult = c.analyse() 
         self.add_diagnostics(document,consult_warnings)
-        logging.error(f"Initial Parse Of: {document.uri}")
         for file in files_to_parse:
-            logging.error(f"Parsing : {file} dependency of {document.uri}")
+            logging.error(f"\nParsing : {file} dependency of {document.uri}\n")
             consult_document = self.document_from_workspace_or_fs(file)
             self.parse_with_dependencies(consult_document)
         for file in files_to_consult:

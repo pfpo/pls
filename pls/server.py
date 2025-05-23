@@ -48,6 +48,8 @@ def debug():
             for p in table.consult_paths:
                 print(p)
                 print(f"This module includes: {add_paths(uri, p)}")
+    
+    print(server.dg)
     # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
 
     # print(
