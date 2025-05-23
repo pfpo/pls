@@ -1,7 +1,6 @@
 from .utils import Path,add_paths,file_uri_to_path,path_to_file_uri
 from dataclasses import dataclass
 
-
 @dataclass
 class File:
     uri : str
@@ -26,6 +25,44 @@ class DependencyGraph:
 
     def file_exists(self,uri:str):
         return file_uri_to_path(uri).exists()
+
+    def get_files_to_analyse(self,uri:str):
+        node_pool = set()
+        in_degree : dict[str,int] = {}
+
+        queue :list[File]= [self.get_file(uri)]
+        while len(queue) > 0:
+            next = queue.pop()
+            node_pool.add(next.uri)
+            in_degree[next.uri] = len(next.includes)
+            neighbors :list[File] = []
+            neighbors.extend(next.includes.values())
+            neighbors.extend(next.is_included.values())
+            for n in neighbors:
+                if n.uri not in node_pool:
+                    queue.append(n)
+
+        print(node_pool)
+
+        def next_node():
+            for key,val in in_degree.items():
+                if val == 0:
+                    in_degree.pop(key)
+                    return key
+                
+
+        result = []
+        while len(node_pool) > 0:
+            next = next_node()
+            node_pool.remove(next)
+            result.append(next)
+            file = self.files[next]
+            for key in file.is_included.keys():
+                in_degree[key] -=1
+        
+        return result
+            
+
 
 
     def get_file(self,uri:str) -> File:
