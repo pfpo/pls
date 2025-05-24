@@ -2,7 +2,7 @@ from tree_sitter import Node
 import sys
 from .the_server import server, MyDoc
 from .my_logging import logging, old_print, print
-from .dependency_graph import DependencyGraph
+from .dependency_graph import DependencyGraphManager
 from .utils import add_paths, path_to_file_uri, Path
 
 
@@ -54,15 +54,11 @@ def debug():
     print(server.dg)
     
     print("Hello")
-    dg = DependencyGraph()
-    dg.file_includes_other("a","b")
-    dg.file_includes_other("a","d")
-    dg.file_includes_other("d","c")
-
-    dg.file_includes_other("a","c")
+    dg = DependencyGraphManager()
+    dg.file_includes_other("c","a")
     dg.file_includes_other("b","c")
-    print(dg.get_files_to_analyse("d"))
-    print(dg.would_create_cycle("c","a"))
+    dg.file_includes_other("a","b")
+    print(dg.get_cycles())
     # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
 
     # print(

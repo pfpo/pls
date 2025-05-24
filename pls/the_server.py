@@ -25,7 +25,7 @@ from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
 from .passes.consults import ConsultPaths
-from .dependency_graph import DependencyGraph
+from .dependency_graph import DependencyGraph,DependencyGraphManager
 from .my_logging import logging
 
 
@@ -50,8 +50,9 @@ class PLS(LanguageServer):
         self.diagnostics = {}
         self.tokens = {}
         self.tables: map[str, SymbolTable] = {}
-        self.dg = DependencyGraph()
+        self.dg = DependencyGraphManager()
         self.trees: map[str, Tree] = {}
+        self.cycles = []
         self.builtin_uri = path_to_file_uri(
             Path("/home/martim/Desktop/pls/sicstus-doc-scraper/builtins.pl").resolve()
         )
@@ -102,6 +103,14 @@ class PLS(LanguageServer):
             logging.log(logging.DEBUG, f"{traceback.format_exc()}")
         logging.info(f"Parsing: {current_uri}")
         self.run_analysis(document, tree, symbol_table)
+
+    def add_diagnostics_by_uri(self,uri:str,diagnostics:list):
+        if  uri not in self.diagnostics:
+            self.diagnostics[uri] = ( 0, diagnostics)
+        else:
+            version, new_diagnostics = self.diagnostics[uri]
+            new_diagnostics.extend(diagnostics)
+            self.diagnostics[uri] = ( version, new_diagnostics)
 
     def add_diagnostics(self,document:TextDocument,diagnostics:list):
         if document.uri not in self.diagnostics:
@@ -178,13 +187,15 @@ class PLS(LanguageServer):
     def shallow_parse(self,document:TextDocument):
         tree, symbol_table = self._parse(document)
         self.dg.add_file(document.uri)
-        c = ConsultPaths(document.uri,symbol_table,self.tables,self.dg)
-        consult_warnings = c.analyse() 
-        logging.debug(f"{consult_warnings}")
-        for uri,diagnostics in consult_warnings.items():
-            if uri not in self.diagnostics:
-                self.diagnostics[uri] = (0,[])
-            self.diagnostics[uri][1].extend(diagnostics)
+        self.tables[document.uri] = symbol_table
+        c = ConsultPaths(self.tables,self.dg)
+        consult_warnings = c.analyse(document.uri) 
+        self.cycles.extend(c.cycles)
+        logging.error(f"Consult Warnings: {consult_warnings }")
+        if document.uri not in self.diagnostics:
+            self.diagnostics[document.uri] = (document.version,[])
+        self.diagnostics[document.uri][1].extend(consult_warnings)
+
         return tree, symbol_table
 
     def build_dependency_graph(self,document:TextDocument):
@@ -207,18 +218,27 @@ class PLS(LanguageServer):
 
     def start_parse_chain(self,document: TextDocument):
 
+        self.cycles = []
         self.build_dependency_graph(document)
+        cp = ConsultPaths(self.tables,self.dg)
+        cycles = self.dg.get_cycles()
+        logging.error(f"{cycles}")
+        for cycle in cycles:
+            cp.build_cyclic_consult_reports(cycle)
+        for file, diagnostics in cp.cycle_reports.items():
+            self.diagnostics[document.uri] = (document.version,[])
+            self.add_diagnostics_by_uri(file,diagnostics)
 
         chain = self.dg.get_files_to_analyse(document.uri)
         logging.error(f"Parse Chain triggered by: {document.filename}: {chain}")
-        while len(chain) > 0:
-            next = chain.pop(0)
-            next_document = self.document_from_workspace_or_fs(next)
+
+        for file_name in chain:
+            next_document = self.document_from_workspace_or_fs(file_name)
             self.parse_assuming_dependencies_are_handled(next_document)
 
 
     def parse_assuming_dependencies_are_handled(self,document:TextDocument):
-        self.diagnostics[document.uri] = (document.version,[])
+        
         tree, symbol_table = self.shallow_parse(document)
         
         file_deps = self.dg.get_file(document.uri)

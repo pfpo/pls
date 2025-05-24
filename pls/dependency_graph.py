@@ -50,7 +50,7 @@ class DependencyGraph:
                 break
             visited.add(next)
         if found:
-            path = [source]
+            path = []
             current = None
             while current is None or current != source:
                 if current is None:
@@ -58,9 +58,17 @@ class DependencyGraph:
                 parent = parents[current]
                 path.append(parent)
                 current = parent
+            path.reverse()
             return True, path
         return False,[]
 
+    def get_cycles(self):
+        cycles = []
+        for file in self.files.keys():
+            has_cycle, path = self.file_can_reach(file,file)
+            if has_cycle:
+                cycles.append(path)
+        return cycles
     def would_create_cycle(self,source:str,destiny:str):
         self.file_includes_other(source,destiny)
         creates_cycle = self.file_can_reach(source,source)
@@ -136,4 +144,56 @@ class DependencyGraph:
             r +='\n'
 
         return  r
+
+
+
+
+
+class DependencyGraphManager:
+    def __init__(self):
+        self.dg : DependencyGraph = DependencyGraph()
+        self.may_be_wrong : DependencyGraph = DependencyGraph()
+
+    def clear_file_includes(self,file_name:str):
+        self.dg.clear_file_includes(file_name)
+        self.may_be_wrong.clear_file_includes(file_name)
+
+    def clear_file_is_included(self,file_name:str):
+        self.dg.clear_file_is_included(file_name)
+        self.may_be_wrong.clear_file_is_included(file_name)
+    
+    def remove_file(self,file_name:str):
+        self.dg.remove_file(file_name)
+        self.may_be_wrong.remove_file(file_name)
+
+
+    def would_create_cycle(self,source:str,destiny:str):
+        self.may_be_wrong.file_includes_other(source,destiny)
+        creates_cycle = self.may_be_wrong.file_can_reach(source,source)
+        return creates_cycle
+        
+    def add_file(self,file_name:str):
+        self.dg.add_file(file_name)
+        self.may_be_wrong.add_file(file_name)
+
+    def file_includes_other(self,file_name:str,other_name: str):
+        if not self.dg.would_create_cycle(file_name,other_name):
+            self.dg.file_includes_other(file_name,other_name)
+        self.may_be_wrong.file_includes_other(file_name,other_name)
+
+    def file_exists(self,uri:str):
+        return file_uri_to_path(uri).exists()
+
+    def get_files_to_analyse(self,uri:str):
+        return self.dg.get_files_to_analyse(uri)
+            
+
+    def get_cycles(self):
+        return self.may_be_wrong.get_cycles()
+
+    def get_file(self,uri:str) -> File:
+        self.may_be_wrong.get_file(uri)
+        return self.dg.get_file(uri)
+
+
 
