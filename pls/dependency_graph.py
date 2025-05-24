@@ -182,7 +182,8 @@ class DependencyGraphManager:
         self.may_be_wrong.add_file(file_name)
 
     def file_includes_other(self,file_name:str,other_name: str):
-        if not self.dg.would_create_cycle(file_name,other_name):
+        is_cycle, _= self.dg.would_create_cycle(file_name,other_name)
+        if not is_cycle:
             self.dg.file_includes_other(file_name,other_name)
         self.may_be_wrong.file_includes_other(file_name,other_name)
 

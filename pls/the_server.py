@@ -210,9 +210,13 @@ class PLS(LanguageServer):
                 continue
             visited.add(next)
             next_document = self.document_from_workspace_or_fs(next)
-            _, _ , available_paths = self.shallow_parse(next_document)
+            _, _ , consult_paths = self.shallow_parse(next_document)
+
+            to_graph_paths = []
+            to_graph_paths.extend(consult_paths)
+            to_graph_paths.extend(self.dg.get_file(next).is_included)
             
-            for uri in available_paths:
+            for uri in to_graph_paths:
                 if uri not in visited:
                     queue.append(uri)
             
@@ -235,6 +239,8 @@ class PLS(LanguageServer):
             cp.build_cyclic_consult_reports(cycle)
 
 
+        logging.error(f"Parse Chain of {document.filename}: {chain}")
+        logging.error(f"{self.dg.dg}")
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
