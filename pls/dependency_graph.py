@@ -13,6 +13,12 @@ class DependencyGraph:
     def __init__(self):
         self.files : dict[str,File] = {}
 
+    def clear_file_includes(self,file_name:str):
+        file = self.get_file(file_name)
+        for f in file.includes.values():
+            f.is_included.pop(file.uri)
+        file.includes =  {}
+        
     def add_file(self,file_name:str):
         self.get_file(file_name)
 

@@ -209,11 +209,6 @@ class PLS(LanguageServer):
         logging.error(f"Parse Chain triggered by: {document.filename}: {chain}")
         while len(chain) > 0:
             next = chain.pop(0)
-            if document.uri in self.diagnostics:
-                old_version, old_diagnostics = self.diagnostics[document.uri]
-                if document.version == old_version:
-                    document.version +=1
-
             next_document = self.document_from_workspace_or_fs(next)
             self.parse_assuming_dependencies_are_handled(next_document)
 

@@ -12,6 +12,7 @@ class ConsultPaths():
         self.table = table
         self.reports = []
         self.dg = dg
+        self.dg.clear_file_includes(uri)
         self.all_tables = all_tables
 
     def add_missing_file_report(self,consult_path,l:types.Location):
