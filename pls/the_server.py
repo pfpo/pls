@@ -114,6 +114,7 @@ class PLS(LanguageServer):
 
     def add_diagnostics(self,document:TextDocument,diagnostics:list):
         if document.uri not in self.diagnostics:
+            logging.error(f"Deleting warnings")
             self.diagnostics[document.uri] = (
                 document.version,
                 diagnostics
@@ -121,6 +122,7 @@ class PLS(LanguageServer):
         else:
             version, new_diagnostics = self.diagnostics[document.uri]
             if version != document.version:
+                logging.error(f"Deleting warnings")
                 new_diagnostics = []
             new_diagnostics.extend(diagnostics)
             self.diagnostics[document.uri] = (
@@ -168,8 +170,7 @@ class PLS(LanguageServer):
             document = server.workspace.get_document(uri)
             return document
         except Exception as e:
-            logging.error(f"Could Not get file: {uri}")
-            logging.error(f"{e}")
+            logging.error(f"Could Not get file: {uri}\n{e}")
             return MyDoc(uri)
 
     
@@ -189,14 +190,15 @@ class PLS(LanguageServer):
         self.dg.add_file(document.uri)
         self.tables[document.uri] = symbol_table
         c = ConsultPaths(self.tables,self.dg)
-        consult_warnings = c.analyse(document.uri) 
+        consult_warnings,available_paths = c.analyse(document.uri) 
         self.cycles.extend(c.cycles)
         logging.error(f"Consult Warnings: {consult_warnings }")
         if document.uri not in self.diagnostics:
+            logging.error(f"Deleting warnings")
             self.diagnostics[document.uri] = (document.version,[])
         self.diagnostics[document.uri][1].extend(consult_warnings)
 
-        return tree, symbol_table
+        return tree, symbol_table,available_paths
 
     def build_dependency_graph(self,document:TextDocument):
 
@@ -208,38 +210,44 @@ class PLS(LanguageServer):
                 continue
             visited.add(next)
             next_document = self.document_from_workspace_or_fs(next)
-            self.shallow_parse(next_document)
-            new_chain = self.dg.get_files_to_analyse(next_document.uri)
-            for uri in new_chain:
+            _, _ , available_paths = self.shallow_parse(next_document)
+            
+            for uri in available_paths:
                 if uri not in visited:
                     queue.append(uri)
             
-        logging.error(f"Parse Chain triggered by: {document.filename}: {self.dg.get_files_to_analyse(next_document.uri)}")
+    def clear_diagnostics(self,document: TextDocument):
+        self.diagnostics[document.uri] = ( document.version, [])
+
 
     def start_parse_chain(self,document: TextDocument):
 
+        logging.error(f"Parse Chain triggered by: {document.filename}:v{document.version}")
         self.cycles = []
         self.build_dependency_graph(document)
         cp = ConsultPaths(self.tables,self.dg)
         cycles = self.dg.get_cycles()
-        logging.error(f"{cycles}")
+        logging.error(f"CYCLES: {cycles}")
+        chain = self.dg.get_files_to_analyse(document.uri)
+
+        cycle_reports : dict[str,list] = {}
         for cycle in cycles:
             cp.build_cyclic_consult_reports(cycle)
-        for file, diagnostics in cp.cycle_reports.items():
-            self.diagnostics[document.uri] = (document.version,[])
-            self.add_diagnostics_by_uri(file,diagnostics)
 
-        chain = self.dg.get_files_to_analyse(document.uri)
-        logging.error(f"Parse Chain triggered by: {document.filename}: {chain}")
 
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
+            self.clear_diagnostics(next_document)
+
+            cycle_reports = cp.cycle_reports.get(file_name,[])
+            self.add_diagnostics(next_document,cycle_reports)
+
             self.parse_assuming_dependencies_are_handled(next_document)
 
 
     def parse_assuming_dependencies_are_handled(self,document:TextDocument):
         
-        tree, symbol_table = self.shallow_parse(document)
+        tree, symbol_table, _ = self.shallow_parse(document)
         
         file_deps = self.dg.get_file(document.uri)
 
@@ -371,7 +379,6 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        logging.error(f"{diagnostics}")
         ls.publish_diagnostics(uri, diagnostics,version)
 
 
@@ -382,7 +389,6 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        logging.error(f"{diagnostics}")
         ls.publish_diagnostics(uri, diagnostics,version)
 
 

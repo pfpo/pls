@@ -43,7 +43,6 @@ class ConsultPaths():
             s = self.dg.get_file(cycle[i%len(cycle)]).name
             d = self.dg.get_file(cycle[(i+1)%len(cycle)]).name
             message+=f"{s} -> {d}\n"
-        logging.debug(f"{cycle}")
         report = types.Diagnostic(
             message=message,
             severity = types.DiagnosticSeverity.Error,
@@ -54,14 +53,14 @@ class ConsultPaths():
         table = self.all_tables[uri]
         self.dg.clear_file_includes(uri)
         reports = []
-
+        available_paths = set()
         for relative_path, locations in table.consult_paths.items():
             consult_uri = add_paths(uri,relative_path)
             if not self.dg.file_exists(consult_uri):
                 for l in locations:
-                    logging.error("MISSING IMPOORT")
                     reports.append(self.add_missing_file_report(uri,relative_path,l))
             else: 
+                available_paths.add(consult_uri)
                 self.dg.file_includes_other(uri,consult_uri)
-        return reports
+        return reports,list(available_paths)
                 

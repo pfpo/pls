@@ -64,10 +64,15 @@ class DependencyGraph:
 
     def get_cycles(self):
         cycles = []
+        cycle_set = set()
         for file in self.files.keys():
             has_cycle, path = self.file_can_reach(file,file)
             if has_cycle:
-                cycles.append(path)
+                path.sort()
+                key = "".join(path)
+                if key not in cycle_set:
+                    cycles.append(path)
+                    cycle_set.add(key)
         return cycles
     def would_create_cycle(self,source:str,destiny:str):
         self.file_includes_other(source,destiny)
