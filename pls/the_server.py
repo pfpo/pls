@@ -183,9 +183,27 @@ class PLS(LanguageServer):
         self.add_diagnostics(document,consult_warnings)
         return tree, symbol_table
 
+    def build_dependency_graph(self,document:TextDocument):
+
+        visited = set()
+        queue = [document.uri]
+        while len(queue) > 0:
+            next = queue.pop(0)
+            if next in visited:
+                continue
+            visited.add(next)
+            next_document = self.document_from_workspace_or_fs(next)
+            self.shallow_parse(next_document)
+            new_chain = self.dg.get_files_to_analyse(next_document.uri)
+            for uri in new_chain:
+                if uri not in visited:
+                    queue.append(uri)
+            
+        logging.error(f"Parse Chain triggered by: {document.filename}: {self.dg.get_files_to_analyse(next_document.uri)}")
+
     def start_parse_chain(self,document: TextDocument):
 
-        self.shallow_parse(document)
+        self.build_dependency_graph(document)
 
         chain = self.dg.get_files_to_analyse(document.uri)
         logging.error(f"Parse Chain triggered by: {document.filename}: {chain}")
