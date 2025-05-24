@@ -29,6 +29,27 @@ class DependencyGraph:
         self.clear_file_is_included(file_name)
         self.files.pop(file_name)
 
+    def file_can_reach(self,source:str,destiny:str):
+        queueu = [source]
+        visited = set()
+        while len(queueu) > 0:
+            next = queueu.pop()
+            file = self.get_file(next)
+
+            for child in file.includes.keys():
+                if child == destiny:
+                    return True
+                if child not in visited:
+                    queueu.insert(0,child)
+            
+            visited.add(next)
+        return False 
+
+    def would_create_cycle(self,source:str,destiny:str):
+        self.file_includes_other(source,destiny)
+        creates_cycle = self.file_can_reach(source,source)
+        self.remove_file(destiny)
+        return creates_cycle
         
     def add_file(self,file_name:str):
         self.get_file(file_name)
