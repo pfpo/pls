@@ -62,6 +62,7 @@ def debug():
     dg.file_includes_other("a","c")
     dg.file_includes_other("b","c")
     print(dg.get_files_to_analyse("d"))
+    print(dg.would_create_cycle("c","a"))
     # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
 
     # print(

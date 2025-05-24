@@ -32,18 +32,34 @@ class DependencyGraph:
     def file_can_reach(self,source:str,destiny:str):
         queueu = [source]
         visited = set()
+        parents = {}
+        found = False
         while len(queueu) > 0:
             next = queueu.pop()
             file = self.get_file(next)
-
             for child in file.includes.keys():
                 if child == destiny:
-                    return True
+                    parents[child] = next
+                    found = True
+                    break
                 if child not in visited:
                     queueu.insert(0,child)
+                    parents[child] = next
             
+            if found:
+                break
             visited.add(next)
-        return False 
+        if found:
+            path = [source]
+            current = None
+            while current is None or current != source:
+                if current is None:
+                    current = source
+                parent = parents[current]
+                path.append(parent)
+                current = parent
+            return True, path
+        return False,[]
 
     def would_create_cycle(self,source:str,destiny:str):
         self.file_includes_other(source,destiny)
@@ -79,8 +95,6 @@ class DependencyGraph:
             for n in neighbors:
                 if n.uri not in node_pool:
                     queue.append(n)
-
-        print(node_pool)
 
         def next_node():
             for key,val in in_degree.items():

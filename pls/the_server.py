@@ -180,7 +180,11 @@ class PLS(LanguageServer):
         self.dg.add_file(document.uri)
         c = ConsultPaths(document.uri,symbol_table,self.tables,self.dg)
         consult_warnings = c.analyse() 
-        self.add_diagnostics(document,consult_warnings)
+        logging.debug(f"{consult_warnings}")
+        for uri,diagnostics in consult_warnings.items():
+            if uri not in self.diagnostics:
+                self.diagnostics[uri] = (0,[])
+            self.diagnostics[uri][1].extend(diagnostics)
         return tree, symbol_table
 
     def build_dependency_graph(self,document:TextDocument):
