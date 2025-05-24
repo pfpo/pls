@@ -18,6 +18,17 @@ class DependencyGraph:
         for f in file.includes.values():
             f.is_included.pop(file.uri)
         file.includes =  {}
+    def clear_file_is_included(self,file_name:str):
+        file = self.get_file(file_name)
+        for f in file.is_included.values():
+            f.includes.pop(file.uri)
+        file.includes =  {}
+    
+    def remove_file(self,file_name:str):
+        self.clear_file_includes(file_name)
+        self.clear_file_is_included(file_name)
+        self.files.pop(file_name)
+
         
     def add_file(self,file_name:str):
         self.get_file(file_name)
