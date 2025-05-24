@@ -25,6 +25,7 @@ def debug():
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/consult.pl"
     uri = "./test/commented_prolog_cliques_distinct.pl"
+    uri = "examples/b/a.pl"
 
     uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)

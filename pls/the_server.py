@@ -175,12 +175,17 @@ class PLS(LanguageServer):
 
         return False , ""
 
-    def start_parse_chain(self,document: TextDocument):
+    def shallow_parse(self,document:TextDocument):
         tree, symbol_table = self._parse(document)
         self.dg.add_file(document.uri)
         c = ConsultPaths(document.uri,symbol_table,self.tables,self.dg)
         consult_warnings = c.analyse() 
         self.add_diagnostics(document,consult_warnings)
+        return tree, symbol_table
+
+    def start_parse_chain(self,document: TextDocument):
+
+        self.shallow_parse(document)
 
         chain = self.dg.get_files_to_analyse(document.uri)
         logging.error(f"Parse Chain triggered by: {document.filename}: {chain}")
@@ -197,17 +202,16 @@ class PLS(LanguageServer):
 
     def parse_assuming_dependencies_are_handled(self,document:TextDocument):
         self.diagnostics[document.uri] = (document.version,[])
-        tree, symbol_table = self._parse(document)
-        self.dg.add_file(document.uri)
-        c = ConsultPaths(document.uri,symbol_table,self.tables,self.dg)
-        consult_warnings = c.analyse() 
-        self.add_diagnostics(document,consult_warnings)
+        tree, symbol_table = self.shallow_parse(document)
         
         file_deps = self.dg.get_file(document.uri)
 
         for file in file_deps.includes.values():
-            consult_table = self.tables[file.uri]
-            symbol_table.consults[file.uri] = consult_table
+            if file.uri not in self.tables:
+                logging.error(f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled")
+            else:
+                consult_table = self.tables[file.uri]
+                symbol_table.consults[file.uri] = consult_table
 
         self.run_analysis(document, tree, symbol_table)
         logging.error(f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings")
