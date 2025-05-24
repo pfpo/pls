@@ -15,17 +15,6 @@ class Term:
         return f"{self.name}/{self.arity}"
 
 
-@dataclass
-class SymbolTable:
-    scopes: map
-    predicate_index: map
-    path: str
-    notes: Annotations
-    builtins: "SymbolTable"
-    imports: dict["str", "SymbolTable"]
-    consults: dict["str", "SymbolTable"]
-    consult_paths: dict[str, list[types.Location]]
-
 
 class Predicate(Term):
     def __init__(self, name, arity):
@@ -86,3 +75,27 @@ class Scope:
         self.variables = {}
         self.node = None
         self.predicate: None | "Predicate"
+
+
+@dataclass
+class SymbolTable:
+    scopes: map
+    predicate_index: map
+    path: str
+    notes: Annotations
+    builtins: "SymbolTable"
+    imports: dict["str", "SymbolTable"]
+    consults: dict["str", "SymbolTable"]
+    consult_paths: dict[str, list[types.Location]]
+
+
+    def find_predicate_not_in_builtins(self, predicate: Predicate):
+        p = self.predicate_index.get(predicate.key())
+        if p is not None and len(p.definitions) > 0:
+            return  p
+
+        for table in self.consults.values():
+            if consulted_predicate := table.find_predicate_not_in_builtins(predicate):
+                return consulted_predicate
+        return None
+

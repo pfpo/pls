@@ -77,7 +77,7 @@ class DependencyGraph:
     def would_create_cycle(self,source:str,destiny:str):
         self.file_includes_other(source,destiny)
         creates_cycle = self.file_can_reach(source,source)
-        self.remove_file(destiny)
+        self.remove_file_includes_other(source,destiny)
         return creates_cycle
         
     def add_file(self,file_name:str):
@@ -89,6 +89,13 @@ class DependencyGraph:
 
         file.includes[other_name] = other
         other.is_included[file_name] = file
+    
+    def remove_file_includes_other(self,file_name:str,other_name: str):
+        file = self.get_file(file_name)
+        other = self.get_file(other_name)
+
+        file.includes.pop(other_name)
+        other.is_included.pop(file_name)
 
     def file_exists(self,uri:str):
         return file_uri_to_path(uri).exists()

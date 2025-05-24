@@ -24,14 +24,13 @@ class UndefinedPredicate(TreeVisitor):
         if self.table is None or self.table.builtins is None:
             return True, None
 
+        if (imported:= self.table.find_predicate_not_in_builtins(predicate)):
+            return False,imported
+
         if builtin_predicate := self.table.builtins.predicate_index.get(
             predicate.key()
         ):
             return False, builtin_predicate
-
-        for table in self.table.consults.values():
-            if consulted_predicate := table.predicate_index.get(predicate.key()):
-                return False, consulted_predicate
 
         return True, None
     
