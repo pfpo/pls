@@ -254,7 +254,7 @@ class PrologVisitor(TreeVisitor):
             scope.name = f"__pls__directive_{self.directive_counter}"
             self.directive_counter += 1
 
-        scope.node = node
+        # scope.node = node
         self.set_current_scope(scope)
 
     def visit_directive(self, node: Node, opts: Opts):
@@ -303,7 +303,6 @@ class PrologVisitor(TreeVisitor):
     def visit_comment(self, node: Node, opts: Opts):
         # Detected cases where the parser hangs
         result = self.comment_parser.parse(node.text)
-        self.notes[node] = result.root_node
         v = PlDocVisitor()
         v.start(result.root_node)
         pldoc = v.get_comment()

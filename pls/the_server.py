@@ -6,6 +6,7 @@ import traceback
 
 from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
+from copy import deepcopy
 
 from .model import Functor, Variable, Predicate, SymbolTable
 from .utils import (
@@ -50,6 +51,7 @@ class PLS(LanguageServer):
         self.diagnostics = {}
         self.tokens = {}
         self.tables: map[str, SymbolTable] = {}
+        self.original_tables: map[str, SymbolTable] = {}
         self.dg = DependencyGraphManager()
         self.trees: map[str, Tree] = {}
         self.cycles = []
@@ -100,11 +102,7 @@ class PLS(LanguageServer):
     def parse(self, document: TextDocument):
         self.predicate_index = {}
         current_uri = document.uri
-        # Try catch dangerous
-        try:
-            tree, symbol_table = self._parse(document)
-        except TypeError:
-            logging.log(logging.DEBUG, f"{traceback.format_exc()}")
+        tree, symbol_table = self._parse(document)
         logging.info(f"Parsing: {current_uri}")
         self.run_analysis(document)
 
@@ -165,7 +163,8 @@ class PLS(LanguageServer):
             consult_paths=prolog_visitor.consult_paths,
             path=doc.uri,
         )
-        self.tables[doc.uri] = symbol_table
+        self.original_tables[doc.uri] = symbol_table
+        self.tables[doc.uri] = deepcopy(symbol_table)
         return tree, symbol_table
 
     def document_from_workspace_or_fs(self, uri):
@@ -210,7 +209,8 @@ class PLS(LanguageServer):
         logging.error(f"{reason}")
         if reparse:
             self._parse(document)
-
+        else:
+            self.tables[document.uri] = deepcopy(self.original_tables[document.uri])
         self.dg.add_file(document.uri)
         c = ConsultPaths(self.tables,self.dg)
         consult_warnings,available_paths = c.analyse(document.uri) 
@@ -280,8 +280,10 @@ class PLS(LanguageServer):
         symbol_table = self.tables[document.uri]
         
         file_deps = self.dg.get_file(document.uri)
-
+        
         for file in file_deps.includes.values():
+        
+            logging.error(f"File: {document.filename} depends on {file.name}")
             if file.uri not in self.tables:
                 logging.error(f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled")
             else:
@@ -289,6 +291,7 @@ class PLS(LanguageServer):
                 symbol_table.consults[file.uri] = consult_table
 
         self.run_analysis(document)
+        logging.error(f"Finished Analysis of {document.filename}")
         logging.error(f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings")
 
 
@@ -303,10 +306,12 @@ class PLS(LanguageServer):
             return None
         table = self.tables[uri]
         if node.type == "variable_term":
-            scopes = table.scopes
-            for _key, scope in scopes.items():
-                if position_inside_node(scope.node, position):
-                    return scope.variables[bytes.decode(node.text, "utf-8")]
+            # TODO
+            # scopes = table.scopes
+            # for _key, scope in scopes.items():
+            #     if position_inside_node(scope.node, position):
+            #         return scope.variables[bytes.decode(node.text, "utf-8")]
+            pass
         else:
             functor = None
             if (

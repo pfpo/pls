@@ -73,14 +73,14 @@ class Scope:
     def __init__(self):
         self.name = ""
         self.variables = {}
-        self.node = None
+        # self.node = None
         self.predicate: None | "Predicate"
 
 
 @dataclass
 class SymbolTable:
-    scopes: map
-    predicate_index: map
+    scopes: dict[str,Scope]
+    predicate_index: dict[str,Predicate]
     path: str
     notes: Annotations
     builtins: "SymbolTable"
