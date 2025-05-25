@@ -81,15 +81,19 @@ class PLS(LanguageServer):
         analysis.start(tree.root_node)
         return analysis.reports
 
-    def run_passes(self, tree: Tree, table: SymbolTable) -> list[types.Diagnostic]:
+    def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
+        tree = self.trees[document.uri][1]
+        table = self.tables[document.uri]
         result = []
         result.extend(self.tree_diagnostics(tree))
         result.extend(self.unused_variables(tree, table))
         result.extend(self.undefined_predicate(tree, table))
         return result
 
-    def semantic_tokens(self, tree: Tree, uri: str):
-        tokens_visitor = HighlightVisitor(self.tables.get(uri))
+    def semantic_tokens(self, document:TextDocument):
+        tree = self.trees[document.uri][1]
+        table = self.tables.get(document.uri)
+        tokens_visitor = HighlightVisitor(table)
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -102,7 +106,7 @@ class PLS(LanguageServer):
         except TypeError:
             logging.log(logging.DEBUG, f"{traceback.format_exc()}")
         logging.info(f"Parsing: {current_uri}")
-        self.run_analysis(document, tree, symbol_table)
+        self.run_analysis(document)
 
     def add_diagnostics_by_uri(self,uri:str,diagnostics:list):
         if  uri not in self.diagnostics:
@@ -130,26 +134,24 @@ class PLS(LanguageServer):
                 new_diagnostics
             )
 
-    def run_analysis(
-        self, document: TextDocument, tree: Tree, symbol_table: SymbolTable
-    ):
-        if symbol_table and document.uri != self.builtin_uri:
-            symbol_table.builtins = self.tables[self.builtin_uri]
-        if symbol_table:
-            self.tables[document.uri] = symbol_table
+    def run_analysis( self, document: TextDocument):
+        table = self.tables.get(document.uri)
+
+        if table and document.uri != self.builtin_uri:
+            table.builtins = self.tables[self.builtin_uri]
         
-        diagnostics = self.run_passes(tree, symbol_table)
+        diagnostics = self.run_passes(document)
         self.add_diagnostics(document,diagnostics)
 
         self.tokens[document.uri] = (
             document.version,
-            self.semantic_tokens(tree, document.uri),
+            self.semantic_tokens(document),
         )
-        self.trees[document.uri] = tree
         logging.info("%s", self.diagnostics)
 
     def _parse(self, doc: TextDocument):
         tree = parser.parse(bytes(doc.source, "utf-8"))
+        self.trees[doc.uri] = (doc.version,tree)
 
         prolog_visitor = PrologVisitor(doc.uri)
         prolog_visitor.visit(tree.root_node, Opts())
@@ -163,6 +165,7 @@ class PLS(LanguageServer):
             consult_paths=prolog_visitor.consult_paths,
             path=doc.uri,
         )
+        self.tables[doc.uri] = symbol_table
         return tree, symbol_table
 
     def document_from_workspace_or_fs(self, uri):
@@ -184,11 +187,31 @@ class PLS(LanguageServer):
             return True,f"Document Has a Different Version Parsed:{version}, Received {document.version}"
 
         return False , ""
+    
+    def should_reparse(self,document:TextDocument):
+        version = document.version
+        uri = document.uri
+
+        if uri not in self.trees:
+            return True, f"{document.filename} not already parsed"
+        
+        current_version, _ = self.trees[uri]
+
+        if current_version != version:
+            return True,f"{document.filename} version changed"
+        
+        return False,f"{document.filename} cached no need to reparse version hasn't changed"
+    
+
+
 
     def shallow_parse(self,document:TextDocument):
-        tree, symbol_table = self._parse(document)
+        reparse, reason = self.should_reparse(document)
+        logging.error(f"{reason}")
+        if reparse:
+            self._parse(document)
+
         self.dg.add_file(document.uri)
-        self.tables[document.uri] = symbol_table
         c = ConsultPaths(self.tables,self.dg)
         consult_warnings,available_paths = c.analyse(document.uri) 
         self.cycles.extend(c.cycles)
@@ -198,7 +221,7 @@ class PLS(LanguageServer):
             self.diagnostics[document.uri] = (document.version,[])
         self.diagnostics[document.uri][1].extend(consult_warnings)
 
-        return tree, symbol_table,available_paths
+        return available_paths
 
     def build_dependency_graph(self,document:TextDocument):
 
@@ -210,7 +233,7 @@ class PLS(LanguageServer):
                 continue
             visited.add(next)
             next_document = self.document_from_workspace_or_fs(next)
-            _, _ , consult_paths = self.shallow_parse(next_document)
+            consult_paths = self.shallow_parse(next_document)
 
             to_graph_paths = []
             to_graph_paths.extend(consult_paths)
@@ -253,7 +276,8 @@ class PLS(LanguageServer):
 
     def parse_assuming_dependencies_are_handled(self,document:TextDocument):
         
-        tree, symbol_table, _ = self.shallow_parse(document)
+        self.shallow_parse(document)
+        symbol_table = self.tables[document.uri]
         
         file_deps = self.dg.get_file(document.uri)
 
@@ -264,7 +288,7 @@ class PLS(LanguageServer):
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table
 
-        self.run_analysis(document, tree, symbol_table)
+        self.run_analysis(document)
         logging.error(f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings")
 
 
