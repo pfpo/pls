@@ -2,8 +2,6 @@ from tree_sitter import Node
 from .model import Predicate, Variable
 from .pldoc_comment_visitor import PlDocComment
 
-import logging
-
 
 class Markup:
     def variable_description(self, element: Variable):
@@ -14,8 +12,6 @@ class Markup:
             if len(pldocs) > 0:
                 pldoc = pldocs[0]
                 args, tags = pldoc.parameter(element.name)
-                logging.debug(args)
-                logging.debug(tags)
 
                 r = [
                     f"### Parameter `{element.name}`",

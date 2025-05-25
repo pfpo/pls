@@ -28,8 +28,9 @@ def node_to_range(node: Node):
         end=types.Position(line=node.end_point.row, character=node.end_point.column),
     )
 
-def node_to_location(uri:str,node:Node):
-    return types.Location(uri=uri,range=node_to_range(node))
+
+def node_to_location(uri: str, node: Node):
+    return types.Location(uri=uri, range=node_to_range(node))
 
 
 def position_inside_node(node: Node, p: types.Position):

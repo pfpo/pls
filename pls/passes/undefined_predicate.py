@@ -24,8 +24,8 @@ class UndefinedPredicate(TreeVisitor):
         if self.table is None or self.table.builtins is None:
             return True, None
 
-        if (imported:= self.table.find_predicate_not_in_builtins(predicate)):
-            return False,imported
+        if imported := self.table.find_predicate_not_in_builtins(predicate):
+            return False, imported
 
         if builtin_predicate := self.table.builtins.predicate_index.get(
             predicate.key()
@@ -33,8 +33,6 @@ class UndefinedPredicate(TreeVisitor):
             return False, builtin_predicate
 
         return True, None
-    
-
 
     def visit_functional_notation(self, node: Node):
         if self.table is None:

@@ -25,13 +25,13 @@ def debug():
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/consult.pl"
     uri = "./test/commented_prolog_cliques_distinct.pl"
-    uri = "examples/b/a.pl"
+    uri = "examples/b/b.pl"
 
     uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)
-    server.start_up()
+    # server.start_up()
     server.parse_with_dependencies(doc)
-    t = server.trees[uri]
+
     # for child in t.root_node.children:
     #     rec_print(child,0)
     # print(t.root_node)
@@ -50,15 +50,7 @@ def debug():
             for p in table.consult_paths:
                 print(p)
                 print(f"This module includes: {add_paths(uri, p)}")
-    
-    print(server.dg)
-    
-    print("Hello")
-    dg = DependencyGraphManager()
-    dg.file_includes_other("c","a")
-    dg.file_includes_other("b","c")
-    dg.file_includes_other("a","b")
-    print(dg.get_cycles())
+
     # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
 
     # print(
@@ -96,3 +88,11 @@ if __name__ == "__main__":
 # print(t.root_node)
 # t = p.parse(bytes(open("test/custom_op.pl").read(),"utf-8"))
 # print(t.root_node)
+
+
+def test_dg():
+    dg = DependencyGraphManager()
+    dg.file_includes_other("c", "a")
+    dg.file_includes_other("b", "c")
+    dg.file_includes_other("a", "b")
+    print(dg.get_cycles())
