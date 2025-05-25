@@ -1,6 +1,7 @@
 from pygls.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
+import time
 import traceback
 import os
 # from pygls.cli import start_server
@@ -29,6 +30,11 @@ from .passes.undefined_predicate import UndefinedPredicate
 from .passes.consults import ConsultPaths
 from .dependency_graph import DependencyGraph,DependencyGraphManager
 from .my_logging import logging
+
+
+import asyncio
+import uuid
+import os
 
 
 PROLOG = Language(prolog())
@@ -75,14 +81,14 @@ class PLS(LanguageServer):
         return collected
 
 
-    def start_up(self):
+    async def start_up(self):
         doc = MyDoc(self.builtin_uri)
         self.parse(doc)
 
-        self.root_path = self.workspace.root_path
+        self.root_path = "./examples/b"
         self.files = self.discover_files()
-        self.index(self.files)
-        logging.error(f"Files: {self.files}")
+        await self.index_with_progress(self.files)
+        # logging.error(f"Files: {self.files}")
 
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
@@ -242,10 +248,11 @@ class PLS(LanguageServer):
 
         return available_paths
 
-    def build_dependency_graph(self,uris:list[str]):
+    async def build_dependency_graph(self,uris:list[str],progress_report= None):
 
         visited = set()
         received_uris = set(uris)
+        total_uris = set(uris)
         queue = uris
         while len(queue) > 0:
             next = queue.pop(0)
@@ -254,7 +261,7 @@ class PLS(LanguageServer):
             visited.add(next)
             next_document = self.document_from_workspace_or_fs(next)
             consult_paths = self.shallow_parse(next_document)
-
+            time.sleep(2)
             to_graph_paths = []
             to_graph_paths.extend(consult_paths)
             to_graph_paths.extend(self.dg.get_file(next).is_included)
@@ -262,6 +269,9 @@ class PLS(LanguageServer):
             for uri in to_graph_paths:
                 if uri not in visited and uri not in received_uris:
                     queue.append(uri)
+                    total_uris.add(uri)
+            if  progress_report:
+                await progress_report(len(visited),len(received_uris))
             
     def clear_diagnostics(self,document: TextDocument):
         self.diagnostics[document.uri] = ( document.version, [])
@@ -293,9 +303,46 @@ class PLS(LanguageServer):
 
             self.parse_assuming_dependencies_are_handled(next_document)
 
-    def index(self,files: list[str]):
-        self.build_dependency_graph(files)
-        pass
+
+
+    async def index_with_progress(self,files:list[str]):
+        """Create and start the progress on the client."""
+        token = str(uuid.uuid4())
+        # Create
+        await self.progress.create_async(token)
+        # Begin
+        self.progress.begin(
+            token,
+            types.WorkDoneProgressBegin(title="Indexing", percentage=0, cancellable=True),
+        )
+
+        async def report_hook(i,total):
+            if total == 0:
+                total = 1
+            logging.error(f"Parsed {i}/{total}")
+            if i % 5 == 0 or i == total - 1:
+                percent = int((i + 1) / total * 100)
+                self.progress.report(
+                    token,
+                    types.WorkDoneProgressReport(message=f"Parsed {i}/{total}", percentage=percent),
+                )
+        
+        # Report
+        for i in range(1, 10):
+            # Check for cancellation from client
+            if self.progress.tokens[token].cancelled():
+                # ... and stop the computation if client cancelled
+                return
+            await self.build_dependency_graph(files,report_hook)
+            self.progress.report(
+                token,
+                types.WorkDoneProgressReport(message=f"{i * 10}%", percentage=i * 10),
+            )
+            await asyncio.sleep(0)
+        # End
+        logging.error(f"{self.dg.dg}")
+        self.progress.end(token,types.WorkDoneProgressEnd(message="Finished"))
+
 
     def parse_assuming_dependencies_are_handled(self,document:TextDocument):
         
@@ -439,13 +486,17 @@ class PLS(LanguageServer):
                     ),
                 )
         return result
+    
+    
 
 
 server = PLS("prolog-server", "v0.0.1")
 
 @server.feature(types.INITIALIZED)
 def on_initialized(ls:PLS,params):
-    ls.start_up()
+     logging.error("Running on Initialized")
+     asyncio.create_task(ls.start_up())
+
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
@@ -531,3 +582,4 @@ def completions(params: types.CompletionParams):
         types.CompletionItem(label="friend"),
         types.CompletionItem(label="Elsa"),
     ]
+
