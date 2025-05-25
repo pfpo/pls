@@ -534,8 +534,10 @@ class PLS(LanguageServer):
             if len(predicate.definitions) ==  0:
                 continue
             logging.error(f"{predicate}{type(predicate)}")
+
+            
             content = descriptions.predicate_description(predicate)
-            template = f"{predicate.name}(" + ",".join("${"+str(i)+":arg}" for i in range(1,predicate.arity+1))  +   ")"
+            template =descriptions.predicate_template(predicate)
             result.append(
                 types.CompletionItem(
                     predicate.name,
