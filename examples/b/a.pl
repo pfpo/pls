@@ -1,5 +1,6 @@
 
 :- consult('b.pl').
 
-main:- b_funci(A,B).
+:- consult('commented_prolog_cliques_distinct.pl').
 
+:- ,cliques_distinct(StatisticsFile,TimeoutMinutes,Tests).

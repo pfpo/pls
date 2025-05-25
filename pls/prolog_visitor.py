@@ -18,12 +18,13 @@ class Opts:
 
 
 class PrologVisitor(TreeVisitor):
-    def __init__(self, uri:str):
+    def __init__(self, uri: str):
         super().__init__()
         self.predicate_index = {}
         self.uri = uri
 
         self.notes = Annotations()
+        self.comment_trees = Annotations()
         self.current_scope = None
         self.scopes = {}
         self.directive_counter = 0
@@ -32,8 +33,8 @@ class PrologVisitor(TreeVisitor):
         self.comment_parser = Parser(Language(pldoc.language()))
 
         self.all_comments = []
-
         self.comments = []
+
 
     def set_current_scope(self, scope):
         if self.current_scope is not None:
@@ -96,7 +97,7 @@ class PrologVisitor(TreeVisitor):
         t = Term(bytes.decode(node.text, "utf-8"))
         self.notes[node] = t
         p = self.get_predicate(t)
-        p.add_reference(self.uri,node)
+        p.add_reference(self.uri, node)
         return t
 
     def visit_binary_operator(self, node: Node, _opts: Opts) -> str:
@@ -104,7 +105,7 @@ class PrologVisitor(TreeVisitor):
         operator = self.get_predicate(t)
         self.notes[node] = operator
         p = self.get_predicate(operator)
-        p.add_reference(self.uri,node)
+        p.add_reference(self.uri, node)
         return operator
 
     def text_visit(self, node: Node, opts: Opts) -> str:
@@ -142,7 +143,7 @@ class PrologVisitor(TreeVisitor):
                 f = Functor(name.name, args)
                 p = self.get_predicate(f)
                 self.notes[node] = p
-                p.add_reference(self.uri,node)
+                p.add_reference(self.uri, node)
                 if is_parameter_definition:
                     opts = self.un_set_parameter_definitions(opts)
                 return f
@@ -166,7 +167,7 @@ class PrologVisitor(TreeVisitor):
         v = self.current_scope.variables[name]
         self.notes[node] = v
 
-        definition_loc = node_to_location(self.uri,node)
+        definition_loc = node_to_location(self.uri, node)
         v.references.append(definition_loc)
         return v
 
@@ -235,8 +236,8 @@ class PrologVisitor(TreeVisitor):
         self.comments = []
         self.notes[parent] = predicate
 
-        predicate.add_definition(self.uri,parent)
-        #TODO WHy
+        predicate.add_definition(self.uri, parent)
+        # TODO WHy
         predicate.uri = self.uri
         key = predicate.key()
 
@@ -281,12 +282,15 @@ class PrologVisitor(TreeVisitor):
                 if is_consult(functor):
                     consult_path = string_from_atom(functor.args[0].name)
                     functor.args[0].data["link"] = consult_path
-                    self.consult_paths[consult_path].append(node_to_location(self.uri,child))
+                    self.consult_paths[consult_path].append(
+                        node_to_location(self.uri, child)
+                    )
                 elif is_use_module(functor):
                     # TODO: Handle Modules
                     pass
             else:
                 self.visit(child, opts)
+        self.notes[node] = self.current_scope
         self.save_scope()
         return
 
@@ -303,6 +307,7 @@ class PrologVisitor(TreeVisitor):
     def visit_comment(self, node: Node, opts: Opts):
         # Detected cases where the parser hangs
         result = self.comment_parser.parse(node.text)
+        self.comment_trees[node] = result
         v = PlDocVisitor()
         v.start(result.root_node)
         pldoc = v.get_comment()

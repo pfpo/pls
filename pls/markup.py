@@ -2,10 +2,9 @@ from tree_sitter import Node
 from .model import Predicate, Variable
 from .pldoc_comment_visitor import PlDocComment
 
-import logging
-
 
 class Markup:
+
     def variable_description(self, element: Variable):
         if element.scope and element.scope.predicate and element.is_parameter:
             predicate = element.scope.predicate
@@ -14,8 +13,6 @@ class Markup:
             if len(pldocs) > 0:
                 pldoc = pldocs[0]
                 args, tags = pldoc.parameter(element.name)
-                logging.debug(args)
-                logging.debug(tags)
 
                 r = [
                     f"### Parameter `{element.name}`",
@@ -27,6 +24,23 @@ class Markup:
                 return r
 
         return [f"### Variable `{element.name}`"]
+    def predicate_template(self,predicate: Predicate):
+        
+        pl_comment = None 
+        arg_names =[str(i) for i in range(predicate.arity)]
+        for c in predicate.comments:
+            if type(c) is PlDocComment:
+                pl_comment = c
+                break
+        if pl_comment:
+            for t in pl_comment.templates:
+                if len(t.args) == predicate.arity:
+                    arg_names = [a.name for a in t.args]
+
+        
+
+        template = f"{predicate.name}(" + ",".join("${"+str(i+1) + ":"+   a+"}" for i,a in enumerate(arg_names))  +   ")"
+        return template
 
     def predicate_description(self, element: Predicate):
         string_comments = []

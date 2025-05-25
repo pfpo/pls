@@ -10,7 +10,7 @@ from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 from copy import deepcopy
 
-from .model import Functor, Variable, Predicate, SymbolTable
+from .model import Functor, Variable, Predicate, SymbolTable, scope_at_position, Scope
 from .utils import (
     node_at_position,
     position_inside_node,
@@ -20,6 +20,7 @@ from .utils import (
     add_paths,
 )
 
+from .annotations import Annotations
 from .prolog_visitor import PrologVisitor, Opts
 from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight.highlight_visitor import HighlightVisitor
@@ -28,7 +29,7 @@ from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
 from .passes.consults import ConsultPaths
-from .dependency_graph import DependencyGraph,DependencyGraphManager
+from .dependency_graph import DependencyGraph, DependencyGraphManager
 from .my_logging import logging
 
 
@@ -57,8 +58,9 @@ class PLS(LanguageServer):
         super().__init__(*args, **kwargs)
         self.diagnostics = {}
         self.tokens = {}
-        self.tables: map[str, SymbolTable] = {}
-        self.original_tables: map[str, SymbolTable] = {}
+        self.tables: dict[str, SymbolTable] = {}
+        self.original_tables:dict[str, SymbolTable] = {}
+        self.comment_trees : dict[str,Annotations] = {}
         self.dg = DependencyGraphManager()
         self.trees: map[str, Tree] = {}
         self.files = []
@@ -74,12 +76,11 @@ class PLS(LanguageServer):
         root_path = self.root_path
         for dirpath, _, filenames in os.walk(root_path):
             for fname in filenames:
-                if fname.endswith('.pl'):
+                if fname.endswith(".pl"):
                     path = os.path.join(dirpath, fname)
                     uri = path_to_file_uri(Path(path))
                     collected.append(uri)
         return collected
-
 
     async def start_up(self):
         doc = MyDoc(self.builtin_uri)
@@ -117,10 +118,11 @@ class PLS(LanguageServer):
         result.extend(self.undefined_predicate(tree, table))
         return result
 
-    def semantic_tokens(self, document:TextDocument):
+    def semantic_tokens(self, document: TextDocument):
         tree = self.trees[document.uri][1]
         table = self.tables.get(document.uri)
-        tokens_visitor = HighlightVisitor(table)
+        comment_trees = self.comment_trees.get(document.uri)
+        tokens_visitor = HighlightVisitor(table,comment_trees)
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -131,40 +133,38 @@ class PLS(LanguageServer):
         logging.info(f"Parsing: {current_uri}")
         self.run_analysis(document)
 
-    def add_diagnostics_by_uri(self,uri:str,diagnostics:list):
-        if  uri not in self.diagnostics:
-            self.diagnostics[uri] = ( 0, diagnostics)
+    def add_diagnostics_by_uri(self, uri: str, diagnostics: list):
+        if uri not in self.diagnostics:
+            self.diagnostics[uri] = (0, diagnostics)
         else:
             version, new_diagnostics = self.diagnostics[uri]
             new_diagnostics.extend(diagnostics)
-            self.diagnostics[uri] = ( version, new_diagnostics)
+            self.diagnostics[uri] = (version, new_diagnostics)
 
-    def add_diagnostics(self,document:TextDocument,diagnostics:list):
+    def add_diagnostics(self, document: TextDocument, diagnostics: list):
         if document.uri not in self.diagnostics:
             logging.error(f"Deleting warnings")
-            self.diagnostics[document.uri] = (
-                document.version,
-                diagnostics
-            )
+            self.diagnostics[document.uri] = (document.version, diagnostics)
         else:
             version, new_diagnostics = self.diagnostics[document.uri]
             if version != document.version:
                 logging.error(f"Deleting warnings")
                 new_diagnostics = []
             new_diagnostics.extend(diagnostics)
-            self.diagnostics[document.uri] = (
-                document.version,
-                new_diagnostics
-            )
+            self.diagnostics[document.uri] = (document.version, new_diagnostics)
 
-    def run_analysis( self, document: TextDocument):
+    def run_analysis(self, document: TextDocument):
         table = self.tables.get(document.uri)
 
-        if table and document.uri != self.builtin_uri:
+        if (
+            table
+            and document.uri != self.builtin_uri
+            and self.builtin_uri in self.tables
+        ):
             table.builtins = self.tables[self.builtin_uri]
-        
+
         diagnostics = self.run_passes(document)
-        self.add_diagnostics(document,diagnostics)
+        self.add_diagnostics(document, diagnostics)
 
         self.tokens[document.uri] = (
             document.version,
@@ -174,7 +174,7 @@ class PLS(LanguageServer):
 
     def _parse(self, doc: TextDocument):
         tree = parser.parse(bytes(doc.source, "utf-8"))
-        self.trees[doc.uri] = (doc.version,tree)
+        self.trees[doc.uri] = (doc.version, tree)
 
         prolog_visitor = PrologVisitor(doc.uri)
         prolog_visitor.visit(tree.root_node, Opts())
@@ -188,6 +188,7 @@ class PLS(LanguageServer):
             consult_paths=prolog_visitor.consult_paths,
             path=doc.uri,
         )
+        self.comment_trees[doc.uri] = prolog_visitor.comment_trees
         self.original_tables[doc.uri] = symbol_table
         self.tables[doc.uri] = deepcopy(symbol_table)
         return tree, symbol_table
@@ -200,36 +201,40 @@ class PLS(LanguageServer):
             logging.error(f"Could Not get file: {uri}\n{e}")
             return MyDoc(uri)
 
-    
-    def should_reanalyse(self, document: TextDocument,dependencies_changed:bool = False):
+    def should_reanalyse(
+        self, document: TextDocument, dependencies_changed: bool = False
+    ):
         if dependencies_changed:
-            return True,"Dependencies Changed"
+            return True, "Dependencies Changed"
         if document.uri not in self.diagnostics:
-            return True,"Not Yet Parsed"
+            return True, "Not Yet Parsed"
         version, _ = self.diagnostics[document.uri]
         if version != document.version:
-            return True,f"Document Has a Different Version Parsed:{version}, Received {document.version}"
+            return (
+                True,
+                f"Document Has a Different Version Parsed:{version}, Received {document.version}",
+            )
 
-        return False , ""
-    
-    def should_reparse(self,document:TextDocument):
+        return False, ""
+
+    def should_reparse(self, document: TextDocument):
         version = document.version
         uri = document.uri
 
         if uri not in self.trees:
             return True, f"{document.filename} not already parsed"
-        
+
         current_version, _ = self.trees[uri]
 
         if current_version != version:
-            return True,f"{document.filename} version changed"
-        
-        return False,f"{document.filename} cached no need to reparse version hasn't changed"
-    
+            return True, f"{document.filename} version changed"
 
+        return (
+            False,
+            f"{document.filename} cached no need to reparse version hasn't changed",
+        )
 
-
-    def shallow_parse(self,document:TextDocument):
+    def shallow_parse(self, document: TextDocument):
         reparse, reason = self.should_reparse(document)
         logging.error(f"{reason}")
         if reparse:
@@ -237,19 +242,18 @@ class PLS(LanguageServer):
         else:
             self.tables[document.uri] = deepcopy(self.original_tables[document.uri])
         self.dg.add_file(document.uri)
-        c = ConsultPaths(self.tables,self.dg)
-        consult_warnings,available_paths = c.analyse(document.uri) 
+        c = ConsultPaths(self.tables, self.dg)
+        consult_warnings, available_paths = c.analyse(document.uri)
         self.cycles.extend(c.cycles)
-        logging.error(f"Consult Warnings: {consult_warnings }")
+        logging.error(f"Consult Warnings: {consult_warnings}")
         if document.uri not in self.diagnostics:
             logging.error(f"Deleting warnings")
-            self.diagnostics[document.uri] = (document.version,[])
+            self.diagnostics[document.uri] = (document.version, [])
         self.diagnostics[document.uri][1].extend(consult_warnings)
 
         return available_paths
 
-    async def build_dependency_graph(self,uris:list[str],progress_report= None):
-
+    async def build_dependency_graph(self, uris: list[str], progress_report=None):
         visited = set()
         received_uris = set(uris)
         total_uris = set(uris)
@@ -261,36 +265,35 @@ class PLS(LanguageServer):
             visited.add(next)
             next_document = self.document_from_workspace_or_fs(next)
             consult_paths = self.shallow_parse(next_document)
-            time.sleep(2)
+            # time.sleep(2)
             to_graph_paths = []
             to_graph_paths.extend(consult_paths)
             to_graph_paths.extend(self.dg.get_file(next).is_included)
-            
+
             for uri in to_graph_paths:
                 if uri not in visited and uri not in received_uris:
                     queue.append(uri)
                     total_uris.add(uri)
-            if  progress_report:
-                await progress_report(len(visited),len(received_uris))
-            
-    def clear_diagnostics(self,document: TextDocument):
-        self.diagnostics[document.uri] = ( document.version, [])
+            if progress_report:
+                await progress_report(len(visited), len(received_uris))
 
+    def clear_diagnostics(self, document: TextDocument):
+        self.diagnostics[document.uri] = (document.version, [])
 
-    def start_parse_chain(self,document: TextDocument):
-
-        logging.error(f"Parse Chain triggered by: {document.filename}:v{document.version}")
+    def start_parse_chain(self, document: TextDocument):
+        logging.error(
+            f"Parse Chain triggered by: {document.filename}:v{document.version}"
+        )
         self.cycles = []
         self.build_dependency_graph([document.uri])
-        cp = ConsultPaths(self.tables,self.dg)
+        cp = ConsultPaths(self.tables, self.dg)
         cycles = self.dg.get_cycles()
         logging.error(f"CYCLES: {cycles}")
         chain = self.dg.get_files_to_analyse(document.uri)
 
-        cycle_reports : dict[str,list] = {}
+        cycle_reports: dict[str, list] = {}
         for cycle in cycles:
             cp.build_cyclic_consult_reports(cycle)
-
 
         logging.error(f"Parse Chain of {document.filename}: {chain}")
         logging.error(f"{self.dg.dg}")
@@ -298,14 +301,12 @@ class PLS(LanguageServer):
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
 
-            cycle_reports = cp.cycle_reports.get(file_name,[])
-            self.add_diagnostics(next_document,cycle_reports)
+            cycle_reports = cp.cycle_reports.get(file_name, [])
+            self.add_diagnostics(next_document, cycle_reports)
 
             self.parse_assuming_dependencies_are_handled(next_document)
 
-
-
-    async def index_with_progress(self,files:list[str]):
+    async def index_with_progress(self, files: list[str]):
         """Create and start the progress on the client."""
         token = str(uuid.uuid4())
         # Create
@@ -313,10 +314,12 @@ class PLS(LanguageServer):
         # Begin
         self.progress.begin(
             token,
-            types.WorkDoneProgressBegin(title="Indexing", percentage=0, cancellable=True),
+            types.WorkDoneProgressBegin(
+                title="Indexing", percentage=0, cancellable=True
+            ),
         )
 
-        async def report_hook(i,total):
+        async def report_hook(i, total):
             if total == 0:
                 total = 1
             logging.error(f"Parsed {i}/{total}")
@@ -324,16 +327,18 @@ class PLS(LanguageServer):
                 percent = int((i + 1) / total * 100)
                 self.progress.report(
                     token,
-                    types.WorkDoneProgressReport(message=f"Parsed {i}/{total}", percentage=percent),
+                    types.WorkDoneProgressReport(
+                        message=f"Parsed {i}/{total}", percentage=percent
+                    ),
                 )
-        
+
         # Report
         for i in range(1, 10):
             # Check for cancellation from client
             if self.progress.tokens[token].cancelled():
                 # ... and stop the computation if client cancelled
                 return
-            await self.build_dependency_graph(files,report_hook)
+            await self.build_dependency_graph(files, report_hook)
             self.progress.report(
                 token,
                 types.WorkDoneProgressReport(message=f"{i * 10}%", percentage=i * 10),
@@ -341,32 +346,31 @@ class PLS(LanguageServer):
             await asyncio.sleep(0)
         # End
         logging.error(f"{self.dg.dg}")
-        self.progress.end(token,types.WorkDoneProgressEnd(message="Finished"))
+        self.progress.end(token, types.WorkDoneProgressEnd(message="Finished"))
 
-
-    def parse_assuming_dependencies_are_handled(self,document:TextDocument):
-        
+    def parse_assuming_dependencies_are_handled(self, document: TextDocument):
         self.shallow_parse(document)
         symbol_table = self.tables[document.uri]
-        
+
         file_deps = self.dg.get_file(document.uri)
-        
+
         for file in file_deps.includes.values():
-        
             logging.error(f"File: {document.filename} depends on {file.name}")
             if file.uri not in self.tables:
-                logging.error(f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled")
+                logging.error(
+                    f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled"
+                )
             else:
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table
 
         self.run_analysis(document)
         logging.error(f"Finished Analysis of {document.filename}")
-        logging.error(f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings")
-
+        logging.error(
+            f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"
+        )
 
     def parse_with_dependencies(self, document: TextDocument):
-
         self.start_parse_chain(document)
 
     def transform_in_variable_or_predicate(
@@ -411,9 +415,9 @@ class PLS(LanguageServer):
         node = node_at_position(tree.root_node, position)
         return self.transform_in_variable_or_predicate(node, position, uri)
 
-    def go_to_definition(self,doc: TextDocument, position: types.Position):
+    def go_to_definition(self, doc: TextDocument, position: types.Position):
         uri = doc.uri
-        tree = self.trees.get(uri,(0,None))[1]
+        tree = self.trees.get(uri, (0, None))[1]
         if tree is None:
             return None
 
@@ -430,9 +434,9 @@ class PLS(LanguageServer):
             return None
         return None
 
-    def find_references(self,doc: TextDocument, position: types.Position):
+    def find_references(self, doc: TextDocument, position: types.Position):
         uri = doc.uri
-        tree = self.trees.get(uri,(0,None))[1]
+        tree = self.trees.get(uri, (0, None))[1]
         locations = []
         if tree is None:
             return locations
@@ -443,9 +447,9 @@ class PLS(LanguageServer):
         locations.extend(element.references)
         return locations
 
-    def hover(self,doc: TextDocument, position: types.Position):
+    def hover(self, doc: TextDocument, position: types.Position):
         uri = doc.uri
-        tree = self.trees.get(uri,(0,None))[1]
+        tree = self.trees.get(uri, (0, None))[1]
         if tree is None:
             return None
 
@@ -486,16 +490,80 @@ class PLS(LanguageServer):
                     ),
                 )
         return result
-    
-    
+
+    def send_completions(self, document: TextDocument, position: types.Position):
+        if document.uri not in self.tables:
+            return []
+
+        tree = self.trees[document.uri][1]
+        table = self.tables[document.uri]
+        n = scope_at_position(tree.root_node, table, position)
+        logging.error(f"\n\n\nResult: {n}")
+        variables = []
+        if n is None:
+            return []
+        elif type(n) is Scope:
+            variables.extend(n.variables.values())
+
+        elif type(n) is Predicate:
+            for scope in n.scopes:
+                variables.extend(scope.variables.values())
+        else:
+            logging.error(f"Got type {type(n)}")
+
+        result = []
+
+        for variable in variables:
+            content = descriptions.variable_description(variable)
+            result.append(
+                types.CompletionItem(
+                    variable.name,
+                    kind=types.CompletionItemKind.Variable,
+                    documentation=types.MarkupContent(
+                        types.MarkupKind.Markdown, "\n".join(content)
+                    ),
+                ),
+            )
+
+        available_predicates =  list(table.predicate_index.values())
+        for consulted in table.consults.values():
+            available_predicates.extend(consulted.predicate_index.values())
+
+
+        available_predicates = [p for p in available_predicates if len(p.definitions) > 0]
+
+        if table.builtins:
+            available_predicates.extend(table.builtins.predicate_index.values())
+
+        
+        for predicate in available_predicates:
+            logging.error(f"{predicate}{type(predicate)}")
+
+            content = descriptions.predicate_description(predicate)
+            template =descriptions.predicate_template(predicate)
+            result.append(
+                types.CompletionItem(
+                    predicate.name,
+                    label_details=types.CompletionItemLabelDetails(detail=f"/{predicate.arity}"),
+                    kind=types.CompletionItemKind.Function,
+                    insert_text= template,
+                    insert_text_format=types.InsertTextFormat.Snippet,
+                    documentation=types.MarkupContent(
+                        types.MarkupKind.Markdown, "\n".join(content)
+                    ),
+                ),
+            )
+
+        return result
 
 
 server = PLS("prolog-server", "v0.0.1")
 
+
 @server.feature(types.INITIALIZED)
-def on_initialized(ls:PLS,params):
-     logging.error("Running on Initialized")
-     asyncio.create_task(ls.start_up())
+def on_initialized(ls: PLS, params):
+    logging.error("Running on Initialized")
+    asyncio.create_task(ls.start_up())
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
@@ -506,7 +574,7 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        ls.publish_diagnostics(uri, diagnostics,version)
+        ls.publish_diagnostics(uri, diagnostics, version)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
@@ -516,14 +584,14 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        ls.publish_diagnostics(uri, diagnostics,version)
+        ls.publish_diagnostics(uri, diagnostics, version)
 
 
 @server.feature("textDocument/definition")
 def goto_definition(ls: PLS, params: types.DefinitionParams):
     """Jump to an object's definition."""
     doc = ls.workspace.get_text_document(params.text_document.uri)
-    result = ls.go_to_definition(doc,params.position)
+    result = ls.go_to_definition(doc, params.position)
     return result
 
 
@@ -567,19 +635,11 @@ def document_links(ls: PLS, params: types.DocumentLinkParams):
 
 @server.feature(
     types.TEXT_DOCUMENT_COMPLETION,
-    types.CompletionOptions(trigger_characters=["."]),
+    types.CompletionOptions(trigger_characters=[","]),
 )
-def completions(params: types.CompletionParams):
+def completions(ls: PLS, params: types.CompletionParams):
     document = server.workspace.get_document(params.text_document.uri)
-    current_line = document.lines[params.position.line].strip()
-
-    if not current_line.endswith("wario."):
-        return []
-
-    return [
-        types.CompletionItem(label="prolog"),
-        types.CompletionItem(label="world"),
-        types.CompletionItem(label="friend"),
-        types.CompletionItem(label="Elsa"),
-    ]
-
+    r = ls.send_completions(document, params.position)
+    # logging.error(f"Completions result: {type(result)}")
+    logging.error(f"Completions result: {r}")
+    return r
