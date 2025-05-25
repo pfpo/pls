@@ -6,10 +6,11 @@ from collections import defaultdict
 from .highlight import Token
 from .pldoc_highlight import PlDocHighlightVisitor
 from pls.my_logging import logging
+from pls.annotations import Annotations
 
 
 class HighlightVisitor(TreeVisitor):
-    def __init__(self, symbol_table: SymbolTable):
+    def __init__(self, symbol_table: SymbolTable,comment_trees:Annotations):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
@@ -18,6 +19,9 @@ class HighlightVisitor(TreeVisitor):
             if symbol_table is not None
             else defaultdict(lambda: None)
         )
+        self.comment_trees  = comment_trees
+        
+
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
@@ -39,9 +43,10 @@ class HighlightVisitor(TreeVisitor):
 
     def visit_comment(self, node: Node):
         added_tokens = False
-        if self.notes[node]:
+        comment_tree = self.comment_trees[node]
+        if comment_tree:
             v = PlDocHighlightVisitor(self.current_token, node)
-            v.start(self.notes[node])
+            v.start(comment_tree.root_node)
             added_tokens = len(v.token_list) > 0
             self.token_list.extend(v.token_list)
         if not added_tokens:
