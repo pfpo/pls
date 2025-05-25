@@ -529,13 +529,16 @@ class PLS(LanguageServer):
         for consulted in table.consults.values():
             available_predicates.extend(consulted.predicate_index.values())
 
+
+        available_predicates = [p for p in available_predicates if len(p.definitions) > 0]
+
+        if table.builtins:
+            available_predicates.extend(table.builtins.predicate_index.values())
+
         
         for predicate in available_predicates:
-            if len(predicate.definitions) ==  0:
-                continue
             logging.error(f"{predicate}{type(predicate)}")
 
-            
             content = descriptions.predicate_description(predicate)
             template =descriptions.predicate_template(predicate)
             result.append(
