@@ -1,17 +1,15 @@
-from tree_sitter import Node, Parser, Language
-from pls.model import Term, Functor, Predicate, Variable, Scope,SymbolTable
-from pls.utils import node_to_range, node_and_parent_with_text
+from tree_sitter import Node
+from pls.model import Predicate, SymbolTable
+from pls.utils import node_to_range
 from pls.tree_visitor import TreeVisitor
-from pls.annotations import Annotations
 from lsprotocol import types
 
 
 class UndefinedPredicate(TreeVisitor):
-    def __init__(self,table: SymbolTable):
+    def __init__(self, table: SymbolTable):
         super().__init__()
         self.table = table
         self.reports = []
-
 
     def start(self, node: Node):
         self.visit_all_children(node)
@@ -20,28 +18,42 @@ class UndefinedPredicate(TreeVisitor):
         self.add_visit("functional_notation", self.visit_functional_notation)
         self.set_default_visitor(self.visit_all_children)
 
-    def is_undefined(self, predicate:Predicate)-> bool:
+    def is_undefined(self, predicate: Predicate) -> tuple[bool, Predicate]:
         if len(predicate.definitions) > 0:
-            return False
+            return False, predicate
         if self.table is None or self.table.builtins is None:
-            return True
-        
-        if self.table.builtins.predicate_index.get(predicate.key()):
-            return False
-        return True
+            return True, None
+
+        if (imported:= self.table.find_predicate_not_in_builtins(predicate)):
+            return False,imported
+
+        if builtin_predicate := self.table.builtins.predicate_index.get(
+            predicate.key()
+        ):
+            return False, builtin_predicate
+
+        return True, None
+    
+
 
     def visit_functional_notation(self, node: Node):
         if self.table is None:
             return
         predicate = self.table.notes[node]
-        if  predicate is None or type(predicate) is not Predicate:
-            return 
-        if self.is_undefined(predicate):
+        if predicate is None or type(predicate) is not Predicate:
+            return
+        undefined, new_predicate = self.is_undefined(predicate)
+        # logging.debug("%s Is Undefined: %s",predicate.key(),undefined)
+        if undefined:
             severity = types.DiagnosticSeverity.Warning
             message = "Undefined Predicate "
-            report =  types.Diagnostic(
-                message= message + " " +  predicate.key(),
+            report = types.Diagnostic(
+                message=message + " " + predicate.key(),
                 severity=severity,
                 range=node_to_range(node),
             )
             self.reports.append(report)
+        elif predicate is not new_predicate:
+            new_predicate.references.extend(predicate.references)
+            self.table.notes[node] = new_predicate
+            self.table.predicate_index[predicate.key()] = new_predicate

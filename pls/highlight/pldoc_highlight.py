@@ -46,10 +46,11 @@ class PlDocHighlightVisitor(TreeVisitor):
         # Templates
         self.add_visit("functor_template", self.visit_functor)
 
-    def end(self,node:Node):
+    def end(self, node: Node):
         self.ended = True
         self.token_list = []
         return
+
     def default_visit(self, node: Node):
         for child in node.children:
             if self.ended:
@@ -116,6 +117,7 @@ class PlDocHighlightVisitor(TreeVisitor):
             self.current_token = Token(current_row, col, "")
             col = 0
             self.token_list.extend([line_offset, col_offset, current_line_len, 6, 0])
+
     def relative_node_range(self, node: Node):
         return Range(
             Point(

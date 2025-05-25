@@ -1,7 +1,7 @@
 import logging
 
 logging.basicConfig(
-    filename="/home/martim/Desktop/pls/pygls.log", filemode="w", level=logging.DEBUG
+    filename="/home/martim/Desktop/pls/pygls.log", filemode="w", level=logging.ERROR
 )
 
 old_print = print

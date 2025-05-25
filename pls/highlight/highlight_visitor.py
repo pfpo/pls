@@ -4,8 +4,8 @@ from tree_sitter import Node
 from pls.model import Variable, SymbolTable
 from collections import defaultdict
 from .highlight import Token
-from .pld_doc_highlight import PlDocHighlightVisitor
-import logging
+from .pldoc_highlight import PlDocHighlightVisitor
+from pls.my_logging import logging
 
 
 class HighlightVisitor(TreeVisitor):
@@ -22,19 +22,13 @@ class HighlightVisitor(TreeVisitor):
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
         self.add_visit("integer", self.visit_integer)
-        # self.add_visit("clause_term", self.visit_clause_term)
-        # self.add_visit("directive_term", self.visit_directive)
 
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("atom", self.visit_atom)
         self.add_visit("operator_notation", self.visit_operator_notation)
         self.add_visit("double_quoted_list_notation", self.visit_double_quoted_list)
 
-        # self.add_visit("source_file", self.visit_all_children)
         self.add_visit("functional_notation", self.visit_functional_notation)
-        # self.add_visit("list_notation", self.visit_list_notation)
-
-        # self.add_visit('ERROR',self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
 
     def visit_integer(self, node: Node):
@@ -117,10 +111,12 @@ class HighlightVisitor(TreeVisitor):
                         self.create_token(child, 3, 0)
             case _:
                 self.visit_all_children(node)
-                logging.debug(TypeError(
-                    f"Invalid shape of argument list: {node.children}"
-                    + node_and_parent_with_text(node)
-                ))
+                logging.debug(
+                    TypeError(
+                        f"Invalid shape of argument list: {node.children}"
+                        + node_and_parent_with_text(node)
+                    )
+                )
 
         return
 
@@ -152,10 +148,12 @@ class HighlightVisitor(TreeVisitor):
                 return operand
             case children:
                 self.visit_all_children(node)
-                logging.debug(TypeError(
-                     f"Unhandeled operator notation: \n{children}\n"
-                     + node_and_parent_with_text(node)
-                 ))
+                logging.debug(
+                    TypeError(
+                        f"Unhandeled operator notation: \n{children}\n"
+                        + node_and_parent_with_text(node)
+                    )
+                )
 
     def token_values(self, node: Node, index: int, modifiers: int):
         line_offset = node.start_point.row - self.current_token.line

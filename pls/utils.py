@@ -1,5 +1,23 @@
 from tree_sitter import Node
 from lsprotocol import types
+from pathlib import Path
+from urllib.request import pathname2url
+from urllib.parse import urlparse, unquote
+
+
+def file_uri_to_path(uri: str) -> Path:
+    parsed = urlparse(uri)
+    return Path(unquote(parsed.path))
+
+
+def path_to_file_uri(path: Path) -> str:
+    return "file://" + pathname2url(str(path.resolve()))
+
+
+def add_paths(file_uri: str, module_relative_path: str) -> str:
+    file_path = file_uri_to_path(file_uri)
+    final_path = file_path / ("../" + module_relative_path)
+    return path_to_file_uri(final_path)
 
 
 def node_to_range(node: Node):
@@ -9,6 +27,9 @@ def node_to_range(node: Node):
         ),
         end=types.Position(line=node.end_point.row, character=node.end_point.column),
     )
+
+def node_to_location(uri:str,node:Node):
+    return types.Location(uri=uri,range=node_to_range(node))
 
 
 def position_inside_node(node: Node, p: types.Position):
