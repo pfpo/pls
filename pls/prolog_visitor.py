@@ -24,6 +24,7 @@ class PrologVisitor(TreeVisitor):
         self.uri = uri
 
         self.notes = Annotations()
+        self.comment_trees = Annotations()
         self.current_scope = None
         self.scopes = {}
         self.directive_counter = 0
@@ -32,8 +33,8 @@ class PrologVisitor(TreeVisitor):
         self.comment_parser = Parser(Language(pldoc.language()))
 
         self.all_comments = []
-
         self.comments = []
+
 
     def set_current_scope(self, scope):
         if self.current_scope is not None:
@@ -306,6 +307,7 @@ class PrologVisitor(TreeVisitor):
     def visit_comment(self, node: Node, opts: Opts):
         # Detected cases where the parser hangs
         result = self.comment_parser.parse(node.text)
+        self.comment_trees[node] = result
         v = PlDocVisitor()
         v.start(result.root_node)
         pldoc = v.get_comment()

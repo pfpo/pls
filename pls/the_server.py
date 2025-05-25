@@ -20,6 +20,7 @@ from .utils import (
     add_paths,
 )
 
+from .annotations import Annotations
 from .prolog_visitor import PrologVisitor, Opts
 from .syntax_error_visitor import SyntaxErrorVisitor
 from .highlight.highlight_visitor import HighlightVisitor
@@ -59,6 +60,7 @@ class PLS(LanguageServer):
         self.tokens = {}
         self.tables: dict[str, SymbolTable] = {}
         self.original_tables:dict[str, SymbolTable] = {}
+        self.comment_trees : dict[str,Annotations] = {}
         self.dg = DependencyGraphManager()
         self.trees: map[str, Tree] = {}
         self.files = []
@@ -119,7 +121,8 @@ class PLS(LanguageServer):
     def semantic_tokens(self, document: TextDocument):
         tree = self.trees[document.uri][1]
         table = self.tables.get(document.uri)
-        tokens_visitor = HighlightVisitor(table)
+        comment_trees = self.comment_trees.get(document.uri)
+        tokens_visitor = HighlightVisitor(table,comment_trees)
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -185,6 +188,7 @@ class PLS(LanguageServer):
             consult_paths=prolog_visitor.consult_paths,
             path=doc.uri,
         )
+        self.comment_trees[doc.uri] = prolog_visitor.comment_trees
         self.original_tables[doc.uri] = symbol_table
         self.tables[doc.uri] = deepcopy(symbol_table)
         return tree, symbol_table
@@ -516,7 +520,7 @@ class PLS(LanguageServer):
                     variable.name,
                     kind=types.CompletionItemKind.Variable,
                     documentation=types.MarkupContent(
-                        types.MarkupKind.Markdown, "".join(content)
+                        types.MarkupKind.Markdown, "\n".join(content)
                     ),
                 ),
             )
@@ -531,13 +535,16 @@ class PLS(LanguageServer):
                 continue
             logging.error(f"{predicate}{type(predicate)}")
             content = descriptions.predicate_description(predicate)
+            template = f"{predicate.name}(" + ",".join("${"+str(i)+":arg}" for i in range(1,predicate.arity+1))  +   ")"
             result.append(
                 types.CompletionItem(
                     predicate.name,
                     label_details=types.CompletionItemLabelDetails(detail=f"/{predicate.arity}"),
                     kind=types.CompletionItemKind.Function,
+                    insert_text= template,
+                    insert_text_format=types.InsertTextFormat.Snippet,
                     documentation=types.MarkupContent(
-                        types.MarkupKind.Markdown, "".join(content)
+                        types.MarkupKind.Markdown, "\n".join(content)
                     ),
                 ),
             )
