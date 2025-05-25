@@ -336,7 +336,12 @@ class PLS(LanguageServer):
         node = node_at_position(tree.root_node, position)
         return self.transform_in_variable_or_predicate(node, position, uri)
 
-    def go_to_definition(self, tree, position: types.Position, uri: str):
+    def go_to_definition(self,doc: TextDocument, position: types.Position):
+        uri = doc.uri
+        tree = self.trees.get(uri,(0,None))[1]
+        if tree is None:
+            return None
+
         node: Node | None = node_at_position(tree.root_node, position)
         element: Variable | Predicate | None = self.transform_in_variable_or_predicate(
             node, position, uri
@@ -350,15 +355,25 @@ class PLS(LanguageServer):
             return None
         return None
 
-    def find_references(self, tree, position: types.Position, uri: str):
-        element: Variable | Predicate | None = self.discover_node(tree, position, uri)
+    def find_references(self,doc: TextDocument, position: types.Position):
+        uri = doc.uri
+        tree = self.trees.get(uri,(0,None))[1]
         locations = []
+        if tree is None:
+            return locations
+
+        element: Variable | Predicate | None = self.discover_node(tree, position, uri)
         if element is None:
             return locations
         locations.extend(element.references)
         return locations
 
-    def hover(self, tree, position: types.Position, uri: str):
+    def hover(self,doc: TextDocument, position: types.Position):
+        uri = doc.uri
+        tree = self.trees.get(uri,(0,None))[1]
+        if tree is None:
+            return None
+
         maybe_node = node_at_position(tree.root_node, position)
         if maybe_node is None:
             return None
@@ -426,10 +441,7 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
 def goto_definition(ls: PLS, params: types.DefinitionParams):
     """Jump to an object's definition."""
     doc = ls.workspace.get_text_document(params.text_document.uri)
-    tree = ls.trees.get(doc.uri)
-    if tree is None:
-        return []
-    result = ls.go_to_definition(tree, params.position, doc.uri)
+    result = ls.go_to_definition(doc,params.position)
     return result
 
 
@@ -437,13 +449,7 @@ def goto_definition(ls: PLS, params: types.DefinitionParams):
 def find_references(ls: PLS, params: types.ReferenceParams):
     """Find references of an object."""
     doc = ls.workspace.get_text_document(params.text_document.uri)
-    tree = ls.trees.get(doc.uri)
-    logging.log(logging.DEBUG, str(params.position))
-    if tree is None:
-        return []
-    references = ls.find_references(tree, params.position, doc.uri)
-    logging.log(logging.DEBUG, references)
-
+    references = ls.find_references(doc, params.position)
     return references
 
 
@@ -464,10 +470,7 @@ def semantic_tokens_full(ls: PLS, params: types.SemanticTokensParams):
 @server.feature(types.TEXT_DOCUMENT_HOVER)
 def hover(ls: PLS, params: types.HoverParams):
     doc = ls.workspace.get_text_document(params.text_document.uri)
-    tree = ls.trees.get(doc.uri)
-    if tree is None:
-        return []
-    result = ls.hover(tree, params.position, doc.uri)
+    result = ls.hover(doc, params.position)
     return result
 
 
@@ -476,7 +479,6 @@ def hover(ls: PLS, params: types.HoverParams):
 )
 def document_links(ls: PLS, params: types.DocumentLinkParams):
     """Return a list of links contained in the document. Currently Consult Links"""
-    items = []
     document_uri = params.text_document.uri
     return ls.document_links(document_uri)
 
