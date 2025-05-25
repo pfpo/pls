@@ -2,6 +2,7 @@ from pygls.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
 import traceback
+import os
 # from pygls.cli import start_server
 
 from tree_sitter import Language, Parser, Tree, Node
@@ -54,16 +55,34 @@ class PLS(LanguageServer):
         self.original_tables: map[str, SymbolTable] = {}
         self.dg = DependencyGraphManager()
         self.trees: map[str, Tree] = {}
+        self.files = []
         self.cycles = []
         self.builtin_uri = path_to_file_uri(
             Path("/home/martim/Desktop/pls/sicstus-doc-scraper/builtins.pl").resolve()
         )
         self.builtin_table: SymbolTable = None
-        self.start_up()
+        self.root_path = None
+
+    def discover_files(self):
+        collected = []
+        root_path = self.root_path
+        for dirpath, _, filenames in os.walk(root_path):
+            for fname in filenames:
+                if fname.endswith('.pl'):
+                    path = os.path.join(dirpath, fname)
+                    uri = path_to_file_uri(Path(path))
+                    collected.append(uri)
+        return collected
+
 
     def start_up(self):
         doc = MyDoc(self.builtin_uri)
         self.parse(doc)
+
+        self.root_path = self.workspace.root_path
+        self.files = self.discover_files()
+        self.index(self.files)
+        logging.error(f"Files: {self.files}")
 
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
@@ -223,10 +242,11 @@ class PLS(LanguageServer):
 
         return available_paths
 
-    def build_dependency_graph(self,document:TextDocument):
+    def build_dependency_graph(self,uris:list[str]):
 
         visited = set()
-        queue = [document.uri]
+        received_uris = set(uris)
+        queue = uris
         while len(queue) > 0:
             next = queue.pop(0)
             if next in visited:
@@ -240,7 +260,7 @@ class PLS(LanguageServer):
             to_graph_paths.extend(self.dg.get_file(next).is_included)
             
             for uri in to_graph_paths:
-                if uri not in visited:
+                if uri not in visited and uri not in received_uris:
                     queue.append(uri)
             
     def clear_diagnostics(self,document: TextDocument):
@@ -251,7 +271,7 @@ class PLS(LanguageServer):
 
         logging.error(f"Parse Chain triggered by: {document.filename}:v{document.version}")
         self.cycles = []
-        self.build_dependency_graph(document)
+        self.build_dependency_graph([document.uri])
         cp = ConsultPaths(self.tables,self.dg)
         cycles = self.dg.get_cycles()
         logging.error(f"CYCLES: {cycles}")
@@ -273,6 +293,9 @@ class PLS(LanguageServer):
 
             self.parse_assuming_dependencies_are_handled(next_document)
 
+    def index(self,files: list[str]):
+        self.build_dependency_graph(files)
+        pass
 
     def parse_assuming_dependencies_are_handled(self,document:TextDocument):
         
@@ -420,6 +443,9 @@ class PLS(LanguageServer):
 
 server = PLS("prolog-server", "v0.0.1")
 
+@server.feature(types.INITIALIZED)
+def on_initialized(ls:PLS,params):
+    ls.start_up()
 
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
