@@ -2,6 +2,7 @@ from tree_sitter import Node
 from .model import Term
 from .tree_visitor import TreeVisitor
 from dataclasses import dataclass
+from .my_logging import logging
 
 
 @dataclass
@@ -38,7 +39,7 @@ class PlDocComment:
     description: str
     tags: list[Tag]
 
-    def __str__(self) -> str:
+    def to_str(self,tags) -> str:
         r = ""
         if len(self.templates) > 0:
             r += "```pl\n"
@@ -49,9 +50,29 @@ class PlDocComment:
 
         r += "### Description\n"
         r += f"{self.description}\n"
-        for t in self.tags:
+        for t in tags:
             r += f"- {t}\n"
         return r
+
+    def __str__(self)->str:
+        return self.to_str(self.tags)
+
+    def templates_with_arity(self,arity:int)-> list[Template]:
+        return [t for t in self.templates if t.arity == arity]
+
+    def parameter_description(self, name: str)-> list[Tag]:
+        tags = []
+        logging.error(f"Looking for : {name}")
+        for tag in self.tags:
+            logging.error(f": {tag.name}")
+            # tag.name[1:] is because of the instantiation operator
+            if tag.type == "arg" or tag.type == "param" and (tag.name == name or tag.name[1:] == name):
+                tags.append(tag)
+
+        r = ""
+        for t in tags:
+            r += f"- {t}\n"
+        return  r
 
     def parameter(self, name: str):
         args = []
@@ -69,6 +90,23 @@ class PlDocComment:
 
     def to_markdown(self) -> str:
         return str(self)
+    
+    def to_markdown_without_parameters(self)->str:
+        tags =[t for t in self.tags if t.type not in ("arg","param")]
+        r = ""
+        r += "---\n\n"
+        if len(self.templates) > 0:
+            r += "```pl\n"
+            for template in self.templates:
+                r += template.text + "\n"
+            r += "```\n"
+            r += "---\n\n"
+
+        r += f"{self.description}\n"
+        for t in tags:
+            r += f"- {t}\n"
+        return r
+
 
 
 class PlDocVisitor(TreeVisitor):

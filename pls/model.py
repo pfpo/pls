@@ -109,7 +109,6 @@ class SymbolTable:
         for t in tables:
             available_keys.update(t.predicate_index_by_name.get(name,[]))
 
-        logging.error(f"{available_keys}")
         for key in available_keys:
             p = self.find_predicate_not_in_builtins(key)
             if p and len(p.definitions) > 0:
@@ -118,9 +117,6 @@ class SymbolTable:
         if self.builtins:
             builtin_keys = set()
             builtin_keys.update(self.builtins.predicate_index_by_name.get(name,[]))
-            logging.error(f"{builtin_keys}")
-            logging.error(f"{self.builtins.predicate_index}")
-            logging.error(f"{self.builtins.predicate_index_by_name}")
 
         
             for key in builtin_keys:

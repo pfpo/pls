@@ -566,9 +566,6 @@ class PLS(LanguageServer):
         scope = scope_at_position(tree.root_node, table, position)
         node = node_at_position(tree.root_node,position)
         vp = self.transform_in_variable_or_predicate(node,position,document.uri)
-        logging.error(f"{node}")
-        logging.error(f"{node.prev_sibling}")
-        logging.error(f"{vp}")
         is_functor = node.type == 'open' and node.prev_sibling and node.prev_sibling.type == 'atom'
         if not is_functor:
             return []
@@ -577,14 +574,18 @@ class PLS(LanguageServer):
 
         with_matchin_name = table.get_predicates_that_match(predicate_name)
 
-        result = []
-        def build_signature_help(sig_info,active_param):
-            return types.SignatureHelp(
-                signatures=[sig_info],
-                active_signature=0,
-                active_parameter=active_param
-            )
-        return result
+        
+        active_parameter = 0
+        signatures = []
+        for predicate in with_matchin_name:
+            signature = descriptions.signature_information(predicate,active_parameter)
+            signatures.append(signature)
+
+        return types.SignatureHelp(
+            signatures=signatures,
+            active_signature=0,
+            active_parameter=active_parameter,
+        )
 
 
 
