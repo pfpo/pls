@@ -24,7 +24,7 @@ class UndefinedPredicate(TreeVisitor):
         if self.table is None or self.table.builtins is None:
             return True, None
 
-        if imported := self.table.find_predicate_not_in_builtins(predicate):
+        if imported := self.table.find_predicate_not_in_builtins(predicate.key()):
             return False, imported
 
         if builtin_predicate := self.table.builtins.predicate_index.get(
