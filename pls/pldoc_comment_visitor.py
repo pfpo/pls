@@ -12,7 +12,7 @@ class Tag:
     value: str = ""
 
     def __str__(self) -> str:
-        return rf"@*{self.type}* `{self.name}`: {self.value}"
+        return f"@*{self.type}* `{self.name}`: {self.value}"
 
 
 @dataclass
