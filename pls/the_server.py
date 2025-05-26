@@ -557,6 +557,49 @@ class PLS(LanguageServer):
 
         return result
 
+    def in_possible_signature_help(self, node:Node): 
+        def count_arguments(arglist):
+            c = arglist.children
+            for i in range(len(c)-1,-1,-1):
+                if c[i].type == 'arg_list_separator' or  c[i].type == 'ERROR' and c[i].child(0).type == 'arg_list_separator' :
+                    return (i // 2) + 1
+            return 0
+
+        def is_functional_notation(node):
+            # (functional_notation function: (atom) (open) (arg_list(variable_term)) (ERROR(arg_list_separator(comma))) (close))
+            a = node.type =='close' and node.parent.type == 'functional_notation'
+            #functional_notation function: (atom) (open) (arg_list (variable_term) (arg_list_separator (comma)) (variable_term))
+            b = node.type == 'comma' and node.parent.type == 'arg_list_separator' and node.parent.parent.type == 'arg_list' and node.parent.parent.parent.type == 'functional_notation'
+            return a or b
+
+        if node.type == 'open' and node.prev_sibling and node.prev_sibling.type == 'atom':
+            predicate_name = bytes.decode(node.prev_sibling.text,'utf-8')
+            return True,predicate_name,0
+        
+        if is_functional_notation(node):
+            children = list(node.children)
+            atom = children[0]
+            arg_list = children[2]
+            logging.error(f"{arg_list}")
+            logging.error(f"{list(arg_list.children)}")
+            return True, bytes.decode(atom.text,'utf-8'), count_arguments(arg_list)
+        if node.type == 'comma' and node.parent.type == 'arg_list_separator' and node.parent.parent.type == 'arg_list':
+            arg_list = node.parent.parent
+            paren = arg_list.prev_sibling
+            atom = paren.prev_sibling
+            logging.error(f"{arg_list}")
+            logging.error(f"{paren}")
+            logging.error(f"{atom}")
+            if paren.type == 'open' and atom.type =='atom':
+                logging.error(len(arg_list.children))
+                logging.error(list(arg_list.children))
+                return True, bytes.decode(atom.text,'utf-8'), count_arguments(arg_list)
+        # (atom) (open) (variable_term) (arg_list_separator (comma)))
+        if node.type == 'comma' and node.parent.type == 'arg_list_separator' and node.parent.prev_sibling.prev_sibling.type == 'open' and node.parent.prev_sibling.prev_sibling.prev_sibling.type == 'atom':
+            atom = node.parent.prev_sibling.prev_sibling.prev_sibling
+            return True, bytes.decode(atom.text,'utf-8'), 1
+
+        return False,None,None
     def signature_help_proposals(self, document: TextDocument, position: types.Position):
         if document.uri not in self.tables:
             return []
@@ -565,17 +608,15 @@ class PLS(LanguageServer):
         table = self.tables[document.uri]
         scope = scope_at_position(tree.root_node, table, position)
         node = node_at_position(tree.root_node,position)
+        logging.error(f"{node} {node.type}")
         vp = self.transform_in_variable_or_predicate(node,position,document.uri)
-        is_functor = node.type == 'open' and node.prev_sibling and node.prev_sibling.type == 'atom'
+        is_functor, predicate_name, active_parameter = self.in_possible_signature_help(node)
         if not is_functor:
             return []
 
-        predicate_name = bytes.decode(node.prev_sibling.text,'utf-8')
-
+        logging.error(f"Signature Help for  {predicate_name} in parameter: {active_parameter}")
         with_matchin_name = table.get_predicates_that_match(predicate_name)
 
-        
-        active_parameter = 0
         signatures = []
         for predicate in with_matchin_name:
             signature = descriptions.signature_information(predicate,active_parameter)

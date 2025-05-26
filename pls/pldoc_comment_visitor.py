@@ -62,9 +62,7 @@ class PlDocComment:
 
     def parameter_description(self, name: str)-> list[Tag]:
         tags = []
-        logging.error(f"Looking for : {name}")
         for tag in self.tags:
-            logging.error(f": {tag.name}")
             # tag.name[1:] is because of the instantiation operator
             if tag.type == "arg" or tag.type == "param" and (tag.name == name or tag.name[1:] == name):
                 tags.append(tag)
