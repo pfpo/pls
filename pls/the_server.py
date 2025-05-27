@@ -1,4 +1,5 @@
 from pygls.server import LanguageServer
+from collections import defaultdict
 from lsprotocol import types
 from pygls.workspace import TextDocument
 import time
@@ -63,7 +64,8 @@ class PLS(LanguageServer):
         self.original_tables:dict[str, SymbolTable] = {}
         self.comment_trees : dict[str,Annotations] = {}
         self.dg = DependencyGraphManager()
-        self.trees: map[str, Tree] = {}
+        self.trees: dict[str, Tree] = {}
+        self.fixes :dict[str,list[types.CodeAction]]= defaultdict(list)
         self.files = []
         self.cycles = []
         self.builtin_uri = path_to_file_uri(
@@ -100,7 +102,13 @@ class PLS(LanguageServer):
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
         analysis = UnusedVariablePass(table)
+        logging.error(f"{table.path}")
+        logging.error(f"{analysis.fixes}")
+        logging.error(f"{self.fixes}")
         analysis.start(tree.root_node)
+        fixes = self.fixes[table.path]
+        fixes.extend(analysis.fixes)
+        self.fixes[table.path] = fixes
         return analysis.reports
 
     def undefined_predicate(
@@ -155,6 +163,7 @@ class PLS(LanguageServer):
             self.diagnostics[document.uri] = (document.version, new_diagnostics)
 
     def run_analysis(self, document: TextDocument):
+        self.fixes[document.uri] =[]
         table = self.tables.get(document.uri)
 
         if (
@@ -738,3 +747,13 @@ def prepare_rename(ls:PLS, params: types.PrepareRenameParams):
     doc = params.text_document
     position = params.position
     return ls.is_renamable(doc,position)
+
+
+
+@server.feature(
+    types.TEXT_DOCUMENT_CODE_ACTION,
+    types.CodeActionOptions(code_action_kinds=[types.CodeActionKind.QuickFix]),
+)
+def code_actions(ls:PLS,params: types.CodeActionParams):
+    logging.error("Code actions Request")
+    return ls.fixes[params.text_document.uri]
