@@ -28,9 +28,6 @@ HEllo My baby
 parse_problem_with_cliques(File,NWorker,Jobs,WorkersPerJob,MinNumWorkers,Cliques):-
     call_python(['./shift_problem/bin/parse_problem.py',' ',File,' ','cliques'],Lines),
     parse_at(Lines,0,codes_to_number,NWorker),
-    parse_at(Lines,1,codes_to_list,Jobs),
-    parse_at(Lines,2,codes_to_list,WorkersPerJob),
-    parse_at(Lines,3,codes_to_number,MinNumWorkers),
     parse_at(Lines,4,codes_to_list,Cliques).
 
 %!    filter_indices(+Indices, +OriginalList, -Result)
