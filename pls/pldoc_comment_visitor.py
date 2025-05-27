@@ -3,7 +3,8 @@ from .model import Term
 from .tree_visitor import TreeVisitor
 from dataclasses import dataclass
 from .my_logging import logging
-
+from lsprotocol import types
+from .utils import node_to_range
 
 @dataclass
 class Tag:
@@ -26,11 +27,12 @@ class Arg:
 
 
 class Template(Term):
-    def __init__(self, name, args: list[Arg], text):
+    def __init__(self, name, args: list[Arg], text,name_range:types.Range):
         super().__init__(name)
         self.args = args
         self.arity = len(args)
         self.text = text
+        self.name_range :types.Range = name_range
 
 
 @dataclass
@@ -154,13 +156,15 @@ class PlDocVisitor(TreeVisitor):
 
     def visit_functor(self, node: Node):
         predicate_name = ""
+        name_range = None
         args = []
         for child in node.named_children:
             if child.type == "functor":
                 predicate_name = self.get_text(child)
+                name_range = node_to_range(child)
             elif child.type == "arg_spec":
                 args.append(self.visit(child))
-        self.templates.append(Template(predicate_name, args, text=self.get_text(node)))
+        self.templates.append(Template(predicate_name, args, text=self.get_text(node),name_range=name_range))
 
     def visit_description(self, node: Node):
         text = self.pl_tag_text(node)
