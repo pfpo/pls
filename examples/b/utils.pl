@@ -511,3 +511,15 @@ parse_cmd_args(StatisticsFile,Timeout,Tests):- get_argv([StatisticsFile,TimeoutD
 parse_cmd_test_list([],[]).
 parse_cmd_test_list([FileName,AbsPath|Rest],[FileName-AbsPath|Tests]):-
     parse_cmd_test_list(Rest,Tests).
+
+%!    filter_indices(+Indices, +OriginalList, -Result)
+%
+%     Extracts elements from OriginalList at the given indices.
+%
+%     @param Indices       List of indices to extract.
+%     @param OriginalList  The source list.
+%     @param Result        List of extracted elements.
+filter_indices([],_,[]).
+filter_indices([I|IS],List,[E|ES]):-
+    list_at(List,I,E),
+    filter_indices(IS,List,ES).
