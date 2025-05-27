@@ -58,24 +58,17 @@ class Markup:
                 p = types.ParameterInformation(
                     label = arg.name,
                     documentation=types.MarkupContent(types.MarkupKind.Markdown,pl_comment.parameter_description(arg.name)),
-                    # documentation=types.MarkupContent(types.MarkupKind.Markdown,arg.name),
                 )
                 param_info.append(p)
             
             return types.SignatureInformation(
                 label=element.key(),
+                active_parameter=parameter,
                 documentation= types.MarkupContent(types.MarkupKind.Markdown,pl_comment.to_markdown_without_parameters()),
                 parameters=param_info,
             )
 
-        
-    
-        else:
-            return None
-
-        return types.SignatureInformation(
-
-        )
+        return None
 
 
     def predicate_description(self, element: Predicate):

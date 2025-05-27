@@ -670,14 +670,10 @@ def document_links(ls: PLS, params: types.DocumentLinkParams):
 def completions(ls: PLS, params: types.CompletionParams):
     document = server.workspace.get_document(params.text_document.uri)
     r = ls.send_completions(document, params.position)
-    # logging.error(f"Completions result: {type(result)}")
-    logging.error(f"Completions result: {r}")
     return r
 
 @server.feature(types.TEXT_DOCUMENT_SIGNATURE_HELP, types.SignatureHelpOptions(trigger_characters=['(',',']))
 def signature_help(ls:PLS, params: types.SignatureHelpParams):
     doc = ls.workspace.get_document(params.text_document.uri)
     r = ls.signature_help_proposals(doc,params.position)
-    # Build response
-    logging.error(f"Completions result: {r}")
     return r
