@@ -26,24 +26,10 @@ HEllo My baby
 %     @param MinNumWorkers    Minimum number of workers required (size of largest clique).
 %     @param Cliques          List of cliques (mutually exclusive jobs).
 parse_problem_with_cliques(File,NWorker,Jobs,WorkersPerJob,MinNumWorkers,Cliques):-
-    call_python(['./shift_problem/bin/parse_problem.py',' ',File,' ','cliques'],Lines),
-    parse_at(Lines,0,codes_to_number,NWorker),
-    parse_at(Lines,1,codes_to_list,Jobs),
-    parse_at(Lines,2,codes_to_list,WorkersPerJob),
-    parse_at(Lines,3,codes_to_number,MinNumWorkers),
-    parse_at(Lines,4,codes_to_list,Cliques).
+    call_python(['./shift_problem/bin/parse_problem.py',' ',File,' ','cliques'],MyLiben),
+    parse_at(MyLiben,0,codes_to_number,NWorker),
+    parse_at(MyLiben,4,codes_to_list,Cliques).
 
-%!    filter_indices(+Indices, +OriginalList, -Result)
-%
-%     Extracts elements from OriginalList at the given indices.
-%
-%     @param Indices       List of indices to extract.
-%     @param OriginalList  The source list.
-%     @param Result        List of extracted elements.
-filter_indices([],_,[]).
-filter_indices([I|IS],List,[E|ES]):-
-    list_at(List,I,E),
-    filter_indices(IS,List,ES).
 
 %!    post_all_distinct(+Ms, +Cliques)
 %

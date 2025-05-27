@@ -382,6 +382,7 @@ class PLS(LanguageServer):
             return None
         table = self.tables[uri]
         if node.type == "variable_term":
+            return table.notes[node]
             # TODO
             # scopes = table.scopes
             # for _key, scope in scopes.items():
@@ -586,6 +587,50 @@ class PLS(LanguageServer):
         )
 
 
+    def rename_edits(self, document:TextDocument, position:types.Position,new_name:str):
+        tree = self.trees.get(document.uri, (0, None))[1]
+        if tree is None:
+            return None
+
+        element: Variable | Predicate | None = self.discover_node(tree, position,document.uri)
+
+        if element is None:
+            return None
+
+        changes : dict[str,list[types.TextEdit]] ={}
+        def add_edit(changes,name,location:types.Location):
+            if location.uri not in changes:
+                changes[location.uri] =  []
+            
+            changes[location.uri].append( types.TextEdit(
+                new_text=name,
+                range=location.range
+            ))
+
+        locations_to_rename = []
+        if type(element) is Variable:
+            locations_to_rename = element.references 
+        elif type(element) is Predicate:
+            locations_to_rename = element.name_references
+
+        for location in locations_to_rename:
+            add_edit(changes,new_name,location)
+        
+
+        logging.error(f"{changes}")
+        return types.WorkspaceEdit(changes)
+
+
+    def is_renamable(self, document:TextDocument, position:types.Position):
+
+        tree = self.trees.get(document.uri, (0, None))[1]
+        if tree is None:
+            return None
+
+        element: Variable | Predicate | None = self.discover_node(tree, position,document.uri)
+
+        return types.PrepareRenameDefaultBehavior(default_behavior=(element is not None))
+
 
 server = PLS("prolog-server", "v0.0.1")
 
@@ -677,3 +722,19 @@ def signature_help(ls:PLS, params: types.SignatureHelpParams):
     doc = ls.workspace.get_document(params.text_document.uri)
     r = ls.signature_help_proposals(doc,params.position)
     return r
+@server.feature(types.TEXT_DOCUMENT_RENAME)
+def rename(ls:PLS, params: types.RenameParams):
+    """Rename the symbol at the given position."""
+    doc = params.text_document
+    position = params.position
+    new_name = params.new_name
+    return ls.rename_edits(doc,position,new_name)
+
+
+@server.feature(types.TEXT_DOCUMENT_PREPARE_RENAME)
+def prepare_rename(ls:PLS, params: types.PrepareRenameParams):
+    """Called by the client to determine if renaming the symbol at the given location
+    is a valid operation."""
+    doc = params.text_document
+    position = params.position
+    return ls.is_renamable(doc,position)

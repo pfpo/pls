@@ -145,6 +145,7 @@ class PrologVisitor(TreeVisitor):
                 p = self.get_predicate(f)
                 self.notes[node] = p
                 p.add_reference(self.uri, node)
+                p.add_name_reference(self.uri,atom)
                 if is_parameter_definition:
                     opts = self.un_set_parameter_definitions(opts)
                 return f
@@ -316,6 +317,12 @@ class PrologVisitor(TreeVisitor):
             for template in pldoc.templates:
                 predicate = self.get_predicate(template)
                 predicate.comments.append(pldoc)
+                name_range = template.name_range
+                name_range.start.line += node.start_point.row
+                name_range.end.line += node.start_point.row
+                predicate.name_references.append(
+                    types.Location(uri=self.uri,range=name_range),
+                )
         else:
             self.comments.append(bytes.decode(node.text, "utf-8"))
         return

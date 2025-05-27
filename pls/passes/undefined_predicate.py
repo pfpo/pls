@@ -37,7 +37,8 @@ class UndefinedPredicate(TreeVisitor):
     def visit_functional_notation(self, node: Node):
         if self.table is None:
             return
-        predicate = self.table.notes[node]
+        may_be_old_predicate = self.table.notes[node]
+        predicate = self.table.predicate_index[may_be_old_predicate.key()]
         if predicate is None or type(predicate) is not Predicate:
             return
         undefined, new_predicate = self.is_undefined(predicate)
@@ -52,6 +53,8 @@ class UndefinedPredicate(TreeVisitor):
             )
             self.reports.append(report)
         elif predicate is not new_predicate:
+            self.table.predicate_index
             new_predicate.references.extend(predicate.references)
+            new_predicate.name_references.extend(predicate.name_references)
             self.table.notes[node] = new_predicate
             self.table.predicate_index[predicate.key()] = new_predicate
