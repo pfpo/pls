@@ -24,11 +24,15 @@ class Predicate(Term):
         self.clauses: list[Clause] = []
         self.uri = ""
         self.references: list[types.Location] = []
+        self.name_references: list[types.Location] = []
         self.comments = []
         self.scopes: list["Scope"] = []
 
     def add_reference(self, uri: str, node: Node):
         self.references.append(node_to_location(uri, node))
+
+    def add_name_reference(self, uri: str, node: Node):
+        self.name_references.append(node_to_location(uri, node))
 
     def add_definition(self, uri: str, node: Node):
         r = node_to_location(uri, node)

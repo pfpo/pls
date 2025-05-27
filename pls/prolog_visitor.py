@@ -145,6 +145,7 @@ class PrologVisitor(TreeVisitor):
                 p = self.get_predicate(f)
                 self.notes[node] = p
                 p.add_reference(self.uri, node)
+                p.add_name_reference(self.uri,atom)
                 if is_parameter_definition:
                     opts = self.un_set_parameter_definitions(opts)
                 return f
