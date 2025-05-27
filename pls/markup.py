@@ -1,7 +1,7 @@
 from tree_sitter import Node
 from .model import Predicate, Variable
 from .pldoc_comment_visitor import PlDocComment
-
+from lsprotocol import types
 
 class Markup:
 
@@ -41,6 +41,35 @@ class Markup:
 
         template = f"{predicate.name}(" + ",".join("${"+str(i+1) + ":"+   a+"}" for i,a in enumerate(arg_names))  +   ")"
         return template
+
+    def signature_information(self, element: Predicate,parameter:int)-> types.SignatureInformation:
+        other_comments = []
+        for c in element.comments:
+            if type(c) is not str:
+                other_comments.append(c)
+        if len(other_comments) > 0:
+            pl_comment = other_comments[0]
+            templates= pl_comment.templates_with_arity(element.arity)
+            if len(templates) == 0:
+                return None
+            template = templates[0]
+            param_info = []
+            for arg in template.args:
+                p = types.ParameterInformation(
+                    label = arg.name,
+                    documentation=types.MarkupContent(types.MarkupKind.Markdown,pl_comment.parameter_description(arg.name)),
+                )
+                param_info.append(p)
+            
+            return types.SignatureInformation(
+                label=element.key(),
+                active_parameter=parameter,
+                documentation= types.MarkupContent(types.MarkupKind.Markdown,pl_comment.to_markdown_without_parameters()),
+                parameters=param_info,
+            )
+
+        return None
+
 
     def predicate_description(self, element: Predicate):
         string_comments = []

@@ -4,7 +4,8 @@ from .the_server import server, MyDoc
 from .my_logging import logging, old_print, print
 from .dependency_graph import DependencyGraphManager
 from .utils import add_paths, path_to_file_uri, Path
-
+from dataclasses import dataclass
+from .matching_signature_help import MT
 
 def main():
     server.start_io()
@@ -15,6 +16,13 @@ def rec_print(node: Node, tab=0):
     print(f"{'  ' * tab}{node.type} - {log(node)}")
     for child in node.children:
         rec_print(child, tab + 1)
+
+@dataclass
+class N:
+    type : str = ""
+    parent : "N" = None
+    prev_sibling : "N" = None
+
 
 
 def debug():
@@ -51,7 +59,6 @@ def debug():
                 print(p)
                 print(f"This module includes: {add_paths(uri, p)}")
 
-    # print(server.hover(server.trees[uri],types.Position(character=7,line=0),uri))
 
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"

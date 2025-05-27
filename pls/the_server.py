@@ -10,6 +10,7 @@ from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 from copy import deepcopy
 
+from.matching_signature_help import in_possible_signature_help
 from .model import Functor, Variable, Predicate, SymbolTable, scope_at_position, Scope
 from .utils import (
     node_at_position,
@@ -143,12 +144,12 @@ class PLS(LanguageServer):
 
     def add_diagnostics(self, document: TextDocument, diagnostics: list):
         if document.uri not in self.diagnostics:
-            logging.error(f"Deleting warnings")
+            # logging.error(f"Deleting warnings")
             self.diagnostics[document.uri] = (document.version, diagnostics)
         else:
             version, new_diagnostics = self.diagnostics[document.uri]
             if version != document.version:
-                logging.error(f"Deleting warnings")
+                # logging.error(f"Deleting warnings")
                 new_diagnostics = []
             new_diagnostics.extend(diagnostics)
             self.diagnostics[document.uri] = (document.version, new_diagnostics)
@@ -182,6 +183,7 @@ class PLS(LanguageServer):
             scopes=prolog_visitor.scopes,
             notes=prolog_visitor.notes,
             predicate_index=prolog_visitor.predicate_index,
+            predicate_index_by_name =prolog_visitor.predicate_index_by_name,
             builtins=None,
             imports={},
             consults={},
@@ -236,7 +238,7 @@ class PLS(LanguageServer):
 
     def shallow_parse(self, document: TextDocument):
         reparse, reason = self.should_reparse(document)
-        logging.error(f"{reason}")
+        # logging.error(f"{reason}")
         if reparse:
             self._parse(document)
         else:
@@ -245,9 +247,9 @@ class PLS(LanguageServer):
         c = ConsultPaths(self.tables, self.dg)
         consult_warnings, available_paths = c.analyse(document.uri)
         self.cycles.extend(c.cycles)
-        logging.error(f"Consult Warnings: {consult_warnings}")
+        # logging.error(f"Consult Warnings: {consult_warnings}")
         if document.uri not in self.diagnostics:
-            logging.error(f"Deleting warnings")
+            # logging.error(f"Deleting warnings")
             self.diagnostics[document.uri] = (document.version, [])
         self.diagnostics[document.uri][1].extend(consult_warnings)
 
@@ -281,22 +283,22 @@ class PLS(LanguageServer):
         self.diagnostics[document.uri] = (document.version, [])
 
     def start_parse_chain(self, document: TextDocument):
-        logging.error(
-            f"Parse Chain triggered by: {document.filename}:v{document.version}"
-        )
+        # logging.error(
+        #     f"Parse Chain triggered by: {document.filename}:v{document.version}"
+        # )
         self.cycles = []
         self.build_dependency_graph([document.uri])
         cp = ConsultPaths(self.tables, self.dg)
         cycles = self.dg.get_cycles()
-        logging.error(f"CYCLES: {cycles}")
+        # logging.error(f"CYCLES: {cycles}")
         chain = self.dg.get_files_to_analyse(document.uri)
 
         cycle_reports: dict[str, list] = {}
         for cycle in cycles:
             cp.build_cyclic_consult_reports(cycle)
 
-        logging.error(f"Parse Chain of {document.filename}: {chain}")
-        logging.error(f"{self.dg.dg}")
+        # logging.error(f"Parse Chain of {document.filename}: {chain}")
+        # logging.error(f"{self.dg.dg}")
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
@@ -322,7 +324,7 @@ class PLS(LanguageServer):
         async def report_hook(i, total):
             if total == 0:
                 total = 1
-            logging.error(f"Parsed {i}/{total}")
+            # logging.error(f"Parsed {i}/{total}")
             if i % 5 == 0 or i == total - 1:
                 percent = int((i + 1) / total * 100)
                 self.progress.report(
@@ -345,7 +347,7 @@ class PLS(LanguageServer):
             )
             await asyncio.sleep(0)
         # End
-        logging.error(f"{self.dg.dg}")
+        # logging.error(f"{self.dg.dg}")
         self.progress.end(token, types.WorkDoneProgressEnd(message="Finished"))
 
     def parse_assuming_dependencies_are_handled(self, document: TextDocument):
@@ -355,7 +357,7 @@ class PLS(LanguageServer):
         file_deps = self.dg.get_file(document.uri)
 
         for file in file_deps.includes.values():
-            logging.error(f"File: {document.filename} depends on {file.name}")
+            # logging.error(f"File: {document.filename} depends on {file.name}")
             if file.uri not in self.tables:
                 logging.error(
                     f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled"
@@ -365,10 +367,10 @@ class PLS(LanguageServer):
                 symbol_table.consults[file.uri] = consult_table
 
         self.run_analysis(document)
-        logging.error(f"Finished Analysis of {document.filename}")
-        logging.error(
-            f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"
-        )
+        #logging.error(f"Finished Analysis of {document.filename}")
+        #logging.error(
+        #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"
+        #)
 
     def parse_with_dependencies(self, document: TextDocument):
         self.start_parse_chain(document)
@@ -537,7 +539,7 @@ class PLS(LanguageServer):
 
         
         for predicate in available_predicates:
-            logging.error(f"{predicate}{type(predicate)}")
+            # logging.error(f"{predicate}{type(predicate)}")
 
             content = descriptions.predicate_description(predicate)
             template =descriptions.predicate_template(predicate)
@@ -555,6 +557,34 @@ class PLS(LanguageServer):
             )
 
         return result
+
+    def signature_help_proposals(self, document: TextDocument, position: types.Position):
+        if document.uri not in self.tables:
+            return []
+
+        tree = self.trees[document.uri][1]
+        table = self.tables[document.uri]
+        node = node_at_position(tree.root_node,position)
+        logging.error(f"{node} {node.type}")
+        is_functor, predicate_name, active_parameter = in_possible_signature_help(node)
+
+        if not is_functor:
+            return []
+
+        logging.error(f"Signature Help for  {predicate_name} in parameter: {active_parameter}")
+        with_matchin_name = table.get_predicates_that_match(predicate_name)
+
+        signatures = []
+        for predicate in with_matchin_name:
+            signature = descriptions.signature_information(predicate,active_parameter)
+            signatures.append(signature)
+
+        return types.SignatureHelp(
+            signatures=signatures,
+            active_signature=0,
+            active_parameter=active_parameter,
+        )
+
 
 
 server = PLS("prolog-server", "v0.0.1")
@@ -640,6 +670,10 @@ def document_links(ls: PLS, params: types.DocumentLinkParams):
 def completions(ls: PLS, params: types.CompletionParams):
     document = server.workspace.get_document(params.text_document.uri)
     r = ls.send_completions(document, params.position)
-    # logging.error(f"Completions result: {type(result)}")
-    logging.error(f"Completions result: {r}")
+    return r
+
+@server.feature(types.TEXT_DOCUMENT_SIGNATURE_HELP, types.SignatureHelpOptions(trigger_characters=['(',',']))
+def signature_help(ls:PLS, params: types.SignatureHelpParams):
+    doc = ls.workspace.get_document(params.text_document.uri)
+    r = ls.signature_help_proposals(doc,params.position)
     return r

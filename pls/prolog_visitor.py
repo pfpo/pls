@@ -20,7 +20,8 @@ class Opts:
 class PrologVisitor(TreeVisitor):
     def __init__(self, uri: str):
         super().__init__()
-        self.predicate_index = {}
+        self.predicate_index : dict[str, Predicate]= {}
+        self.predicate_index_by_name : dict[str,set[str]] = {}
         self.uri = uri
 
         self.notes = Annotations()
@@ -65,7 +66,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("comma", self.visit_binary_operator)
         self.add_visit("arg_list", self.visit_arg_list)
 
-        ignore = ["open", "end"]
+        ignore = ["open", "end","comma","arg_list_separator"]
         for t in ignore:
             self.add_visit(t, self.ignore)
 
@@ -322,5 +323,9 @@ class PrologVisitor(TreeVisitor):
     def get_predicate(self, t: Term) -> Predicate:
         key = t.key()
         if key not in self.predicate_index:
-            self.predicate_index[key] = Predicate(t.name, t.arity)
+            self.predicate_index[key] =Predicate(t.name, t.arity)
+        if t.name not in self.predicate_index_by_name:
+            self.predicate_index_by_name[t.name] = set()
+        self.predicate_index_by_name[t.name].add(key)
+
         return self.predicate_index[key]

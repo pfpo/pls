@@ -81,6 +81,7 @@ class Scope:
 class SymbolTable:
     scopes: dict[str, Scope]
     predicate_index: dict[str, Predicate]
+    predicate_index_by_name : dict[str,set[str]] 
     path: str
     notes: Annotations
     builtins: "SymbolTable"
@@ -88,16 +89,40 @@ class SymbolTable:
     consults: dict["str", "SymbolTable"]
     consult_paths: dict[str, list[types.Location]]
 
-    def find_predicate_not_in_builtins(self, predicate: Predicate):
-        p = self.predicate_index.get(predicate.key())
+    def find_predicate_not_in_builtins(self,key:str):
+        p = self.predicate_index.get(key)
         if p is not None and len(p.definitions) > 0:
             return p
 
         for table in self.consults.values():
-            if consulted_predicate := table.find_predicate_not_in_builtins(predicate):
+            if consulted_predicate := table.find_predicate_not_in_builtins(key):
                 return consulted_predicate
         return None
 
+    def get_predicates_that_match(self,name:str)->list[Predicate]:
+        tables = [self]
+        tables.extend(self.consults.values())
+    
+        available_keys = set()
+    
+        predicates = []
+        for t in tables:
+            available_keys.update(t.predicate_index_by_name.get(name,[]))
+
+        for key in available_keys:
+            p = self.find_predicate_not_in_builtins(key)
+            if p and len(p.definitions) > 0:
+                predicates.append(p)
+
+        if self.builtins:
+            builtin_keys = set()
+            builtin_keys.update(self.builtins.predicate_index_by_name.get(name,[]))
+
+        
+            for key in builtin_keys:
+                p = self.builtins.predicate_index[key]
+                predicates.append(p)
+        return predicates
 
 def scope_at_position(node: Node, table: SymbolTable, p: types.Position):
     in_row_between = node.start_point.row < p.line and node.end_point.row > p.line

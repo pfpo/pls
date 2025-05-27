@@ -1,6 +1,5 @@
 
-:- consult('b.pl').
 
-:- consult('commented_prolog_cliques_distinct.pl').
+:- A , abolish(P,   )
 
-:- ,cliques_distinct(StatisticsFile,TimeoutMinutes,Tests).
+	,write(S,Term).
