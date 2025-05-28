@@ -80,6 +80,24 @@ class Scope:
         self.predicate: None | "Predicate" = None
         # self.node = None
 
+class Signature(Term):
+    def __init__(self, name,arity,loc):
+        super().__init__(name)
+        self.arity = arity
+        self.loc : types.Range = loc
+
+@dataclass
+class ModuleDeclaration:
+    name : str
+    exported : list[Signature]
+    loc : types.Range
+
+
+@dataclass
+class UseModule:
+    name : str
+    imported : list[Signature]
+    loc : types.Range
 
 @dataclass
 class SymbolTable:
@@ -152,3 +170,13 @@ def scope_at_position(node: Node, table: SymbolTable, p: types.Position):
         if possible is not None:
             return possible
     return None
+
+
+def string_from_atom(atom_string: str) -> str:
+    if (
+        len(atom_string) >= 2
+        and atom_string[0] == "'"
+        and atom_string[-1] == "'"
+    ):
+        return atom_string[1:-1]
+    return atom_string

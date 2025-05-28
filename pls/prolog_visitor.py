@@ -1,6 +1,6 @@
 from tree_sitter import Node, Parser, Language
-from .model import Term, Functor, Predicate, Variable, Scope
-from .utils import node_to_location, node_and_parent_with_text
+from .model import Signature, Term, Functor, Predicate, Variable, Scope, string_from_atom, ModuleDeclaration,UseModule
+from .utils import node_to_location, node_and_parent_with_text, node_to_range
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 import tree_sitter_pldoc as pldoc
@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from lsprotocol import types
 from collections import defaultdict
 from .pldoc_comment_visitor import PlDocVisitor
-
+from .my_logging import logging
 
 @dataclass
 class Opts:
@@ -32,6 +32,9 @@ class PrologVisitor(TreeVisitor):
 
         self.consult_paths: dict[str, list[types.Location]] = defaultdict(list)
         self.comment_parser = Parser(Language(pldoc.language()))
+
+        self.used_modules : list[UseModule] = []
+        self.module_declarations : list[ModuleDeclaration] = []
 
         self.all_comments = []
         self.comments = []
@@ -267,34 +270,88 @@ class PrologVisitor(TreeVisitor):
             return functor.name == "consult" and len(functor.args) == 1
 
         def is_use_module(functor: Functor) -> bool:
-            return False
+            return functor.name == "use_module"
 
-        def string_from_atom(atom_string: str) -> str:
-            if (
-                len(atom_string) >= 2
-                and atom_string[0] == "'"
-                and atom_string[-1] == "'"
-            ):
-                return atom_string[1:-1]
-            return atom_string
+        def is_module(functor: Functor) -> bool:
+            return functor.name == "module"
+
 
         for child in node.children:
             if child.type == "functional_notation":
                 functor = self.visit(child, opts)
                 if is_consult(functor):
-                    consult_path = string_from_atom(functor.args[0].name)
-                    functor.args[0].data["link"] = consult_path
-                    self.consult_paths[consult_path].append(
-                        node_to_location(self.uri, child)
-                    )
+                    self.handle_consult(child,functor)
                 elif is_use_module(functor):
                     # TODO: Handle Modules
+                    self.handle_use_module(child,functor)
                     pass
+                elif is_module(functor):
+                    self.handle_module_declaration(child,functor)
             else:
                 self.visit(child, opts)
         self.notes[node] = self.current_scope
         self.save_scope()
         return
+
+    def handle_consult(self, node: Node,functor: Functor):
+        consult_path = string_from_atom(functor.args[0].name)
+        functor.args[0].data["link"] = consult_path
+        self.consult_paths[consult_path].append(
+            node_to_location(self.uri,node)
+        )
+    def handle_use_module(self, node:Node,functor:Functor):
+        name = "" 
+        exported_predicates = []
+        if len(functor.args) >= 1:
+            name = string_from_atom(functor.args[0].name)
+        if len(functor.args) == 2:
+            exported_predicates = functor.args[1]
+            module_args = node.child(2)
+            list_notation = module_args.child(2)
+            exported_predicates = self.visit_signature_list(list_notation)
+
+        m = UseModule(name,exported_predicates,node_to_range(node))
+        self.used_modules.append(m)
+
+    def visit_signature(self,node:Node)->Signature:
+        op = node.child_by_field_name('operator')
+        if node.type != 'operator_notation' and (op is None or op.text != b'/'):
+            return None, False
+        if not(node.child(0).type == 'atom' and node.child(1).type == 'binary_operator' and node.child(2).type == 'integer'):
+            return None, False
+            
+        # TODO Check if integer is less than zero
+        return  Signature(bytes.decode(node.child(0).text),int(bytes.decode(node.child(2).text)),node_to_range(node)),True
+
+    def visit_signature_list(self,node:Node)->list[Signature]:
+        logging.error(f"{node}")
+        children = list(node.children)
+        children = children[1:-1]
+        signatures = []
+        for child in children:
+            if child.type == 'list_notation_separator':
+                continue
+            if child.type == 'operator_notation':
+                signature, succ = self.visit_signature(child)
+                if succ:
+                    signatures.append(signature)
+                else:
+                    # TODO should deal with warnings
+                    pass
+        return signatures
+    def handle_module_declaration(self,node:Node,functor:Functor):
+        name = "" 
+        exported_predicates = []
+        if len(functor.args) >= 1:
+            name = string_from_atom(functor.args[0].name)
+        if len(functor.args) == 2:
+            exported_predicates = functor.args[1]
+            module_args = node.child(2)
+            list_notation = module_args.child(2)
+            exported_predicates = self.visit_signature_list(list_notation)
+
+        m = ModuleDeclaration(name,exported_predicates,node_to_range(node))
+        self.module_declarations.append(m)
 
     def visit_list_notation(self, node: Node, opts: Opts):
         if len(node.children) == 2:
