@@ -311,7 +311,6 @@ class PLS(LanguageServer):
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
-
             cycle_reports = cp.cycle_reports.get(file_name, [])
             self.add_diagnostics(next_document, cycle_reports)
 

@@ -1,0 +1,18 @@
+
+- [ ] Multi file support an index is formed on server startup with all files
+- [ ] Progress update to the user while the project is being indexed
+- [ ] Dependency Graph of files contained in the project
+- [ ] Topologic sort of the dependencies to find correct order of analysis
+- [ ] Consults working
+- [ ] Document Links for consults
+- [ ] Warning File not found in consult
+- [ ] Warning of Circular imports
+- [ ] Undefined Predicate (accross multiple files with consults and builtins)
+- [ ] Go to definition working multiple files
+- [ ] Find references working multiple files
+- [ ] Autocomplete (current file,consults,builtins, scope variables)
+- [ ] Signature Help 
+- [ ] Unused Variable Warning
+- [ ] Quickfix for unused variable
+- [ ] Rename for variables
+- [ ] Rename for predicates (also renames the predicate name in pldoc comment)
