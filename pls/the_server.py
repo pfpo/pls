@@ -373,7 +373,6 @@ class PLS(LanguageServer):
                     f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled"
                 )
             elif dep.is_module:
-                continue 
                 imported_table = self.tables[file.uri]
                 symbol_table.imports[file.uri] = imported_table
             else:

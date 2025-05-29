@@ -123,6 +123,10 @@ class SymbolTable:
         for table in self.consults.values():
             if consulted_predicate := table.find_predicate_not_in_builtins(key):
                 return consulted_predicate
+        
+        for table in self.imports.values():
+            if imported_predicate:= table.find_predicate_not_in_builtins(key):
+                return imported_predicate
         return None
 
     def get_predicates_that_match(self,name:str)->list[Predicate]:
