@@ -30,6 +30,7 @@ from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
+from .passes.modules import MooduleAnalyser
 from .passes.consults import ConsultPaths
 from .dependency_graph import DependencyGraph, DependencyGraphManager
 from .my_logging import logging
@@ -195,9 +196,13 @@ class PLS(LanguageServer):
             predicate_index_by_name =prolog_visitor.predicate_index_by_name,
             builtins=None,
             imports={},
+            imported_signatures= {},
             consults={},
             consult_paths=prolog_visitor.consult_paths,
             module_paths= prolog_visitor.module_paths,
+            module_declarations= prolog_visitor.module_declarations,
+            use_module_declarations= prolog_visitor.used_modules,
+            exported_signatures= set(),
             path=doc.uri,
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees
@@ -307,8 +312,8 @@ class PLS(LanguageServer):
         for cycle in cycles:
             cp.build_cyclic_consult_reports(cycle)
 
-        # logging.error(f"Parse Chain of {document.filename}: {chain}")
-        # logging.error(f"{self.dg.dg}")
+        logging.error(f"Parse Chain of {document.filename}: {chain}")
+        logging.error(f"{self.dg.dg}")
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
@@ -364,22 +369,38 @@ class PLS(LanguageServer):
         symbol_table = self.tables[document.uri]
 
         file_deps = self.dg.get_file(document.uri)
+        extra_reports =[]
 
+        modules_to_include = set()
         for dep in file_deps.includes.values():
             file = dep.file
-            # logging.error(f"File: {document.filename} depends on {file.name}")
+            logging.error(f"File: {document.filename} depends on {file.name}")
             if file.uri not in self.tables:
                 logging.error(
                     f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled"
                 )
             elif dep.is_module:
-                imported_table = self.tables[file.uri]
-                symbol_table.imports[file.uri] = imported_table
+                modules_to_include.add(file.uri)
             else:
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table
 
+
+        m = MooduleAnalyser(document.uri,self.tables)
+        m.analyse_module_declarations()
+        m.analyse_use_module_declarations()
+        symbol_table.exported_signatures = m.exported_signatures
+        logging.error(f"{symbol_table.exported_signatures}")
+        extra_reports.extend(m.reports)
+        logging.error(f"Analysed Module: {document.uri}\n {m.imported_signatures}\n {m.exported_signatures}")
+        for uri in modules_to_include:
+            symbol_table.imported_signatures[uri] = m.imported_signatures[uri]
+            imported_table = self.tables[uri]
+            symbol_table.imports[uri] = imported_table
+
+
         self.run_analysis(document)
+        self.add_diagnostics(document,extra_reports)
         #logging.error(f"Finished Analysis of {document.filename}")
         #logging.error(
         #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"

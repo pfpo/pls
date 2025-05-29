@@ -110,10 +110,17 @@ class SymbolTable:
     builtins: "SymbolTable"
 
     imports: dict["str", "SymbolTable"]
+    imported_signatures: dict["str",set[str]]
     module_paths: dict[str, list[types.Location]]
 
     consults: dict["str", "SymbolTable"]
     consult_paths: dict[str, list[types.Location]]
+
+    module_declarations: list[ModuleDeclaration]
+    use_module_declarations: list[UseModule]
+
+    exported_signatures : set[str]
+
 
     def find_predicate_not_in_builtins(self,key:str):
         p = self.predicate_index.get(key)
@@ -124,9 +131,10 @@ class SymbolTable:
             if consulted_predicate := table.find_predicate_not_in_builtins(key):
                 return consulted_predicate
         
-        for table in self.imports.values():
-            if imported_predicate:= table.find_predicate_not_in_builtins(key):
-                return imported_predicate
+        for module_path , key_set in self.imported_signatures.items():
+            if key in key_set:
+                if imported_predicate:= self.imports[module_path].find_predicate_not_in_builtins(key):
+                    return imported_predicate
         return None
 
     def get_predicates_that_match(self,name:str)->list[Predicate]:
