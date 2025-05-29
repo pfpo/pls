@@ -197,6 +197,7 @@ class PLS(LanguageServer):
             imports={},
             consults={},
             consult_paths=prolog_visitor.consult_paths,
+            module_paths= prolog_visitor.module_paths,
             path=doc.uri,
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees
@@ -364,12 +365,17 @@ class PLS(LanguageServer):
 
         file_deps = self.dg.get_file(document.uri)
 
-        for file in file_deps.includes.values():
+        for dep in file_deps.includes.values():
+            file = dep.file
             # logging.error(f"File: {document.filename} depends on {file.name}")
             if file.uri not in self.tables:
                 logging.error(
                     f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled"
                 )
+            elif dep.is_module:
+                continue 
+                imported_table = self.tables[file.uri]
+                symbol_table.imports[file.uri] = imported_table
             else:
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table

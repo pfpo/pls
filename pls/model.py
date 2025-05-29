@@ -106,8 +106,12 @@ class SymbolTable:
     predicate_index_by_name : dict[str,set[str]] 
     path: str
     notes: Annotations
+
     builtins: "SymbolTable"
+
     imports: dict["str", "SymbolTable"]
+    module_paths: dict[str, list[types.Location]]
+
     consults: dict["str", "SymbolTable"]
     consult_paths: dict[str, list[types.Location]]
 

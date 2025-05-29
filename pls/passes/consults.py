@@ -14,7 +14,16 @@ class ConsultPaths:
         self.cycles = []
 
     def add_missing_file_report(self, uri, consult_path, l: types.Location):
-        message = f"File Not Founed {consult_path}-> {add_paths(uri, consult_path)}"
+        message = f"File Not Found {consult_path}-> {add_paths(uri, consult_path)}"
+        report = types.Diagnostic(
+            message=message,
+            severity=types.DiagnosticSeverity.Warning,
+            range=l.range,
+        )
+        return report
+
+    def add_missing_file_report_for_use_module(self, uri, consult_path, l: types.Location):
+        message = f"Consulted Module not Found {consult_path}-> {add_paths(uri, consult_path)}"
         report = types.Diagnostic(
             message=message,
             severity=types.DiagnosticSeverity.Warning,
@@ -64,4 +73,13 @@ class ConsultPaths:
             else:
                 available_paths.add(consult_uri)
                 self.dg.file_includes_other(uri, consult_uri)
+        
+        for relative_path, locations in table.module_paths.items():
+            module_uri = add_paths(uri, relative_path)
+            if not self.dg.file_exists(module_uri):
+                for l in locations:
+                    reports.append(self.add_missing_file_report_for_use_module(uri, relative_path, l))
+            else:
+                available_paths.add(module_uri)
+                self.dg.file_uses_module(uri,module_uri)
         return reports, list(available_paths)

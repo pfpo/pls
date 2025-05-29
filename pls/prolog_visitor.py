@@ -34,6 +34,7 @@ class PrologVisitor(TreeVisitor):
         self.comment_parser = Parser(Language(pldoc.language()))
 
         self.used_modules : list[UseModule] = []
+        self.module_paths: dict[str, list[types.Location]] = defaultdict(list)
         self.module_declarations : list[ModuleDeclaration] = []
 
         self.all_comments = []
@@ -304,6 +305,9 @@ class PrologVisitor(TreeVisitor):
         exported_predicates = []
         if len(functor.args) >= 1:
             name = string_from_atom(functor.args[0].name)
+            self.module_paths[name].append(
+                node_to_location(self.uri,node)
+            )
         if len(functor.args) == 2:
             exported_predicates = functor.args[1]
             module_args = node.child(2)
