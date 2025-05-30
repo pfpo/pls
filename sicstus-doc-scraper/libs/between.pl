@@ -1,3 +1,10 @@
+:- module(between,[
+	between/3,gen_nat/1,
+	gen_int/1,repeat/1,
+	numlist/2,numlist/3,
+	numlist/5
+	]).
+
 %! between(+Lower, +Upper, -Number)
 %
 % is true when Lower, Upper, and Number are integers, and Lower =< Number =< Upper.
