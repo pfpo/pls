@@ -1,3 +1,29 @@
+:- module(lists,[
+		select/3,selectchk/3,append/2,append/5,
+		correspond/4,delete/3,delete/4,is_list/1,
+		keys_and_values/0,last/2,nextto/3,nth0/3,
+		nth1/3,nth0/4,nth1/4,one_longer/2,
+		perm/2,permutation/2,perm2/4,proper_length/2,
+		remove_dups/2,reverse/2,rev/2,same_length/2,
+		same_length/3,select/4,selectchk/4,shorter_list/2,
+		subseq/3,subseq0/2,subseq1/2,sumlist/2,
+		transpose/2,append_length/4,append_length/3,prefix_length/3,
+		proper_prefix_length/3,suffix_length/3,proper_suffix_length/3,rotate_list/3,
+		rotate_list/2,sublist/5,sublist/4,sublist/3,
+		cons/3,last/3,head/2,tail/2,
+		prefix/2,proper_prefix/2,suffix/2,proper_suffix/2,
+		segment/2,proper_segment/2,cumlist/0,maplist/2,
+		maplist/3,maplist/4,map_product/4,scanlist/3,
+		some/2,some/0,somechk/0,convlist/3,
+		exclude/3,exclude/4,exclude/5,include/3,
+		include/4,include/5,partition/5,group/4,
+		group/5,group/3,ordered/1,ordered/0,
+		max_member/0,min_member/0,select_min/3,select_min/4,
+		select_max/3,select_max/4,increasing_prefix/3,increasing_prefix/4,
+		decreasing_prefix/3,decreasing_prefix/4,clumps/2,keyclumps/2,
+		clumped/2,keyclumped/2
+
+]).
 %!    select(?Element, ?Set, ?Residue)
 %
 %     is true when Set is a list, Element occurs in Set, and Residue is
