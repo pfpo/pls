@@ -164,7 +164,6 @@ class PLS(LanguageServer):
             self.diagnostics[document.uri] = (document.version, new_diagnostics)
 
     def run_analysis(self, document: TextDocument):
-        self.fixes[document.uri] =[]
         table = self.tables.get(document.uri)
 
         if (
@@ -387,6 +386,10 @@ class PLS(LanguageServer):
 
 
         m = MooduleAnalyser(document.uri,self.tables)
+        self.fixes[document.uri] =[]
+        m.add_code_actions()
+        self.fixes[document.uri].extend(m.fixes)
+        
         m.analyse_module_declarations()
         m.analyse_use_module_declarations(modules_to_include)
     
