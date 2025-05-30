@@ -388,19 +388,12 @@ class PLS(LanguageServer):
 
         m = MooduleAnalyser(document.uri,self.tables)
         m.analyse_module_declarations()
-        m.analyse_use_module_declarations()
-        symbol_table.exported_signatures = m.exported_signatures
-        logging.error(f"{symbol_table.exported_signatures}")
-        extra_reports.extend(m.reports)
-        logging.error(f"Analysed Module: {document.uri}\n {m.imported_signatures}\n {m.exported_signatures}")
-        for uri in modules_to_include:
-            symbol_table.imported_signatures[uri] = m.imported_signatures[uri]
-            imported_table = self.tables[uri]
-            symbol_table.imports[uri] = imported_table
+        m.analyse_use_module_declarations(modules_to_include)
+    
 
 
         self.run_analysis(document)
-        self.add_diagnostics(document,extra_reports)
+        self.add_diagnostics(document,m.reports)
         #logging.error(f"Finished Analysis of {document.filename}")
         #logging.error(
         #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"

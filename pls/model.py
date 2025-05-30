@@ -87,17 +87,20 @@ class Signature(Term):
         self.loc : types.Range = loc
 
 @dataclass
-class ModuleDeclaration:
-    name : str
-    exported : list[Signature]
+class Module:
+    uri : str
+    name: str
     loc : types.Range
+    is_library :bool
+
+@dataclass
+class ModuleDeclaration(Module):
+    exported : list[Signature]
 
 
 @dataclass
-class UseModule:
-    name : str
+class UseModule(Module):
     imported : list[Signature]
-    loc : types.Range
 
 @dataclass
 class SymbolTable:

@@ -1,6 +1,6 @@
 from tree_sitter import Node, Parser, Language
 from .model import Signature, Term, Functor, Predicate, Variable, Scope, string_from_atom, ModuleDeclaration,UseModule
-from .utils import node_to_location, node_and_parent_with_text, node_to_range
+from .utils import node_to_location, node_and_parent_with_text, node_to_range,add_paths
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 import tree_sitter_pldoc as pldoc
@@ -302,19 +302,19 @@ class PrologVisitor(TreeVisitor):
         )
     def handle_use_module(self, node:Node,functor:Functor):
         name = "" 
-        exported_predicates = []
+        imported_predicates = []
         if len(functor.args) >= 1:
             name = string_from_atom(functor.args[0].name)
             self.module_paths[name].append(
                 node_to_location(self.uri,node)
             )
         if len(functor.args) == 2:
-            exported_predicates = functor.args[1]
+            imported_predicates = functor.args[1]
             module_args = node.child(2)
             list_notation = module_args.child(2)
-            exported_predicates = self.visit_signature_list(list_notation)
+            imported_predicates = self.visit_signature_list(list_notation)
 
-        m = UseModule(name,exported_predicates,node_to_range(node))
+        m =UseModule(add_paths(self.uri,name),name,node_to_range(node),False,imported_predicates)
         self.used_modules.append(m)
 
     def visit_signature(self,node:Node)->Signature:
@@ -354,7 +354,8 @@ class PrologVisitor(TreeVisitor):
             list_notation = module_args.child(2)
             exported_predicates = self.visit_signature_list(list_notation)
 
-        m = ModuleDeclaration(name,exported_predicates,node_to_range(node))
+        m = ModuleDeclaration(add_paths(self.uri,name),name,node_to_range(node),False,exported_predicates
+                              )
         self.module_declarations.append(m)
 
     def visit_list_notation(self, node: Node, opts: Opts):

@@ -34,18 +34,21 @@ class MooduleAnalyser:
             else:
                 exported_signatures.add(signature.key())
         self.exported_signatures =  exported_signatures
-        
+        self.table.exported_signatures = exported_signatures
 
     
 
-    def analyse_use_module_declarations(self):
+    def analyse_use_module_declarations(self,modules_to_include : set[str]):
         signatures : dict[str,set[str]]= {}
         for module in self.table.use_module_declarations:
-            if module.name in signatures:
+            path = module.uri
+            logging.error(f"{path}")
+            if path not in modules_to_include:
+                continue
+            if path in signatures:
                 logging.error("Duplicated Import")
                 self.add_duplicated_import(module.name,module.loc)
             else:
-                path = add_paths(self.uri,module.name)
                 module_table = self.tables[path]
                 if module.imported is None:
                     signatures[path] = module_table.exported_signatures
@@ -59,6 +62,10 @@ class MooduleAnalyser:
                             self.add_module_does_not_export_signature(module,signature)
                     signatures[path] = correctly_imported
         self.imported_signatures = signatures 
+        for uri in modules_to_include:
+            self.table.imported_signatures[uri] = self.imported_signatures[uri]
+            imported_table = self.tables[uri]
+            self.table.imports[uri] = imported_table
                         
 
     def add_exported_predicate_does_not_exist(self,signature:Signature):
