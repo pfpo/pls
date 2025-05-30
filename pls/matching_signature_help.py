@@ -56,10 +56,10 @@ def is_functional_notation(node):
     return a.state or b.state
 
 def in_possible_signature_help( node:Node): 
-    logging.error(f"Testing if possible signature_help:")
+    # logging.error(f"Testing if possible signature_help:")
     case = "(atom) (open)"
     if MT(node).type('open').prev_sibling().type('atom').state:
-        logging.error(f"{case}")
+        # logging.error(f"{case}")
         predicate_name = bytes.decode(node.prev_sibling.text,'utf-8')
         return True,predicate_name,0
     
@@ -70,7 +70,7 @@ def in_possible_signature_help( node:Node):
         return True, bytes.decode(atom.text,'utf-8'), count_arguments(arg_list)
     case = "(atom) (open) (arg_list (variable_term) (arg_list_separator (comma)) (atom))"
     if MT(node).type('comma').parent().type('arg_list_separator').parent().type('arg_list').state:
-        logging.error(f"{case}")
+        # logging.error(f"{case}")
         arg_list = node.parent.parent
         paren = arg_list.prev_sibling
         atom = paren.prev_sibling
@@ -78,9 +78,9 @@ def in_possible_signature_help( node:Node):
             return True, bytes.decode(atom.text,'utf-8'), count_arguments(arg_list)
     case = "(atom) (open) (variable_term) (arg_list_separator (comma)))"
     if MT(node).type('comma').parent().type('arg_list_separator').prev_sibling().prev_sibling().type('open').prev_sibling().type('atom').state:
-        logging.error(f"{case}")
+        # logging.error(f"{case}")
         atom = node.parent.prev_sibling.prev_sibling.prev_sibling
         return True, bytes.decode(atom.text,'utf-8'), 1
 
-    logging.error(f"Could Not discover predicate name nor current arg")
+    # logging.error(f"Could Not discover predicate name nor current arg")
     return False,None,None

@@ -52,13 +52,12 @@ class MooduleAnalyser:
         exported_signatures = set()
         for signature in self.table.module_declarations[0].exported:
             pred = self.table.predicate_index.get(signature.key())
-            if pred is None or len(pred.definitions) == 0:
+            if pred is None or (len(pred.definitions) == 0  and not any([type(p) is PlDocComment for p in pred.comments])):
                 self.add_exported_predicate_does_not_exist(signature)
             else:
                 exported_signatures.add(signature.key())
         self.exported_signatures =  exported_signatures
         self.table.exported_signatures = exported_signatures
-
     
 
     def analyse_use_module_declarations(self,modules_to_include : set[str]):
@@ -67,12 +66,15 @@ class MooduleAnalyser:
             path = module.uri
             logging.error(f"{path}")
             if path not in modules_to_include:
+                logging.error(f"{path} is not to be included")
                 continue
             if path in signatures:
                 logging.error("Duplicated Import")
                 self.add_duplicated_import(module.name,module.loc)
             else:
                 module_table = self.tables[path]
+                logging.error(f"{module_table}")
+                logging.error(f"{self.uri} includes from Module {path} \n{module_table.exported_signatures}")
                 if module.imported is None:
                     signatures[path] = module_table.exported_signatures
                 else:
@@ -90,6 +92,9 @@ class MooduleAnalyser:
             imported_table = self.tables[uri]
             self.table.imports[uri] = imported_table
                         
+        logging.error(f"Imported Signatures: {self.table.imported_signatures}")
+        logging.error(f"Imported Tables: {self.table.imports}")
+
 
     def add_exported_predicate_does_not_exist(self,signature:Signature):
         message = f"Predicate Does Not Exist {signature.key()}"

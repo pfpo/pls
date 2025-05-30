@@ -302,7 +302,7 @@ class PrologVisitor(TreeVisitor):
         )
     def handle_use_module(self, node:Node,functor:Functor):
         name = "" 
-        imported_predicates = []
+        imported_predicates = None
         is_library = False
         if len(functor.args) >= 1:
             arg0 = functor.args[0]
@@ -310,7 +310,6 @@ class PrologVisitor(TreeVisitor):
                 if len(arg0.args) == 1 and type(arg0.args[0]) is Term:
                     is_library = True
                     name = string_from_atom(arg0.args[0].name)
-                    logging.error(f"{name}")
             else:
                 name = string_from_atom(functor.args[0].name)
 
@@ -331,7 +330,6 @@ class PrologVisitor(TreeVisitor):
         )
 
         m =UseModule(path,name,node_to_range(node),is_library,imported_predicates)
-        logging.error(f"{m}")
         self.used_modules.append(m)
 
     def visit_signature(self,node:Node)->Signature:
@@ -345,7 +343,6 @@ class PrologVisitor(TreeVisitor):
         return  Signature(bytes.decode(node.child(0).text),int(bytes.decode(node.child(2).text)),node_to_range(node)),True
 
     def visit_signature_list(self,node:Node)->list[Signature]:
-        logging.error(f"{node}")
         children = list(node.children)
         children = children[1:-1]
         signatures = []
@@ -355,23 +352,31 @@ class PrologVisitor(TreeVisitor):
             if child.type == 'operator_notation':
                 signature, succ = self.visit_signature(child)
                 if succ:
+                    logging.error(f"Added signature {signature.key()}")
                     signatures.append(signature)
                 else:
+                    logging.error(f"Could not add signature")
                     # TODO should deal with warnings
                     pass
         return signatures
     def handle_module_declaration(self,node:Node,functor:Functor):
         name = "" 
         exported_predicates = []
+        logging.error(f"Visiting Module Declaration \n {functor}")
         if len(functor.args) >= 1:
             name = string_from_atom(functor.args[0].name)
         if len(functor.args) == 2:
-            exported_predicates = functor.args[1]
+            logging.error(f"In module {name}")
             module_args = node.child(2)
             list_notation = module_args.child(2)
+            logging.error(f"{exported_predicates}")
             exported_predicates = self.visit_signature_list(list_notation)
+            logging.error(f"{exported_predicates}")
 
-        m = ModuleDeclaration(add_paths(self.uri,name),name,node_to_range(node),False,exported_predicates
+        path_name = name
+        if not name.endswith('.pl'):
+            path_name = name + '.pl'
+        m = ModuleDeclaration(add_paths(self.uri,path_name),name,node_to_range(node),False,exported_predicates
                               )
         self.module_declarations.append(m)
 
@@ -395,6 +400,7 @@ class PrologVisitor(TreeVisitor):
         if pldoc:
             for template in pldoc.templates:
                 predicate = self.get_predicate(template)
+                predicate.defined_by_comment = True
                 predicate.comments.append(pldoc)
                 name_range = template.name_range
                 name_range.start.line += node.start_point.row

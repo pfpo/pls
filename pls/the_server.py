@@ -103,9 +103,6 @@ class PLS(LanguageServer):
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
         analysis = UnusedVariablePass(table)
-        logging.error(f"{table.path}")
-        logging.error(f"{analysis.fixes}")
-        logging.error(f"{self.fixes}")
         analysis.start(tree.root_node)
         fixes = self.fixes[table.path]
         fixes.extend(analysis.fixes)
@@ -293,6 +290,7 @@ class PLS(LanguageServer):
             if progress_report:
                 await progress_report(len(visited), len(received_uris))
 
+        logging.error(f"{self.dg.dg}")
     def clear_diagnostics(self, document: TextDocument):
         self.diagnostics[document.uri] = (document.version, [])
 
@@ -368,7 +366,6 @@ class PLS(LanguageServer):
         symbol_table = self.tables[document.uri]
 
         file_deps = self.dg.get_file(document.uri)
-        extra_reports =[]
 
         modules_to_include = set()
         for dep in file_deps.includes.values():
@@ -392,6 +389,7 @@ class PLS(LanguageServer):
         
         m.analyse_module_declarations()
         m.analyse_use_module_declarations(modules_to_include)
+        logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
     
 
 
@@ -531,7 +529,6 @@ class PLS(LanguageServer):
         tree = self.trees[document.uri][1]
         table = self.tables[document.uri]
         n = scope_at_position(tree.root_node, table, position)
-        logging.error(f"\n\n\nResult: {n}")
         variables = []
         if n is None:
             return []
@@ -596,13 +593,13 @@ class PLS(LanguageServer):
         tree = self.trees[document.uri][1]
         table = self.tables[document.uri]
         node = node_at_position(tree.root_node,position)
-        logging.error(f"{node} {node.type}")
+        # logging.error(f"{node} {node.type}")
         is_functor, predicate_name, active_parameter = in_possible_signature_help(node)
 
         if not is_functor:
             return []
 
-        logging.error(f"Signature Help for  {predicate_name} in parameter: {active_parameter}")
+        # logging.error(f"Signature Help for  {predicate_name} in parameter: {active_parameter}")
         with_matchin_name = table.get_predicates_that_match(predicate_name)
 
         signatures = []
@@ -647,7 +644,7 @@ class PLS(LanguageServer):
             add_edit(changes,new_name,location)
         
 
-        logging.error(f"{changes}")
+        # logging.error(f"{changes}")
         return types.WorkspaceEdit(changes)
 
 

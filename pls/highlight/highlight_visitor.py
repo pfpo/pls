@@ -55,8 +55,6 @@ class HighlightVisitor(TreeVisitor):
             self.visit_normal_comment(node)
         else:
             self.handle_normal_comment(node)
-            logging.error(f"From pldoc {token}")
-            logging.error(f"Current {self.current_token}")
             self.current_token.line = token.line
 
     def visit_normal_comment(self, node: Node):

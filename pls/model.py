@@ -27,6 +27,7 @@ class Predicate(Term):
         self.name_references: list[types.Location] = []
         self.comments = []
         self.scopes: list["Scope"] = []
+        self.defined_by_comment = False
 
     def add_reference(self, uri: str, node: Node):
         self.references.append(node_to_location(uri, node))
@@ -100,7 +101,7 @@ class ModuleDeclaration(Module):
 
 @dataclass
 class UseModule(Module):
-    imported : list[Signature]
+    imported : list[Signature] | None
 
 @dataclass
 class SymbolTable:
@@ -127,7 +128,7 @@ class SymbolTable:
 
     def find_predicate_not_in_builtins(self,key:str):
         p = self.predicate_index.get(key)
-        if p is not None and len(p.definitions) > 0:
+        if p is not None and (len(p.definitions) > 0 or p.defined_by_comment):
             return p
 
         for table in self.consults.values():
