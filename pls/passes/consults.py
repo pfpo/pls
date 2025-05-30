@@ -74,11 +74,10 @@ class ConsultPaths:
                 available_paths.add(consult_uri)
                 self.dg.file_includes_other(uri, consult_uri)
         
-        for relative_path, locations in table.module_paths.items():
-            module_uri = add_paths(uri, relative_path)
+        for module_uri, locations in table.module_paths.items():
             if not self.dg.file_exists(module_uri):
                 for l in locations:
-                    reports.append(self.add_missing_file_report_for_use_module(uri, relative_path, l))
+                    reports.append(self.add_missing_file_report_for_use_module(uri,module_uri, l))
             else:
                 available_paths.add(module_uri)
                 self.dg.file_uses_module(uri,module_uri)

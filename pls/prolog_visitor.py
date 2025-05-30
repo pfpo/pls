@@ -1,6 +1,6 @@
 from tree_sitter import Node, Parser, Language
 from .model import Signature, Term, Functor, Predicate, Variable, Scope, string_from_atom, ModuleDeclaration,UseModule
-from .utils import node_to_location, node_and_parent_with_text, node_to_range,add_paths
+from .utils import node_to_location, node_and_parent_with_text, node_to_range,add_paths,library_path
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 import tree_sitter_pldoc as pldoc
@@ -303,18 +303,35 @@ class PrologVisitor(TreeVisitor):
     def handle_use_module(self, node:Node,functor:Functor):
         name = "" 
         imported_predicates = []
+        is_library = False
         if len(functor.args) >= 1:
-            name = string_from_atom(functor.args[0].name)
-            self.module_paths[name].append(
-                node_to_location(self.uri,node)
-            )
+            arg0 = functor.args[0]
+            if type(arg0) is Functor and arg0.name == 'library':
+                if len(arg0.args) == 1 and type(arg0.args[0]) is Term:
+                    is_library = True
+                    name = string_from_atom(arg0.args[0].name)
+                    logging.error(f"{name}")
+            else:
+                name = string_from_atom(functor.args[0].name)
+
         if len(functor.args) == 2:
             imported_predicates = functor.args[1]
             module_args = node.child(2)
             list_notation = module_args.child(2)
             imported_predicates = self.visit_signature_list(list_notation)
 
-        m =UseModule(add_paths(self.uri,name),name,node_to_range(node),False,imported_predicates)
+        path = None
+        if is_library:
+            path = library_path(name)
+        else:
+            path = add_paths(self.uri,name)
+
+        self.module_paths[path].append(
+            node_to_location(self.uri,node)
+        )
+
+        m =UseModule(path,name,node_to_range(node),is_library,imported_predicates)
+        logging.error(f"{m}")
         self.used_modules.append(m)
 
     def visit_signature(self,node:Node)->Signature:
