@@ -44,16 +44,20 @@ class HighlightVisitor(TreeVisitor):
     def visit_comment(self, node: Node):
         added_tokens = False
         comment_tree = self.comment_trees[node]
+        token = None
         if comment_tree:
             v = PlDocHighlightVisitor(self.current_token, node)
             v.start(comment_tree.root_node)
             added_tokens = len(v.token_list) > 0
+            token = v.current_token
             self.token_list.extend(v.token_list)
         if not added_tokens:
             self.visit_normal_comment(node)
         else:
             self.handle_normal_comment(node)
-            self.current_token.line -= 1
+            logging.error(f"From pldoc {token}")
+            logging.error(f"Current {self.current_token}")
+            self.current_token.line = token.line
 
     def visit_normal_comment(self, node: Node):
         self.token_list.extend(self.handle_normal_comment(node))

@@ -117,7 +117,11 @@ class PlDocHighlightVisitor(TreeVisitor):
             self.current_token = Token(current_row, col, "")
             col = 0
             self.token_list.extend([line_offset, col_offset, current_line_len, 6, 0])
+        
 
+    def visit_normal_and_consume_one_line(self, original_node:Node):
+        self.visit_normal_comment(original_node)
+        self.current_token.line -= 1
     def relative_node_range(self, node: Node):
         return Range(
             Point(
