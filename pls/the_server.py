@@ -566,6 +566,12 @@ class PLS(LanguageServer):
             available_predicates.extend(table.builtins.predicate_index.values())
 
         
+        for module_path , key_set in table.imported_signatures.items():
+            module = table.imports[module_path]
+            for key in key_set:
+                if key in module.predicate_index:
+                    available_predicates.append(module.predicate_index[key])
+
         for predicate in available_predicates:
             # logging.error(f"{predicate}{type(predicate)}")
 
