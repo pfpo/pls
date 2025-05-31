@@ -1,5 +1,5 @@
 :- module(clpfd,[
-	$/2,sum/3,scalar_product/4,scalar_product/5,
+	sum/3,scalar_product/4,scalar_product/5,
 	scalar_product_reif/5,scalar_product_reif/6,minimum/2,maximum/2,
 	minimum_arg/2,maximum_arg/2,if_then_else/4,smt/1,
 	count/4,global_cardinality/2,global_cardinality/3,all_equal/1,

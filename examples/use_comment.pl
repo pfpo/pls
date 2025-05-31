@@ -10,4 +10,3 @@
 %     * numbers
 %     * variables bound to numbers or arithmetic expressions
 %     @param  Term         *number*
-

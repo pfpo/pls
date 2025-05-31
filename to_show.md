@@ -16,3 +16,27 @@
 - [ ] Quickfix for unused variable
 - [ ] Rename for variables
 - [ ] Rename for predicates (also renames the predicate name in pldoc comment)
+
+
+## Final TODO
+
+
+- [ ] Document Link for use_module
+- [ ] Code actions to appear in the correct position (not everywhere)
+- [ ] Fix comment parser stalling
+- [ ] Export Predicate
+- [ ] Generate Comment Template
+- [ ] Comments and operators and operator autocompletion
+- [ ] The functionality of storing comments that came before a predicate was lost -> recover
+- [ ] Ability to not rename library defined predicates
+- [ ] Disable hover that shows node information
+- [ ] Fix hardcoded paths
+- [ ] Ship application -> make it easily installable
+- [ ] Neovim Extension
+- [ ] In what other editors could this be used
+- [ ] Add extra libraries
+- [ ] Check hover
+- [ ] Check signature help
+- [ ] check go to definition and references
+- [ ] check rename
+
