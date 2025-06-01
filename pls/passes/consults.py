@@ -65,11 +65,10 @@ class ConsultPaths:
         self.dg.clear_file_includes(uri)
         reports = []
         available_paths = set()
-        for relative_path, locations in table.consult_paths.items():
-            consult_uri = add_paths(uri, relative_path)
+        for consult_uri, locations in table.consult_paths.items():
             if not self.dg.file_exists(consult_uri):
                 for l in locations:
-                    reports.append(self.add_missing_file_report(uri, relative_path, l))
+                    reports.append(self.add_missing_file_report(uri, consult_uri, l))
             else:
                 available_paths.add(consult_uri)
                 self.dg.file_includes_other(uri, consult_uri)

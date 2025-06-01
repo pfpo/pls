@@ -21,7 +21,8 @@
 ## Final TODO
 
 
-- [ ] Document Link for use_module
+- [x] Document Link for use_module
+    - [ ] Link should maybe only appear on the path not on the entire functor
 - [ ] Code actions to appear in the correct position (not everywhere)
 - [ ] Fix comment parser stalling
 - [ ] Export Predicate
