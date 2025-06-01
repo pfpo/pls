@@ -297,7 +297,9 @@ class PrologVisitor(TreeVisitor):
     def handle_consult(self, node: Node,functor: Functor):
         consult_path = string_from_atom(functor.args[0].name)
         functor.args[0].data["link"] = consult_path
-        self.consult_paths[consult_path].append(
+    
+        path  = add_paths(self.uri,consult_path)
+        self.consult_paths[path].append(
             node_to_location(self.uri,node)
         )
     def handle_use_module(self, node:Node,functor:Functor):
@@ -362,16 +364,12 @@ class PrologVisitor(TreeVisitor):
     def handle_module_declaration(self,node:Node,functor:Functor):
         name = "" 
         exported_predicates = []
-        logging.error(f"Visiting Module Declaration \n {functor}")
         if len(functor.args) >= 1:
             name = string_from_atom(functor.args[0].name)
         if len(functor.args) == 2:
-            logging.error(f"In module {name}")
             module_args = node.child(2)
             list_notation = module_args.child(2)
-            logging.error(f"{exported_predicates}")
             exported_predicates = self.visit_signature_list(list_notation)
-            logging.error(f"{exported_predicates}")
 
         path_name = name
         if not name.endswith('.pl'):

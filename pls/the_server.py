@@ -512,12 +512,15 @@ class PLS(LanguageServer):
 
         table: SymbolTable = self.tables[uri]
         result = []
-        for consult_path, locations in table.consult_paths.items():
+        location_items = []
+        location_items.extend(table.consult_paths.items())
+        location_items.extend(table.module_paths.items())
+        for path , locations in location_items:
             for l in locations:
                 result.append(
                     types.DocumentLink(
                         range=l.range,
-                        target=add_paths(uri, consult_path),
+                        target=path
                     ),
                 )
         return result
