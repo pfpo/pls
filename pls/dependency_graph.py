@@ -6,8 +6,13 @@ from dataclasses import dataclass
 class File:
     uri: str
     name: str
-    includes: dict[str, "File"]
-    is_included: dict[str, "File"]
+    includes: dict[str, "Dependency"]
+    is_included: dict[str, "Dependency"]
+
+@dataclass
+class Dependency:
+    file : File
+    is_module : bool= False
 
 
 class DependencyGraph:
@@ -17,13 +22,13 @@ class DependencyGraph:
     def clear_file_includes(self, file_name: str):
         file = self.get_file(file_name)
         for f in file.includes.values():
-            f.is_included.pop(file.uri)
+            f.file.is_included.pop(file.uri)
         file.includes = {}
 
     def clear_file_is_included(self, file_name: str):
         file = self.get_file(file_name)
         for f in file.is_included.values():
-            f.includes.pop(file.uri)
+            f.file.includes.pop(file.uri)
         file.includes = {}
 
     def remove_file(self, file_name: str):
@@ -90,8 +95,15 @@ class DependencyGraph:
         file = self.get_file(file_name)
         other = self.get_file(other_name)
 
-        file.includes[other_name] = other
-        other.is_included[file_name] = file
+        file.includes[other_name] = Dependency(other)
+        other.is_included[file_name] = Dependency(file)
+    
+    def file_uses_module(self,file_name: str, module_path : str):
+        file = self.get_file(file_name)
+        other = self.get_file(module_path)
+
+        file.includes[module_path] = Dependency(other,is_module=True)
+        other.is_included[file_name] = Dependency(file)
 
     def remove_file_includes_other(self, file_name: str, other_name: str):
         file = self.get_file(file_name)
@@ -112,12 +124,12 @@ class DependencyGraph:
             next = queue.pop()
             node_pool.add(next.uri)
             in_degree[next.uri] = len(next.includes)
-            neighbors: list[File] = []
+            neighbors: list[Dependency] = []
             neighbors.extend(next.includes.values())
             neighbors.extend(next.is_included.values())
             for n in neighbors:
-                if n.uri not in node_pool:
-                    queue.append(n)
+                if n.file.uri not in node_pool:
+                    queue.append(n.file)
 
         def next_node():
             for key, val in in_degree.items():
@@ -146,8 +158,8 @@ class DependencyGraph:
     def __str__(self) -> str:
         r = "Dependency Graph:\n"
 
-        def file_dict_string(d: dict[str, File]) -> str:
-            return ",".join([f.name for f in d.values()])
+        def file_dict_string(d: dict[str,Dependency]) -> str:
+            return ",".join([f.file.name for f in d.values()])
 
         for _, file in self.files.items():
             r += f"{file.name} "
@@ -192,6 +204,14 @@ class DependencyGraphManager:
         if not is_cycle:
             self.dg.file_includes_other(file_name, other_name)
         self.may_be_wrong.file_includes_other(file_name, other_name)
+
+    def file_uses_module(self, file_name: str, other_name: str):
+        is_cycle, _ = self.dg.would_create_cycle(file_name, other_name)
+        if not is_cycle:
+            self.dg.file_uses_module(file_name, other_name)
+        self.may_be_wrong.file_uses_module(file_name, other_name)
+
+
 
     def file_exists(self, uri: str):
         return file_uri_to_path(uri).exists()

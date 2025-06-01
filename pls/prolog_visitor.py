@@ -1,6 +1,6 @@
 from tree_sitter import Node, Parser, Language
-from .model import Term, Functor, Predicate, Variable, Scope
-from .utils import node_to_location, node_and_parent_with_text
+from .model import Signature, Term, Functor, Predicate, Variable, Scope, string_from_atom, ModuleDeclaration,UseModule
+from .utils import node_to_location, node_and_parent_with_text, node_to_range,add_paths,library_path
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 import tree_sitter_pldoc as pldoc
@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from lsprotocol import types
 from collections import defaultdict
 from .pldoc_comment_visitor import PlDocVisitor
-
+from .my_logging import logging
 
 @dataclass
 class Opts:
@@ -32,6 +32,10 @@ class PrologVisitor(TreeVisitor):
 
         self.consult_paths: dict[str, list[types.Location]] = defaultdict(list)
         self.comment_parser = Parser(Language(pldoc.language()))
+
+        self.used_modules : list[UseModule] = []
+        self.module_paths: dict[str, list[types.Location]] = defaultdict(list)
+        self.module_declarations : list[ModuleDeclaration] = []
 
         self.all_comments = []
         self.comments = []
@@ -267,34 +271,114 @@ class PrologVisitor(TreeVisitor):
             return functor.name == "consult" and len(functor.args) == 1
 
         def is_use_module(functor: Functor) -> bool:
-            return False
+            return functor.name == "use_module"
 
-        def string_from_atom(atom_string: str) -> str:
-            if (
-                len(atom_string) >= 2
-                and atom_string[0] == "'"
-                and atom_string[-1] == "'"
-            ):
-                return atom_string[1:-1]
-            return atom_string
+        def is_module(functor: Functor) -> bool:
+            return functor.name == "module"
+
 
         for child in node.children:
             if child.type == "functional_notation":
                 functor = self.visit(child, opts)
                 if is_consult(functor):
-                    consult_path = string_from_atom(functor.args[0].name)
-                    functor.args[0].data["link"] = consult_path
-                    self.consult_paths[consult_path].append(
-                        node_to_location(self.uri, child)
-                    )
+                    self.handle_consult(child,functor)
                 elif is_use_module(functor):
                     # TODO: Handle Modules
+                    self.handle_use_module(child,functor)
                     pass
+                elif is_module(functor):
+                    self.handle_module_declaration(child,functor)
             else:
                 self.visit(child, opts)
         self.notes[node] = self.current_scope
         self.save_scope()
         return
+
+    def handle_consult(self, node: Node,functor: Functor):
+        consult_path = string_from_atom(functor.args[0].name)
+        functor.args[0].data["link"] = consult_path
+        self.consult_paths[consult_path].append(
+            node_to_location(self.uri,node)
+        )
+    def handle_use_module(self, node:Node,functor:Functor):
+        name = "" 
+        imported_predicates = None
+        is_library = False
+        if len(functor.args) >= 1:
+            arg0 = functor.args[0]
+            if type(arg0) is Functor and arg0.name == 'library':
+                if len(arg0.args) == 1 and type(arg0.args[0]) is Term:
+                    is_library = True
+                    name = string_from_atom(arg0.args[0].name)
+            else:
+                name = string_from_atom(functor.args[0].name)
+
+        if len(functor.args) == 2:
+            imported_predicates = functor.args[1]
+            module_args = node.child(2)
+            list_notation = module_args.child(2)
+            imported_predicates = self.visit_signature_list(list_notation)
+
+        path = None
+        if is_library:
+            path = library_path(name)
+        else:
+            path = add_paths(self.uri,name)
+
+        self.module_paths[path].append(
+            node_to_location(self.uri,node)
+        )
+
+        m =UseModule(path,name,node_to_range(node),is_library,imported_predicates)
+        self.used_modules.append(m)
+
+    def visit_signature(self,node:Node)->Signature:
+        op = node.child_by_field_name('operator')
+        if node.type != 'operator_notation' and (op is None or op.text != b'/'):
+            return None, False
+        if not(node.child(0).type == 'atom' and node.child(1).type == 'binary_operator' and node.child(2).type == 'integer'):
+            return None, False
+            
+        # TODO Check if integer is less than zero
+        return  Signature(bytes.decode(node.child(0).text),int(bytes.decode(node.child(2).text)),node_to_range(node)),True
+
+    def visit_signature_list(self,node:Node)->list[Signature]:
+        children = list(node.children)
+        children = children[1:-1]
+        signatures = []
+        for child in children:
+            if child.type == 'list_notation_separator':
+                continue
+            if child.type == 'operator_notation':
+                signature, succ = self.visit_signature(child)
+                if succ:
+                    logging.error(f"Added signature {signature.key()}")
+                    signatures.append(signature)
+                else:
+                    logging.error(f"Could not add signature")
+                    # TODO should deal with warnings
+                    pass
+        return signatures
+    def handle_module_declaration(self,node:Node,functor:Functor):
+        name = "" 
+        exported_predicates = []
+        logging.error(f"Visiting Module Declaration \n {functor}")
+        if len(functor.args) >= 1:
+            name = string_from_atom(functor.args[0].name)
+        if len(functor.args) == 2:
+            logging.error(f"In module {name}")
+            module_args = node.child(2)
+            list_notation = module_args.child(2)
+            logging.error(f"{exported_predicates}")
+            exported_predicates = self.visit_signature_list(list_notation)
+            logging.error(f"{exported_predicates}")
+
+        path_name = name
+        if not name.endswith('.pl'):
+            path_name = name + '.pl'
+        m = ModuleDeclaration(add_paths(self.uri,path_name),name,node_to_range(node),False,exported_predicates
+                              )
+        self.module_declarations.append(m)
 
     def visit_list_notation(self, node: Node, opts: Opts):
         if len(node.children) == 2:
@@ -316,6 +400,7 @@ class PrologVisitor(TreeVisitor):
         if pldoc:
             for template in pldoc.templates:
                 predicate = self.get_predicate(template)
+                predicate.defined_by_comment = True
                 predicate.comments.append(pldoc)
                 name_range = template.name_range
                 name_range.start.line += node.start_point.row

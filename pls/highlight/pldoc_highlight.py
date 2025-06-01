@@ -23,7 +23,6 @@ class PlDocHighlightVisitor(TreeVisitor):
         self.current_token = current_token
         self.start_token = Token(current_node.start_point.row, 0, "")
         self.ended = False
-        # print(self.start_token)
 
     def start(self, node: Node):
         self.default_visit(node)
@@ -117,7 +116,11 @@ class PlDocHighlightVisitor(TreeVisitor):
             self.current_token = Token(current_row, col, "")
             col = 0
             self.token_list.extend([line_offset, col_offset, current_line_len, 6, 0])
+        
 
+    def visit_normal_and_consume_one_line(self, original_node:Node):
+        self.visit_normal_comment(original_node)
+        self.current_token.line -= 1
     def relative_node_range(self, node: Node):
         return Range(
             Point(
@@ -127,9 +130,7 @@ class PlDocHighlightVisitor(TreeVisitor):
         )
 
     def create_token(self, original_node: Node, index: int, modifiers: int):
-        # print(original_node.start_point)
         node = self.relative_node_range(original_node)
-        # print(node)
 
         line_offset = node.start_point.row - self.current_token.line
         col_offset = node.start_point.column

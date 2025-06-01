@@ -20,6 +20,11 @@ def add_paths(file_uri: str, module_relative_path: str) -> str:
     return path_to_file_uri(final_path)
 
 
+def library_path(module_name: str):
+    return path_to_file_uri(
+            Path(f"/home/martim/Desktop/pls/sicstus-doc-scraper/libs/{module_name}.pl").resolve()
+        )
+
 def node_to_range(node: Node):
     return types.Range(
         start=types.Position(

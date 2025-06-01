@@ -27,6 +27,7 @@ class Predicate(Term):
         self.name_references: list[types.Location] = []
         self.comments = []
         self.scopes: list["Scope"] = []
+        self.defined_by_comment = False
 
     def add_reference(self, uri: str, node: Node):
         self.references.append(node_to_location(uri, node))
@@ -80,6 +81,27 @@ class Scope:
         self.predicate: None | "Predicate" = None
         # self.node = None
 
+class Signature(Term):
+    def __init__(self, name,arity,loc):
+        super().__init__(name)
+        self.arity = arity
+        self.loc : types.Range = loc
+
+@dataclass
+class Module:
+    uri : str
+    name: str
+    loc : types.Range
+    is_library :bool
+
+@dataclass
+class ModuleDeclaration(Module):
+    exported : list[Signature]
+
+
+@dataclass
+class UseModule(Module):
+    imported : list[Signature] | None
 
 @dataclass
 class SymbolTable:
@@ -88,19 +110,35 @@ class SymbolTable:
     predicate_index_by_name : dict[str,set[str]] 
     path: str
     notes: Annotations
+
     builtins: "SymbolTable"
+
     imports: dict["str", "SymbolTable"]
+    imported_signatures: dict["str",set[str]]
+    module_paths: dict[str, list[types.Location]]
+
     consults: dict["str", "SymbolTable"]
     consult_paths: dict[str, list[types.Location]]
 
+    module_declarations: list[ModuleDeclaration]
+    use_module_declarations: list[UseModule]
+
+    exported_signatures : set[str]
+
+
     def find_predicate_not_in_builtins(self,key:str):
         p = self.predicate_index.get(key)
-        if p is not None and len(p.definitions) > 0:
+        if p is not None and (len(p.definitions) > 0 or p.defined_by_comment):
             return p
 
         for table in self.consults.values():
             if consulted_predicate := table.find_predicate_not_in_builtins(key):
                 return consulted_predicate
+        
+        for module_path , key_set in self.imported_signatures.items():
+            if key in key_set:
+                if imported_predicate:= self.imports[module_path].find_predicate_not_in_builtins(key):
+                    return imported_predicate
         return None
 
     def get_predicates_that_match(self,name:str)->list[Predicate]:
@@ -152,3 +190,13 @@ def scope_at_position(node: Node, table: SymbolTable, p: types.Position):
         if possible is not None:
             return possible
     return None
+
+
+def string_from_atom(atom_string: str) -> str:
+    if (
+        len(atom_string) >= 2
+        and atom_string[0] == "'"
+        and atom_string[-1] == "'"
+    ):
+        return atom_string[1:-1]
+    return atom_string

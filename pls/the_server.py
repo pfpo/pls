@@ -30,6 +30,7 @@ from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
 from .passes.undefined_predicate import UndefinedPredicate
+from .passes.modules import MooduleAnalyser
 from .passes.consults import ConsultPaths
 from .dependency_graph import DependencyGraph, DependencyGraphManager
 from .my_logging import logging
@@ -102,9 +103,6 @@ class PLS(LanguageServer):
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
         analysis = UnusedVariablePass(table)
-        logging.error(f"{table.path}")
-        logging.error(f"{analysis.fixes}")
-        logging.error(f"{self.fixes}")
         analysis.start(tree.root_node)
         fixes = self.fixes[table.path]
         fixes.extend(analysis.fixes)
@@ -163,7 +161,6 @@ class PLS(LanguageServer):
             self.diagnostics[document.uri] = (document.version, new_diagnostics)
 
     def run_analysis(self, document: TextDocument):
-        self.fixes[document.uri] =[]
         table = self.tables.get(document.uri)
 
         if (
@@ -195,8 +192,13 @@ class PLS(LanguageServer):
             predicate_index_by_name =prolog_visitor.predicate_index_by_name,
             builtins=None,
             imports={},
+            imported_signatures= {},
             consults={},
             consult_paths=prolog_visitor.consult_paths,
+            module_paths= prolog_visitor.module_paths,
+            module_declarations= prolog_visitor.module_declarations,
+            use_module_declarations= prolog_visitor.used_modules,
+            exported_signatures= set(),
             path=doc.uri,
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees
@@ -288,6 +290,7 @@ class PLS(LanguageServer):
             if progress_report:
                 await progress_report(len(visited), len(received_uris))
 
+        logging.error(f"{self.dg.dg}")
     def clear_diagnostics(self, document: TextDocument):
         self.diagnostics[document.uri] = (document.version, [])
 
@@ -306,8 +309,8 @@ class PLS(LanguageServer):
         for cycle in cycles:
             cp.build_cyclic_consult_reports(cycle)
 
-        # logging.error(f"Parse Chain of {document.filename}: {chain}")
-        # logging.error(f"{self.dg.dg}")
+        logging.error(f"Parse Chain of {document.filename}: {chain}")
+        logging.error(f"{self.dg.dg}")
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
@@ -364,17 +367,34 @@ class PLS(LanguageServer):
 
         file_deps = self.dg.get_file(document.uri)
 
-        for file in file_deps.includes.values():
-            # logging.error(f"File: {document.filename} depends on {file.name}")
+        modules_to_include = set()
+        for dep in file_deps.includes.values():
+            file = dep.file
+            logging.error(f"File: {document.filename} depends on {file.name}")
             if file.uri not in self.tables:
                 logging.error(
                     f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled"
                 )
+            elif dep.is_module:
+                modules_to_include.add(file.uri)
             else:
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table
 
+
+        m = MooduleAnalyser(document.uri,self.tables)
+        self.fixes[document.uri] =[]
+        m.add_code_actions()
+        self.fixes[document.uri].extend(m.fixes)
+        
+        m.analyse_module_declarations()
+        m.analyse_use_module_declarations(modules_to_include)
+        logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
+    
+
+
         self.run_analysis(document)
+        self.add_diagnostics(document,m.reports)
         #logging.error(f"Finished Analysis of {document.filename}")
         #logging.error(
         #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"
@@ -509,7 +529,6 @@ class PLS(LanguageServer):
         tree = self.trees[document.uri][1]
         table = self.tables[document.uri]
         n = scope_at_position(tree.root_node, table, position)
-        logging.error(f"\n\n\nResult: {n}")
         variables = []
         if n is None:
             return []
@@ -547,6 +566,12 @@ class PLS(LanguageServer):
             available_predicates.extend(table.builtins.predicate_index.values())
 
         
+        for module_path , key_set in table.imported_signatures.items():
+            module = table.imports[module_path]
+            for key in key_set:
+                if key in module.predicate_index:
+                    available_predicates.append(module.predicate_index[key])
+
         for predicate in available_predicates:
             # logging.error(f"{predicate}{type(predicate)}")
 
@@ -574,13 +599,13 @@ class PLS(LanguageServer):
         tree = self.trees[document.uri][1]
         table = self.tables[document.uri]
         node = node_at_position(tree.root_node,position)
-        logging.error(f"{node} {node.type}")
+        # logging.error(f"{node} {node.type}")
         is_functor, predicate_name, active_parameter = in_possible_signature_help(node)
 
         if not is_functor:
             return []
 
-        logging.error(f"Signature Help for  {predicate_name} in parameter: {active_parameter}")
+        # logging.error(f"Signature Help for  {predicate_name} in parameter: {active_parameter}")
         with_matchin_name = table.get_predicates_that_match(predicate_name)
 
         signatures = []
@@ -625,7 +650,7 @@ class PLS(LanguageServer):
             add_edit(changes,new_name,location)
         
 
-        logging.error(f"{changes}")
+        # logging.error(f"{changes}")
         return types.WorkspaceEdit(changes)
 
 
