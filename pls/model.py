@@ -126,6 +126,8 @@ class SymbolTable:
 
     exported_signatures : set[str]
 
+    exportable_predicates : set[str]
+
 
     def find_predicate_not_in_builtins(self,key:str):
         p = self.predicate_index.get(key)

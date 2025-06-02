@@ -23,10 +23,10 @@
 
 - [x] Document Link for use_module
     - [ ] Link should maybe only appear on the path not on the entire functor
+- [x] Generate Comment Template
+- [x] Export Predicate
 - [ ] Code actions to appear in the correct position (not everywhere)
 - [ ] Fix comment parser stalling
-- [ ] Export Predicate
-- [ ] Generate Comment Template
 - [ ] Comments and operators and operator autocompletion
 - [ ] The functionality of storing comments that came before a predicate was lost -> recover
 - [ ] Ability to not rename library defined predicates
