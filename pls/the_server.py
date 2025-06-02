@@ -528,7 +528,9 @@ class PLS(LanguageServer):
         elif element is not None and type(element) is Predicate:
             content = descriptions.predicate_description(element)
         else:
-            content = descriptions.node_description(maybe_node)
+            # Disabled Node Description
+            # content = descriptions.node_description(maybe_node)
+            return None
 
         return types.Hover(
             contents=types.MarkupContent(

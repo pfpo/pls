@@ -241,7 +241,9 @@ class PrologVisitor(TreeVisitor):
 
         predicate = self.get_predicate(f)
         predicate.heads.append(f)
+        logging.error(f"{self.comments}")
         predicate.comments.extend(self.comments.copy())
+        logging.error(f"{predicate.key()} {predicate.comments}")
         self.comments = []
         self.notes[parent] = predicate
 
@@ -399,7 +401,7 @@ class PrologVisitor(TreeVisitor):
         v = PlDocVisitor()
         v.start(result.root_node)
         pldoc = v.get_comment()
-        if pldoc:
+        if len(pldoc.templates) > 0:
             for template in pldoc.templates:
                 predicate = self.get_predicate(template)
                 predicate.defined_by_comment = True

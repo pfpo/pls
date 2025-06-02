@@ -2,6 +2,7 @@ from tree_sitter import Node
 from .model import Predicate, Variable
 from .pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
+from .my_logging import logging
 
 class Markup:
 
@@ -74,6 +75,7 @@ class Markup:
     def predicate_description(self, element: Predicate):
         string_comments = []
         other_comments = []
+        logging.error(f"{element.comments}")
         for c in element.comments:
             if type(c) is str:
                 string_comments.append(c)
@@ -81,9 +83,16 @@ class Markup:
                 other_comments.append(c)
 
         res = [f"### Predicate: {element.key()}"]
-        for c in element.comments:
+        for c in other_comments:
             res.append(c.to_markdown())
-        res.extend(string_comments)
+        for c in string_comments:
+            for line in c.split('\n'):
+                i = 0
+                line = line.strip()
+                if len(line) > 0 and line[0] == '%':
+                    i = 1
+                res.append(line[i:].strip() + "\n")
+
         return res
 
     def node_description(self, node: Node):

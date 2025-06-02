@@ -139,6 +139,7 @@ class PlDocVisitor(TreeVisitor):
         # Templates
         self.add_visit("functor_template", self.visit_functor)
 
+
     def default_visit(self, node: Node):
         self.visit_all_children(node)
 
