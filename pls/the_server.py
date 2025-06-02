@@ -29,6 +29,7 @@ from .highlight.highlight_visitor import HighlightVisitor
 from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
 from .passes.unused_variable import UnusedVariablePass
+from .passes.predicate_definition import PredicateDefinition
 from .passes.undefined_predicate import UndefinedPredicate
 from .passes.modules import MooduleAnalyser
 from .passes.consults import ConsultPaths
@@ -97,33 +98,44 @@ class PLS(LanguageServer):
 
     def tree_diagnostics(self, tree: Tree):
         syntax_error_visitor = SyntaxErrorVisitor()
-        return syntax_error_visitor.visit(tree.root_node)
+        return syntax_error_visitor.visit(tree.root_node), []
 
     def unused_variables(
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
         analysis = UnusedVariablePass(table)
         analysis.start(tree.root_node)
-        fixes = self.fixes[table.path]
-        fixes.extend(analysis.fixes)
-        self.fixes[table.path] = fixes
-        return analysis.reports
+        return analysis.reports,analysis.fixes
 
     def undefined_predicate(
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
         analysis = UndefinedPredicate(table)
         analysis.start(tree.root_node)
-        return analysis.reports
+        return analysis.reports,analysis.fixes
+    
+    def predicate_definition(
+        self, tree: Tree, table: SymbolTable
+    ) -> list[types.Diagnostic]:
+        analysis = PredicateDefinition(table.path,self.tables)
+        analysis.analyse()
+        
+        return analysis.reports,analysis.fixes
 
     def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
         tree = self.trees[document.uri][1]
         table = self.tables[document.uri]
-        result = []
-        result.extend(self.tree_diagnostics(tree))
-        result.extend(self.unused_variables(tree, table))
-        result.extend(self.undefined_predicate(tree, table))
-        return result
+        all_reports = []
+        all_fixes = []
+        analysis_results  = [ self.tree_diagnostics(tree),
+            self.unused_variables(tree, table),
+        self.undefined_predicate(tree, table),
+        self.predicate_definition(tree,table)
+        ]
+        for reports,fixes in analysis_results:
+            all_reports.extend(reports)
+            all_fixes.extend(fixes)
+        return all_reports,all_fixes
 
     def semantic_tokens(self, document: TextDocument):
         tree = self.trees[document.uri][1]
@@ -148,6 +160,16 @@ class PLS(LanguageServer):
             new_diagnostics.extend(diagnostics)
             self.diagnostics[uri] = (version, new_diagnostics)
 
+    def add_fixes(self, document: TextDocument,fixes: list):
+        if document.uri not in self.fixes:
+            self.fixes[document.uri] = (document.version,fixes)
+        else:
+            version,  new_fixes = self.fixes[document.uri]
+            if version != document.version:
+                new_fixes = []
+            new_fixes.extend(fixes)
+            self.fixes[document.uri] = (document.version, new_fixes)
+
     def add_diagnostics(self, document: TextDocument, diagnostics: list):
         if document.uri not in self.diagnostics:
             # logging.error(f"Deleting warnings")
@@ -170,8 +192,9 @@ class PLS(LanguageServer):
         ):
             table.builtins = self.tables[self.builtin_uri]
 
-        diagnostics = self.run_passes(document)
+        diagnostics, fixes  = self.run_passes(document)
         self.add_diagnostics(document, diagnostics)
+        self.add_fixes(document,fixes)
 
         self.tokens[document.uri] = (
             document.version,
@@ -383,9 +406,8 @@ class PLS(LanguageServer):
 
 
         m = MooduleAnalyser(document.uri,self.tables)
-        self.fixes[document.uri] =[]
         m.add_code_actions()
-        self.fixes[document.uri].extend(m.fixes)
+        self.add_fixes(document,m.fixes)
         
         m.analyse_module_declarations()
         m.analyse_use_module_declarations(modules_to_include)
@@ -783,4 +805,4 @@ def prepare_rename(ls:PLS, params: types.PrepareRenameParams):
 )
 def code_actions(ls:PLS,params: types.CodeActionParams):
     logging.error("Code actions Request")
-    return ls.fixes[params.text_document.uri]
+    return ls.fixes[params.text_document.uri][1]

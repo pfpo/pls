@@ -238,6 +238,7 @@ class PrologVisitor(TreeVisitor):
         f = self.visit(node, opts)
 
         predicate = self.get_predicate(f)
+        predicate.heads.append(f)
         predicate.comments.extend(self.comments.copy())
         self.comments = []
         self.notes[parent] = predicate
