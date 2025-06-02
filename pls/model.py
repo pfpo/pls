@@ -118,6 +118,7 @@ class SymbolTable:
     imported_signatures: dict["str",set[str]]
     module_paths: dict[str, list[types.Location]]
 
+    libs : set["str"]
     consults: dict["str", "SymbolTable"]
     consult_paths: dict[str, list[types.Location]]
 
@@ -143,6 +144,31 @@ class SymbolTable:
                 if imported_predicate:= self.imports[module_path].find_predicate_not_in_builtins(key):
                     return imported_predicate
         return None
+
+    def is_renameable(self,key:str):
+        exportable = key in self.exportable_predicates
+        if exportable:
+            return True , ""
+
+        builtin = self.builtins is not None and key in self.builtins.predicate_index
+        
+        if builtin:
+            return False, f"{key} is a builtin predicate"
+        
+        imported = False 
+
+        for lib in self.libs:
+            if lib not in self.imported_signatures:
+                continue
+            if key in self.imported_signatures[lib]:
+                imported = True
+                break
+
+        if imported:
+            return False, f"{key} is imported from a library"
+
+        return True, ""
+
 
     def get_predicates_that_match(self,name:str)->list[Predicate]:
         tables = [self]
