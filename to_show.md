@@ -27,10 +27,10 @@
 - [x] Export Predicate
 - [x] Code actions to appear in the correct position (not everywhere)
 - [x] The functionality of storing comments that came before a predicate was lost -> recover
-- [ ] Disable hover that shows node information
+- [x] Disable hover that shows node information
+- [x] Ability to not rename library defined predicates
 - [ ] Fix comment parser stalling
 - [ ] Comments and operators and operator autocompletion
-- [ ] Ability to not rename library defined predicates
 - [ ] Fix hardcoded paths
 - [ ] Ship application -> make it easily installable
 - [ ] Neovim Extension

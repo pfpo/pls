@@ -1,5 +1,4 @@
 from pygls.server import LanguageServer
-from collections import defaultdict
 from lsprotocol import types
 from pygls.workspace import TextDocument
 import time
@@ -223,6 +222,7 @@ class PLS(LanguageServer):
             module_declarations= prolog_visitor.module_declarations,
             use_module_declarations= prolog_visitor.used_modules,
             exported_signatures= set(),
+            libs= prolog_visitor.libs,
             exportable_predicates= prolog_visitor.exportable_predicates,
             path=doc.uri,
         )
@@ -684,17 +684,20 @@ class PLS(LanguageServer):
         if type(element) is Variable:
             locations_to_rename = element.references 
         elif type(element) is Predicate:
+            can_rename, reason  = self.tables[document.uri].is_renameable(element.key())
+            if not can_rename:
+                self.show_message(f"Cannot Rename Predicate: {reason}", msg_type=types.MessageType.Error)
+                return 
             locations_to_rename = element.name_references
 
         for location in locations_to_rename:
             add_edit(changes,new_name,location)
         
 
-        # logging.error(f"{changes}")
         return types.WorkspaceEdit(changes)
 
 
-    def is_renamable(self, document:TextDocument, position:types.Position):
+    def is_renameable(self, document:TextDocument, position:types.Position):
 
         tree = self.trees.get(document.uri, (0, None))[1]
         if tree is None:
@@ -702,7 +705,7 @@ class PLS(LanguageServer):
 
         element: Variable | Predicate | None = self.discover_node(tree, position,document.uri)
 
-        return types.PrepareRenameDefaultBehavior(default_behavior=(element is not None))
+        return types.PrepareRenameDefaultBehavior(default_behavior=element is not None)
 
 
 server = PLS("prolog-server", "v0.0.1")
@@ -810,7 +813,7 @@ def prepare_rename(ls:PLS, params: types.PrepareRenameParams):
     is a valid operation."""
     doc = params.text_document
     position = params.position
-    return ls.is_renamable(doc,position)
+    return ls.is_renameable(doc,position)
 
 
 

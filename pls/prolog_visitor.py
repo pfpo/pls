@@ -36,7 +36,7 @@ class PrologVisitor(TreeVisitor):
         self.used_modules : list[UseModule] = []
         self.module_paths: dict[str, list[types.Location]] = defaultdict(list)
         self.module_declarations : list[ModuleDeclaration] = []
-
+        self.libs = set()
         self.all_comments = []
         self.comments = []
 
@@ -241,9 +241,7 @@ class PrologVisitor(TreeVisitor):
 
         predicate = self.get_predicate(f)
         predicate.heads.append(f)
-        logging.error(f"{self.comments}")
         predicate.comments.extend(self.comments.copy())
-        logging.error(f"{predicate.key()} {predicate.comments}")
         self.comments = []
         self.notes[parent] = predicate
 
@@ -330,6 +328,7 @@ class PrologVisitor(TreeVisitor):
         path = None
         if is_library:
             path = library_path(name)
+            self.libs.add(path)
         else:
             path = add_paths(self.uri,name)
 
@@ -360,7 +359,7 @@ class PrologVisitor(TreeVisitor):
             if child.type == 'operator_notation':
                 signature, succ = self.visit_signature(child)
                 if succ:
-                    logging.error(f"Added signature {signature.key()}")
+                    # TODO add a reference to the predicate
                     signatures.append(signature)
                 else:
                     logging.error(f"Could not add signature")
