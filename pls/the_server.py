@@ -222,6 +222,7 @@ class PLS(LanguageServer):
             module_declarations= prolog_visitor.module_declarations,
             use_module_declarations= prolog_visitor.used_modules,
             exported_signatures= set(),
+            exportable_predicates= prolog_visitor.exportable_predicates,
             path=doc.uri,
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees

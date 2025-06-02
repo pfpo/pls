@@ -48,9 +48,8 @@ class PredicateDefinition:
 
     def export_all_predicates(self):
         keys = []
-        for key, predicate  in self.table.predicate_index.items():
-            if len(predicate.definitions) > 0 or any([type(p) is PlDocComment for p in predicate.comments]):
-                keys.append(key)
+        for key in self.table.exportable_predicates:
+            keys.append(key)
         self.declare_module_action(keys,"Export All Defined Predicates")        
 
 

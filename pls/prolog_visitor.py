@@ -40,6 +40,8 @@ class PrologVisitor(TreeVisitor):
         self.all_comments = []
         self.comments = []
 
+        self.exportable_predicates : set[str] = set()
+
 
     def set_current_scope(self, scope):
         if self.current_scope is not None:
@@ -244,6 +246,7 @@ class PrologVisitor(TreeVisitor):
         self.notes[parent] = predicate
 
         predicate.add_definition(self.uri, parent)
+        self.exportable_predicates.add(predicate.key())
         # TODO WHy
         predicate.uri = self.uri
         key = predicate.key()
@@ -400,6 +403,7 @@ class PrologVisitor(TreeVisitor):
             for template in pldoc.templates:
                 predicate = self.get_predicate(template)
                 predicate.defined_by_comment = True
+                self.exportable_predicates.add(predicate.key())
                 predicate.comments.append(pldoc)
                 name_range = template.name_range
                 name_range.start.line += node.start_point.row
