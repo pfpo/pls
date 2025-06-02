@@ -1,6 +1,6 @@
 from tree_sitter import Node
 from pls.model import Variable, SymbolTable
-from pls.utils import node_to_range
+from pls.utils import node_to_range,RangedAction
 from pls.tree_visitor import TreeVisitor
 from lsprotocol import types
 
@@ -52,8 +52,10 @@ class UnusedVariablePass(TreeVisitor):
         )
             ]}),
         )
-        self.fixes.extend((preserve_name,full_replace))
-        logging.error(f"{self.fixes}")
+        actions = (preserve_name,full_replace)
+        r = node_to_range(node)
+        ranged_actions = [RangedAction(a,r) for a in actions]
+        self.fixes.extend(ranged_actions)
 
 
 

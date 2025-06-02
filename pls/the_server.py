@@ -20,6 +20,7 @@ from .utils import (
     file_uri_to_path,
     Path,
     add_paths,
+    ranges_overlap
 )
 
 from .annotations import Annotations
@@ -117,7 +118,7 @@ class PLS(LanguageServer):
     def predicate_definition(
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
-        analysis = PredicateDefinition(table.path,self.tables)
+        analysis = PredicateDefinition(tree,table.path,self.tables)
         analysis.analyse()
         
         return analysis.reports,analysis.fixes
@@ -498,7 +499,20 @@ class PLS(LanguageServer):
         locations.extend(element.references)
         return locations
 
+    def get_code_actions(self, doc: TextDocument, requested_range: types.Range):
+        result = []
+        if doc.uri not in  self.fixes:
+            return result
+        ranged_actions = self.fixes[doc.uri][1]
+        for ra in ranged_actions:
+            a = ra.action
+            r = ra.range
+            if  ranges_overlap(r,requested_range):
+                result.append(a)
+        
+        return result
     def hover(self, doc: TextDocument, position: types.Position):
+
         uri = doc.uri
         tree = self.trees.get(uri, (0, None))[1]
         if tree is None:
@@ -803,4 +817,6 @@ def prepare_rename(ls:PLS, params: types.PrepareRenameParams):
 )
 def code_actions(ls:PLS,params: types.CodeActionParams):
     logging.error("Code actions Request")
-    return ls.fixes.get(params.text_document.uri,(None,[]))[1]
+    doc = ls.workspace.get_text_document(params.text_document.uri)
+    result = ls.get_code_actions(doc, params.range)
+    return result
