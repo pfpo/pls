@@ -10,6 +10,7 @@ class UndefinedPredicate(TreeVisitor):
         super().__init__()
         self.table = table
         self.reports = []
+        self.fixes = []
 
     def start(self, node: Node):
         self.visit_all_children(node)

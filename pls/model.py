@@ -21,6 +21,7 @@ class Predicate(Term):
         super().__init__(name)
         self.arity: int = arity
         self.definitions: list[types.Location] = []
+        self.heads: list[Functor] = []
         self.clauses: list[Clause] = []
         self.uri = ""
         self.references: list[types.Location] = []
