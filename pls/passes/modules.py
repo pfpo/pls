@@ -53,7 +53,6 @@ class MooduleAnalyser:
                 self.add_duplicated_import(module.name,module.loc)
             else:
                 module_table = self.tables[path]
-                logging.error(f"{module_table}")
                 logging.error(f"{self.uri} includes from Module {path} \n{module_table.exported_signatures}")
                 if module.imported is None:
                     signatures[path] = module_table.exported_signatures
@@ -73,7 +72,6 @@ class MooduleAnalyser:
             self.table.imports[uri] = imported_table
                         
         logging.error(f"Imported Signatures: {self.table.imported_signatures}")
-        logging.error(f"Imported Tables: {self.table.imports}")
 
 
     def add_exported_predicate_does_not_exist(self,signature:Signature):

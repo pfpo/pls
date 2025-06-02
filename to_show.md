@@ -26,11 +26,11 @@
 - [x] Generate Comment Template
 - [x] Export Predicate
 - [x] Code actions to appear in the correct position (not everywhere)
+- [x] The functionality of storing comments that came before a predicate was lost -> recover
+- [ ] Disable hover that shows node information
 - [ ] Fix comment parser stalling
 - [ ] Comments and operators and operator autocompletion
-- [ ] The functionality of storing comments that came before a predicate was lost -> recover
 - [ ] Ability to not rename library defined predicates
-- [ ] Disable hover that shows node information
 - [ ] Fix hardcoded paths
 - [ ] Ship application -> make it easily installable
 - [ ] Neovim Extension
