@@ -13,7 +13,7 @@ class RangedAction:
 
 
 def _left_after_right(left : types.Range, right: types.Range):
-    return  left.start.line > right.end.line or  (left.start.line == right.end.line  and left.start.character > right.end.character)
+    return  left.start.line > right.end.line or  (left.start.line == right.end.line  and left.start.character > right.end.character and left.start.character )
 
 def ranges_overlap(left : types.Range, right: types.Range):
 
@@ -21,7 +21,7 @@ def ranges_overlap(left : types.Range, right: types.Range):
     right_is_after = _left_after_right(right,left)
 
 
-    return not left_is_after or right_is_after
+    return not (left_is_after or right_is_after)
 
 def file_uri_to_path(uri: str) -> Path:
     parsed = urlparse(uri)
