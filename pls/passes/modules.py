@@ -20,26 +20,6 @@ class MooduleAnalyser:
 
         self.fixes = []
 
-    def add_code_actions(self):
-        keys = []
-        for key, predicate  in self.table.predicate_index.items():
-            if len(predicate.definitions) > 0 or any([type(p) is PlDocComment for p in predicate.comments]):
-                keys.append(key)
-        
-        name = file_uri_to_path(self.uri).name[:-3]
-        new_text = f':- module({name},[{",".join(keys)}]).\n'
-        
-        export_all= types.CodeAction(
-            title= "Create module and export all predicates",
-            kind=types.CodeActionKind.QuickFix,
-            edit=types.WorkspaceEdit(changes={self.table.path: [
-                types.TextEdit(
-            range=types.Range(start=types.Position(0,0),end=types.Position(0,0)), new_text=new_text
-        )
-            ]}),
-        )
-
-        self.fixes.append(export_all)
 
     def analyse_module_declarations(self):
         if len(self.table.module_declarations) == 0:

@@ -2,6 +2,7 @@ from pls.model import Predicate, SymbolTable, Functor,Variable,Term
 from pls.pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
 from pls.my_logging import logging
+from pls.utils import add_paths,file_uri_to_path
 
 
 class PredicateDefinition:
@@ -13,8 +14,51 @@ class PredicateDefinition:
         self.reports =[]
 
         self.fixes = []
+    
+    def declare_module_action(self,keys,title):
+        if len(self.table.module_declarations) > 1:
+            return 
+        if len(self.table.module_declarations) == 0:
+            substitute_range =  types.Range(start=types.Position(0,0),end=types.Position(0,0))
+            name = file_uri_to_path(self.uri).name[:-3]
+            substitution = False
+        if len(self.table.module_declarations) == 1:
+            substitute_range = self.table.module_declarations[0].loc
+            name = self.table.module_declarations[0].name
+            substitution = True
+        action= types.CodeAction(
+            title= title,
+            kind=types.CodeActionKind.QuickFix,
+            edit=types.WorkspaceEdit(changes={self.table.path: [
+                types.TextEdit(
+            range=substitute_range,
+              new_text= self.declare_module(name,keys,substitution)
+        )
+            ]}),
+        )
+        self.fixes.append(action)
 
-    def add_code_actions(self,predicate : Predicate):
+
+    def declare_module(self,name,keys,substitution):
+        m = f'module({name},[{",".join(keys)}])'
+        if substitution:
+            return m
+        else:
+            return f":- {m}.\n"
+
+    def export_all_predicates(self):
+        keys = []
+        for key, predicate  in self.table.predicate_index.items():
+            if len(predicate.definitions) > 0 or any([type(p) is PlDocComment for p in predicate.comments]):
+                keys.append(key)
+        self.declare_module_action(keys,"Export All Defined Predicates")        
+
+
+    def add_code_actions_export_predicate(self,predicate : Predicate):
+        keys = set(self.table.exported_signatures)
+        keys.add(predicate.key())
+        self.declare_module_action(keys,"Export Predicate " + predicate.key())
+    def add_code_actions_comment_template(self,predicate : Predicate):
         head = predicate.heads[0]
         if head is None:
             return
@@ -53,7 +97,7 @@ class PredicateDefinition:
                 pldoc += f"% @param {arg}  Argument's {arg} description\n"
 
         position = types.Range(start=predicate.definitions[0].range.start,end = predicate.definitions[0].range.start)
-        export_all= types.CodeAction(
+        action= types.CodeAction(
             title= "Add predicate PLDoc Comment",
             kind=types.CodeActionKind.QuickFix,
             edit=types.WorkspaceEdit(changes={self.table.path: [
@@ -62,10 +106,14 @@ class PredicateDefinition:
         )
             ]}),
         )
-        logging.error(f"{export_all}")
-        self.fixes.append(export_all)
+        logging.error(f"{action}")
+        self.fixes.append(action)
 
     def analyse(self):
+        self.export_all_predicates()
         for key, predicate  in self.table.predicate_index.items():
-            if len(predicate.definitions) > 0  and not any([type(p) is PlDocComment for p in predicate.comments]):
-                self.add_code_actions(predicate)
+            if len(predicate.definitions) > 0 :
+                if not any([type(p) is PlDocComment for p in predicate.comments]):
+                    self.add_code_actions_comment_template(predicate)
+                if predicate.key() not in self.table.exported_signatures:
+                    self.add_code_actions_export_predicate(predicate)

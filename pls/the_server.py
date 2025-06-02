@@ -67,7 +67,7 @@ class PLS(LanguageServer):
         self.comment_trees : dict[str,Annotations] = {}
         self.dg = DependencyGraphManager()
         self.trees: dict[str, Tree] = {}
-        self.fixes :dict[str,list[types.CodeAction]]= defaultdict(list)
+        self.fixes :dict[str,list[types.CodeAction]]  = {}
         self.files = []
         self.cycles = []
         self.builtin_uri = path_to_file_uri(
@@ -406,9 +406,6 @@ class PLS(LanguageServer):
 
 
         m = MooduleAnalyser(document.uri,self.tables)
-        m.add_code_actions()
-        self.add_fixes(document,m.fixes)
-        
         m.analyse_module_declarations()
         m.analyse_use_module_declarations(modules_to_include)
         logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
@@ -805,4 +802,4 @@ def prepare_rename(ls:PLS, params: types.PrepareRenameParams):
 )
 def code_actions(ls:PLS,params: types.CodeActionParams):
     logging.error("Code actions Request")
-    return ls.fixes[params.text_document.uri][1]
+    return ls.fixes.get(params.text_document.uri,(None,[]))[1]
