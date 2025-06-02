@@ -3,7 +3,25 @@ from lsprotocol import types
 from pathlib import Path
 from urllib.request import pathname2url
 from urllib.parse import urlparse, unquote
+from dataclasses import dataclass
 
+
+@dataclass
+class RangedAction:
+    action : types.CodeAction
+    range : types.Range
+
+
+def _left_after_right(left : types.Range, right: types.Range):
+    return  left.start.line > right.end.line or  (left.start.line == right.end.line  and left.start.character > right.end.character and left.start.character )
+
+def ranges_overlap(left : types.Range, right: types.Range):
+
+    left_is_after = _left_after_right(left,right)
+    right_is_after = _left_after_right(right,left)
+
+
+    return not (left_is_after or right_is_after)
 
 def file_uri_to_path(uri: str) -> Path:
     parsed = urlparse(uri)

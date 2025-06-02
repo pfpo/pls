@@ -2,11 +2,12 @@ from pls.model import Predicate, SymbolTable, Functor,Variable,Term
 from pls.pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
 from pls.my_logging import logging
-from pls.utils import add_paths,file_uri_to_path
+from pls.utils import RangedAction, add_paths,file_uri_to_path, node_to_range
 
 
 class PredicateDefinition:
-    def __init__(self, uri,all_tables: dict[str, SymbolTable]):
+    def __init__(self,tree, uri,all_tables: dict[str, SymbolTable]):
+        self.tree = tree 
         self.uri = uri
         self.tables = all_tables
         self.table =self.tables[uri]
@@ -36,7 +37,7 @@ class PredicateDefinition:
         )
             ]}),
         )
-        self.fixes.append(action)
+        return action
 
 
     def declare_module(self,name,keys,substitution):
@@ -50,13 +51,16 @@ class PredicateDefinition:
         keys = []
         for key in self.table.exportable_predicates:
             keys.append(key)
-        self.declare_module_action(keys,"Export All Defined Predicates")        
-
+        action = self.declare_module_action(keys,"Export All Defined Predicates")        
+        self.fixes.append(RangedAction(action,node_to_range(self.tree.root_node)))
 
     def add_code_actions_export_predicate(self,predicate : Predicate):
         keys = set(self.table.exported_signatures)
         keys.add(predicate.key())
-        self.declare_module_action(keys,"Export Predicate " + predicate.key())
+        action = self.declare_module_action(keys,"Export Predicate " + predicate.key())
+        for definition in predicate.definitions:
+            self.fixes.append(RangedAction(action,definition.range))
+
     def add_code_actions_comment_template(self,predicate : Predicate):
         head = predicate.heads[0]
         if head is None:
@@ -105,8 +109,9 @@ class PredicateDefinition:
         )
             ]}),
         )
-        logging.error(f"{action}")
-        self.fixes.append(action)
+
+        for definition in predicate.definitions:
+            self.fixes.append(RangedAction(action,definition.range))
 
     def analyse(self):
         self.export_all_predicates()
