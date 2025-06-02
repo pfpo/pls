@@ -25,7 +25,7 @@
     - [ ] Link should maybe only appear on the path not on the entire functor
 - [x] Generate Comment Template
 - [x] Export Predicate
-- [ ] Code actions to appear in the correct position (not everywhere)
+- [x] Code actions to appear in the correct position (not everywhere)
 - [ ] Fix comment parser stalling
 - [ ] Comments and operators and operator autocompletion
 - [ ] The functionality of storing comments that came before a predicate was lost -> recover
