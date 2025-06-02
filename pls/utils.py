@@ -4,6 +4,7 @@ from pathlib import Path
 from urllib.request import pathname2url
 from urllib.parse import urlparse, unquote
 from dataclasses import dataclass
+from importlib.resources import files
 
 
 @dataclass
@@ -38,10 +39,13 @@ def add_paths(file_uri: str, module_relative_path: str) -> str:
     return path_to_file_uri(final_path)
 
 
+
+def builtins_path():
+    file_path = files("pls.data.flavours.sicstus").joinpath("builtins.pl")
+    return path_to_file_uri(file_path)
 def library_path(module_name: str):
-    return path_to_file_uri(
-            Path(f"/home/martim/Desktop/pls/sicstus-doc-scraper/libs/{module_name}.pl").resolve()
-        )
+    file_path = files("pls.data.flavours.sicstus.libs").joinpath(f"{module_name}.pl")
+    return path_to_file_uri(file_path)
 
 def node_to_range(node: Node):
     return types.Range(

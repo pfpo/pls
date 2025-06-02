@@ -32,3 +32,6 @@ Issues = "https://github.com/MartimVideira/pls/issues"
 
 [project.scripts]
 pls = "pls.server:main"
+
+[tool.setuptools.package-data]
+"pls" = ["data/*"]

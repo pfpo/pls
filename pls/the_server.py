@@ -15,6 +15,7 @@ from .model import Functor, Variable, Predicate, SymbolTable, scope_at_position,
 from .utils import (
     node_at_position,
     position_inside_node,
+    builtins_path,
     path_to_file_uri,
     file_uri_to_path,
     Path,
@@ -70,9 +71,7 @@ class PLS(LanguageServer):
         self.fixes :dict[str,list[types.CodeAction]]  = {}
         self.files = []
         self.cycles = []
-        self.builtin_uri = path_to_file_uri(
-            Path("/home/martim/Desktop/pls/sicstus-doc-scraper/builtins.pl").resolve()
-        )
+        self.builtin_uri = builtins_path()
         self.builtin_table: SymbolTable = None
         self.root_path = None
 
