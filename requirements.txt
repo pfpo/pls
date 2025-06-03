@@ -1,3 +1,5 @@
 pygls
 tree-sitter
 ./tree-sitter-prolog
+./tree-sitter-pldoc
+platformdirs

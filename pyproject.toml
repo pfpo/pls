@@ -23,7 +23,9 @@ license-files = ["LICEN[CS]E*"]
 dependencies = [
   "tree-sitter",
   "pygls",
-   "tree-sitter-prolog @ {root:uri}/tree-sitter-prolog",
+   "tree-sitter-prolog @ {root:uri}/tree-sitter-prolog",  
+   "tree-sitter-pldoc @ {root:uri}/tree-sitter-pldoc",
+   "platformdirs",
 ]
 
 [project.urls]

@@ -29,11 +29,11 @@
 - [x] The functionality of storing comments that came before a predicate was lost -> recover
 - [x] Disable hover that shows node information
 - [x] Ability to not rename library defined predicates
+- [x] Fix hardcoded paths
+- [x] Neovim Instalation script
 - [ ] Fix comment parser stalling
 - [ ] Comments and operators and operator autocompletion
-- [ ] Fix hardcoded paths
 - [ ] Ship application -> make it easily installable
-- [ ] Neovim Extension
 - [ ] In what other editors could this be used
 - [ ] Add extra libraries
 - [ ] Check hover
