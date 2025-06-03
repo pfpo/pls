@@ -193,6 +193,7 @@
 % @param Then *numeric* a numeric argument, either integer or real.
 % @param Else *numeric* a numeric argument, either integer or real.
 % @param Value *numeric* a numeric argument, either integer or real.
+
 %! smt(:Body)
 %
 % The arithmetic, membership, and propositional constraints described
@@ -548,6 +549,7 @@
 % @param Y integer argument
 % @param Relop arithmetic comparison as in Syntax of Integer Expressions
 % @param Offset integer
+
 %! labeling(:Options, +Variables)
 %
 % where Variables is a list of numeric arguments with finite bounds and Options is
@@ -979,6 +981,7 @@
 % @param X integer
 % @param Options list
 %
+
 %! maximize(:Goal, ?X)
 %! maximize(:Goal, ?X, +Options)
 %
@@ -1123,6 +1126,7 @@
 %
 % @param Options list
 % @param Searches list or goal
+
 %! element(?X,+List,?Y)
 %
 % True if the X-th element of List equals Y.
@@ -1273,6 +1277,7 @@
 % @param Tuples *list of terms*
 % @param Dag *list of nodes*
 % @param Options *list of options*
+
 %! circuit(+Succ)
 %
 % Corresponds to `circuit` in MiniZinc.
@@ -1450,6 +1455,7 @@
 %
 % @param P reifiable constraint
 % @param Q reifiable constraint
+
 %! disjoint1(+Lines)
 %! disjoint1(+Lines,+Options)
 %
@@ -1765,7 +1771,9 @@
 %
 %   (forall(O1,objects([3]),
 %       forall(O2,objects([7]), abut(O1,O2))))].
-% ```%! cumulative(+Tasks)
+% ```
+
+%! cumulative(+Tasks)
 %! cumulative(+Tasks,+Options)
 %
 % This constraint ensures that the total resource consumption of n tasks does not exceed a given limit at any time.
@@ -1790,6 +1798,7 @@
 %
 % @param Tasks *list of task(Oi,Di,Ei,Hi,Ti)*
 % @param Options *list of term*
+
 %! cumulatives(+Tasks,+Machines)
 %! cumulatives(+Tasks,+Machines,+Options)
 %
@@ -1811,6 +1820,7 @@
 % @param Tasks *list of task(O,D,E,H,M)*
 % @param Machines *list of machine(M,L)*
 % @param Options *list of term*
+
 %! multi_cumulative(+Tasks,+Capacities)
 %! multi_cumulative(+Tasks,+Capacities,+Options)
 %
@@ -1836,6 +1846,7 @@
 % @param Tasks *list of task(Oi,Di,Ei,Hsi,Ti)*
 % @param Capacities *list of cumulative(Limit) or colored(Limit)*
 % @param Options *list of term*
+
 %! automaton(?Signature, ?SourcesSinks, ?Arcs)
 %
 % This constraint provides a general way of defining any constraint involving sequences
@@ -1846,7 +1857,8 @@
 % @param Signature *list of variable* The signature of the sequence.
 % @param SourcesSinks *list of nodespec* The source and sink nodes of the automaton.
 % @param Arcs *list of arc* The arcs (transitions) of the automaton.
-%
+
+
 %! automaton(?Sequence, ?Template, ?Signature, ?SourcesSinks, ?Arcs, ?Counters, ?Initial, ?Final)
 %
 % This constraint provides a general way of defining any constraint involving sequences
@@ -1861,7 +1873,8 @@
 % @param Counters *list of variable* A list of counter variables, local to the constraint.
 % @param Initial *list of intarg* A list of initial values for the counters.
 % @param Final *list of intarg* A list of final values for the counters.
-%
+
+
 %! automaton(?Sequence, ?Template, ?Signature, ?SourcesSinks, ?Arcs, ?Counters, ?Initial, ?Final, ?Options)
 %
 % This constraint provides a general way of defining any constraint involving sequences
@@ -1877,7 +1890,7 @@
 % @param Initial *list of intarg* A list of initial values for the counters.
 % @param Final *list of intarg* A list of final values for the counters.
 % @param Options *list of term* A list of zero or more options.
-%
+
 %! inflexion(?N, ?Vars, ?Opt)
 %
 % Holds if Vars is a list of integer arguments, and N is the number of times that
@@ -1958,6 +1971,7 @@
 % L = [2,2,0,2] ? ;
 %
 % ```
+
 %! value_precede_chain(+Values, +Vars)
 %
 % Holds if for all adjacent pairs v,w in Values,
@@ -1965,7 +1979,7 @@
 %
 % @param Values *list of integer* A list of integers.
 % @param Vars *list of integer* A list of integer arguments.
-%
+
 %! value_precede_chain(+Values, +Vars, +Options)
 %
 % Holds if for all adjacent pairs v,w in Values,
@@ -1974,19 +1988,20 @@
 % @param Values *list of integer* A list of integers.
 % @param Vars *list of integer* A list of integer arguments.
 % @param Options *list of term* Options for the constraint, e.g., `global(Boolean)`.
-%
+
 %! seq_precede_chain(+Vars)
 %
 % The same as `value_precede_chain`, for Values = `[1,2,...]`.
 %
 % @param Vars *list of integer* A list of integer arguments.
-%
+
 %! seq_precede_chain(+Vars, +Options)
 %
 % The same as `value_precede_chain`, for Values = `[1,2,...]`.
 %
 % @param Vars *list of integer* A list of integer arguments.
 % @param Options *list of term* Options for the constraint, e.g., `global(Boolean)`.
+
 %! fd_statistics
 %! fd_statistics(?Key, ?Value)
 %

@@ -4,6 +4,7 @@ json_to_codes/2,json_to_codes/3,json_to_atom/2,
 json_to_atom/3,json_from_codes/2,json_from_codes/3,
 json_from_atom/2,json_from_atom/3
 ]).
+
 %! json_read(+Stream, -Term)
 %! json_read(+Stream, -Term, +Options)
 %
