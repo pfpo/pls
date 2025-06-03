@@ -37,22 +37,22 @@
 %   * `pipe(Stream, StreamOptions)`: A new Prolog stream is created and connected to the corresponding stream of the new process. StreamOptions is a list of options affecting the created stream. The supported stream options are: `type/1`, `eol/1`, and `encoding/1`, with the same meaning as for `open/4`. The default, if no stream options are specified, is to use a text stream with the OS default character encoding.
 % * `wait(-ExitStatus)`: The call will not return until the sub-process has terminated. ExitStatus will be bound to the exit status of the process, as described for `process_wait/2`.
 % * `process(Proc)`: Proc will be bound to a process reference that can be used in calls to `process_wait/[2,3]` etc.. This process reference must be released, either explicitly with `process_release/1` or implicitly by `process_wait/[2,3]`. It is often easier to use the `wait/1` option if you just want to wait for the process to terminate.
-% * `detached(Bool)`: Bool is either `true` or `false`. Specifies whether the new process should be “detached”, i.e. whether it should be notified of terminal events such as `^C` interrupts. By default a new process is created detached if none of the standard streams are specified, explicitly or implicitly, as `std`.
+% * `detached(Bool)`: Bool is either `true` or `false`. Specifies whether the new process should be "detached", i.e. whether it should be notified of terminal events such as `^C` interrupts. By default a new process is created detached if none of the standard streams are specified, explicitly or implicitly, as `std`.
 % * `cwd(CWD)`: CWD is expanded as if by `absolute_file_name/2` and is used as the working directory for the new process. By default, the working directory is the same as the Prolog working directory.
 % * `window(Bool)`: Bool is either `true` or `false` (the default). Specifies whether the process should open in its own window. Specifying `window(true)` may give unexpected results if the standard stream options `stdin/1`, `stdout/1` and `stderr/1` are specified with anything but their default value `std`. Currently only implemented on Windows.
 % * `environment(Env)`: Env is a list of `VAR=VALUE` for extra environment variables to pass to the sub-process in addition to the default process environment. VAR should be an atom. VALUE should be an argument specification, as described above. The VALUE is typically an atom but, especially on the Windows platform, it may be necessary to wrap file names in `file/1` to ensure file paths are converted to the native format.
 %
 % Examples:
 % ```prolog
-% % Run the `date` command in the standard shell ‘`sh`’. The output of the command is sent to the terminal:
+% % Run the `date` command in the standard shell '`sh`'. The output of the command is sent to the terminal:
 % | ?- process_create(path(sh), ['-c', date]).
 %
-% % Run the `date` command in the standard shell ‘`sh`’. Wait for the command to terminate before returning to Prolog. Fail if the process gets an error. The output of the command is sent to the terminal:
+% % Run the `date` command in the standard shell '`sh`'. Wait for the command to terminate before returning to Prolog. Fail if the process gets an error. The output of the command is sent to the terminal:
 % | ?- process_create(path(sh), ['-c', date], [wait(exit(0))]).
 %
-% % Run the `date` command in the standard shell ‘`sh`’. The output of the command is received by Prolog:
+% % Run the `date` command in the standard shell '`sh`'. The output of the command is received by Prolog:
 % | ?- process_create(path(sh), ['-c', date], [stdout(pipe(S))]), read_line(S,L), close(S), atom_codes(Date,L).
-% % …,
+% % ...,
 % % Date = 'Fri Jan 24 12:59:26 CET 2014' ?
 %
 % % Pipe the output of the `date` command to a file:
@@ -60,18 +60,18 @@
 %
 % % Count the number of words in an atom, using the `wc` command:
 % | ?- process_create(path(wc), ['-w'], [stdin(pipe(In)), stdout(pipe(Out))]), write(In, 'a b c\n'), close(In), read_line(Out, L), close(Out), number_codes(N, L).
-% % …
+% % ...
 % % N = 3
 %
 % % Count the number of unique words in a file, piping the output of the `uniq` command to the `wc` command:
 % | ?- process_create(path(sh), ['-c', ['uniq ', file('/tmp/foo.txt'), ' | wc -w']], [stdout(pipe(Out))]), read_line(Out, L), close(Out), number_codes(N, L).
-% % …
+% % ...
 % % N = 6
 %
 % % Run the `make` command with the `-n` (dry run) option, discarding output, fail if it does not succeed:
 % | ?- process_create(path(make), ['-n'], [stdout(null), wait(Exit)]), Exit = exit(0).
 %
-% % Run `ls` on a home directory in a subshell using the user’s preferred shell:
+% % Run `ls` on a home directory in a subshell using the user's preferred shell:
 % | ?- process_create('$SHELL', ['-c', [ls, ' ', file('~/') ]]).
 %
 % % Run a command with output piped from a file and input provided by Prolog.
@@ -83,12 +83,12 @@
 % % Run a shell script with input piped from a file and output read by Prolog.
 % % This is similar to `popen('./myscript.sh < ./somefile.txt',read,S)` in SICStus 3.
 % | ?- open('somefile.txt',write,OF), write(OF,'hello\nworld\nhello\nhello\n'),close(OF), process_create(path(sh), ['-c', './myscript.sh < ./somefile.txt'], [stdout(pipe(S))]), read_line(S, L), atom_codes(Line, L), close(S).
-% % …,
+% % ...,
 % % Line = '   3 hello' ?
 %
 % % Run a goal in a SICStus subprocess (UNIX and Windows):
 % | ?- process_create(application(sicstus), ['-f', '--noinfo', '--nologo', '--goal', 'read(X), call(X), halt.'], [stdin(pipe(In)), stdout(pipe(Out))]), format(In,'~q .~n', [(length([h,e,l,l,o], Len), format('~q .~n', [Len]))]), close(In), read(Out,Answer), close(Out).
-% % …,
+% % ...,
 % % Answer = 5
 %
 % % Run `notepad.exe` on a file `C:/foo.txt` under Windows:
@@ -122,21 +122,21 @@
 %
 % % Example for Microsoft Windows Shell (creating a batch file):
 % | ?- BatFileName='test.bat', open(BatFileName, write, S), write(S, 'date /T > "result.txt"\n'), close(S), process_create('$COMSPEC', ['/Q', '/C', file(BatFileName)], [wait(exit(0))]), open('result.txt', read, R), read_line(R,L),close(R),atom_codes(Date,L).
-% % …,
+% % ...,
 % % Date = '2014-01-27 ',
-% % … ?
+% % ... ?
 %
 % % Example for Microsoft Windows Shell (PowerShell - plain text command):
 % | ?- Command = '(get-date).DayOfWeek', process_create(path(powershell), ['-Command', Command], [stdout(pipe(S))]), read_line(S,L),atom_codes(Day,L).
-% % …,
+% % ...,
 % % Day = 'Monday',
-% % … ?
+% % ... ?
 %
 % % Example for Microsoft Windows Shell (PowerShell - base64 encoded command):
 % | ?- EncodedCommand = 'KABnAGUAdAAtAGQAYQB0AGUAKQAuAEQAYQB5AE8AZgBXAGUAZQBrAA==', process_create(path(powershell), ['-encodedCommand', EncodedCommand], [stdout(pipe(S))]), read_line(S,L),atom_codes(Day,L).
-% % …,
+% % ...,
 % % Day = 'Monday',
-% % … ?
+% % ... ?
 % ```
 % @param File *atom* or *compound*
 % @param Args *list of term*

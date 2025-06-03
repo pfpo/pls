@@ -4,6 +4,7 @@ json_to_codes/2,json_to_codes/3,json_to_atom/2,
 json_to_atom/3,json_from_codes/2,json_from_codes/3,
 json_from_atom/2,json_from_atom/3
 ]).
+
 %! json_read(+Stream, -Term)
 %! json_read(+Stream, -Term, +Options)
 %
@@ -72,7 +73,7 @@ json_from_atom/2,json_from_atom/3
 % A small example:
 % ```
 % | ?- use_module(library(json)).
-% …
+% ...
 % | ?- JSONCodes = "{\"foo\": 42, \"bar\": null}",
 %      json_from_codes(JSONCodes, JSONTerm),
 %      json_to_atom(JSONTerm, JSONAtom, [compact(true)]).

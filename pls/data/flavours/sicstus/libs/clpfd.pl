@@ -193,6 +193,7 @@
 % @param Then *numeric* a numeric argument, either integer or real.
 % @param Else *numeric* a numeric argument, either integer or real.
 % @param Value *numeric* a numeric argument, either integer or real.
+
 %! smt(:Body)
 %
 % The arithmetic, membership, and propositional constraints described
@@ -548,6 +549,7 @@
 % @param Y integer argument
 % @param Relop arithmetic comparison as in Syntax of Integer Expressions
 % @param Offset integer
+
 %! labeling(:Options, +Variables)
 %
 % where Variables is a list of numeric arguments with finite bounds and Options is
@@ -562,7 +564,7 @@
 % should be returned. The options are divided into 11 groups. At most one
 % option may be selected per group, and each group has a default choice.
 %
-% #### Option Group 1—Variable Choice
+% #### Option Group 1--Variable Choice
 % The following mutually exclusive options control the order in which the next variable is
 % selected for assignment. In all cases, ties are broken by selecting
 % the leftmost variable.
@@ -629,7 +631,7 @@
 % appended to it. For example, if Sel is `mod:sel(Param)`,
 % then it will be called as `mod:sel(Param,Vars,Selected,Rest)`.
 %
-% #### Option Group 2—Value Choice
+% #### Option Group 2--Value Choice
 % The following mutually exclusive options control the way in which
 % choices are made for the selected variable X. For real
 % variables, the default is an undefined order that could change from
@@ -678,7 +680,7 @@
 % example, if Enum is `mod:enum(Param)`, then it will be called as
 % `mod:enum(Param,X,Rest,BB0,BB)`.
 %
-% #### Option Group 3—Value Order
+% #### Option Group 3--Value Order
 % The following mutually exclusive options control the order in which the choices are made
 % for the selected variable X. They have no effect if combined with `value/1`.
 %
@@ -712,7 +714,7 @@
 % variables. The random number generator seed can be set and obtained
 % with `fd_setrand/1` and `fd_getrand/1`.
 %
-% #### Option Group 4—Branch Order
+% #### Option Group 4--Branch Order
 % The following mutually exclusive options control the order in which
 % the alternatives are explored for binary and n-ary choices. They have
 % no effect if combined with `value/1`.
@@ -725,7 +727,7 @@
 % The alternatives are explored in the reverse order of that described
 % for Groups 2 and 3.
 %
-% #### Option Group 5—Precision
+% #### Option Group 5--Precision
 % When exploring alternatives for real variables, the number of float
 % values contained in the domain is typically huge. It is usually a good
 % idea to explore only a sample of them. The granularity of the sample
@@ -743,7 +745,7 @@
 % The default is 0.0, but the value of the `precision` FD flag
 % overrides P if it is greater than P.
 %
-% #### Option Group 6—Objective
+% #### Option Group 6--Objective
 % The following options tell the solver whether the given problem is a
 % satisfaction problem or an optimization problem. In a satisfaction
 % problem, we wish to find values for the domain variables, all
@@ -782,7 +784,7 @@
 % solution 2 iff As[i] =< Bs[i] for every position i. The
 % non-dominated solutions are enumerated by backtracking.
 %
-% #### Option Group 7—Optimization Incrementality
+% #### Option Group 7--Optimization Incrementality
 % The following options are only meaningful for optimization problems.
 % They tell the solver whether to enumerate every solution that improves
 % the objective function, or only the optimal one after optimality has
@@ -799,7 +801,7 @@
 % `pareto_maximize`, because an improving solution may later become
 % dominated during search.
 %
-% #### Option Group 8—Optimization Strategy
+% #### Option Group 8--Optimization Strategy
 % The following options too are only meaningful for optimization problems.
 % They tell the solver what search scheme to use, but have no effect on
 % the semantics or on the meaning of other options:
@@ -813,7 +815,7 @@
 % Use a scheme that restarts the search with a tighter bound on the
 % objective each time a solution is found.
 %
-% #### Option Group 9—Restart
+% #### Option Group 9--Restart
 % Depth-first search suffers from the problem that wrong decisions made
 % at the top of the search tree can take an exponential amount of search
 % to undo. One common way to mitigate this problem is to restart the
@@ -847,7 +849,7 @@
 % e.g., it repeats two copies of the sequence ending in 2^i before
 % adding the number 2^(i+1). Scale should be an integer.
 %
-% #### Option Group 10—Large Neighborhood Search
+% #### Option Group 10--Large Neighborhood Search
 % Restarting search can be made more effective by using a fragment of
 % the latest found solution as a warm start each time. With the
 % following options, upon restart, for each variable to label, it is
@@ -864,7 +866,7 @@
 % solution with probability P/100. If Ys is given, then use
 % that as an initial solution until the first solution has been found.
 %
-% #### Option Group 11—Time-Out
+% #### Option Group 11--Time-Out
 % Finally, a limit on the execution time can be imposed:
 %
 % `time_out(Time,Flag)`
@@ -979,6 +981,7 @@
 % @param X integer
 % @param Options list
 %
+
 %! maximize(:Goal, ?X)
 %! maximize(:Goal, ?X, +Options)
 %
@@ -1123,6 +1126,7 @@
 %
 % @param Options list
 % @param Searches list or goal
+
 %! element(?X,+List,?Y)
 %
 % True if the X-th element of List equals Y.
@@ -1273,6 +1277,7 @@
 % @param Tuples *list of terms*
 % @param Dag *list of nodes*
 % @param Options *list of options*
+
 %! circuit(+Succ)
 %
 % Corresponds to `circuit` in MiniZinc.
@@ -1450,6 +1455,7 @@
 %
 % @param P reifiable constraint
 % @param Q reifiable constraint
+
 %! disjoint1(+Lines)
 %! disjoint1(+Lines,+Options)
 %
@@ -1720,9 +1726,9 @@
 %             sbox(7,[0,0],[3,2]),
 %             sbox(8,[0,0],[2,3])]).
 % ```
-% Example of encoding in Rules “objects with
+% Example of encoding in Rules "objects with
 % oid 1, 2 and 3 must all be at least 2 units apart from objects with oid
-% 4, 5 and 6”:
+% 4, 5 and 6":
 % ```prolog
 % [ (origin(O1,S1,D) ---> O1^x(D)+S1^t(D)),
 %
@@ -1741,9 +1747,9 @@
 %   (forall(O1,objects([1,2,3]),
 %       forall(O2,objects([4,5,6]), apart(O1,O2))))].
 % ```
-% Example of encoding in Rules “objects 3 and
+% Example of encoding in Rules "objects 3 and
 % 7 model rooms that must be adjacent and have a common border at least 1
-% unit long”:
+% unit long":
 % ```prolog
 % [ (origin(O1,S1,D) ---> O1^x(D)+S1^t(D)),
 %
@@ -1765,7 +1771,9 @@
 %
 %   (forall(O1,objects([3]),
 %       forall(O2,objects([7]), abut(O1,O2))))].
-% ```%! cumulative(+Tasks)
+% ```
+
+%! cumulative(+Tasks)
 %! cumulative(+Tasks,+Options)
 %
 % This constraint ensures that the total resource consumption of n tasks does not exceed a given limit at any time.
@@ -1790,6 +1798,7 @@
 %
 % @param Tasks *list of task(Oi,Di,Ei,Hi,Ti)*
 % @param Options *list of term*
+
 %! cumulatives(+Tasks,+Machines)
 %! cumulatives(+Tasks,+Machines,+Options)
 %
@@ -1811,6 +1820,7 @@
 % @param Tasks *list of task(O,D,E,H,M)*
 % @param Machines *list of machine(M,L)*
 % @param Options *list of term*
+
 %! multi_cumulative(+Tasks,+Capacities)
 %! multi_cumulative(+Tasks,+Capacities,+Options)
 %
@@ -1836,6 +1846,7 @@
 % @param Tasks *list of task(Oi,Di,Ei,Hsi,Ti)*
 % @param Capacities *list of cumulative(Limit) or colored(Limit)*
 % @param Options *list of term*
+
 %! automaton(?Signature, ?SourcesSinks, ?Arcs)
 %
 % This constraint provides a general way of defining any constraint involving sequences
@@ -1846,7 +1857,8 @@
 % @param Signature *list of variable* The signature of the sequence.
 % @param SourcesSinks *list of nodespec* The source and sink nodes of the automaton.
 % @param Arcs *list of arc* The arcs (transitions) of the automaton.
-%
+
+
 %! automaton(?Sequence, ?Template, ?Signature, ?SourcesSinks, ?Arcs, ?Counters, ?Initial, ?Final)
 %
 % This constraint provides a general way of defining any constraint involving sequences
@@ -1861,7 +1873,8 @@
 % @param Counters *list of variable* A list of counter variables, local to the constraint.
 % @param Initial *list of intarg* A list of initial values for the counters.
 % @param Final *list of intarg* A list of final values for the counters.
-%
+
+
 %! automaton(?Sequence, ?Template, ?Signature, ?SourcesSinks, ?Arcs, ?Counters, ?Initial, ?Final, ?Options)
 %
 % This constraint provides a general way of defining any constraint involving sequences
@@ -1877,7 +1890,7 @@
 % @param Initial *list of intarg* A list of initial values for the counters.
 % @param Final *list of intarg* A list of final values for the counters.
 % @param Options *list of term* A list of zero or more options.
-%
+
 %! inflexion(?N, ?Vars, ?Opt)
 %
 % Holds if Vars is a list of integer arguments, and N is the number of times that
@@ -1958,6 +1971,7 @@
 % L = [2,2,0,2] ? ;
 %
 % ```
+
 %! value_precede_chain(+Values, +Vars)
 %
 % Holds if for all adjacent pairs v,w in Values,
@@ -1965,7 +1979,7 @@
 %
 % @param Values *list of integer* A list of integers.
 % @param Vars *list of integer* A list of integer arguments.
-%
+
 %! value_precede_chain(+Values, +Vars, +Options)
 %
 % Holds if for all adjacent pairs v,w in Values,
@@ -1974,19 +1988,20 @@
 % @param Values *list of integer* A list of integers.
 % @param Vars *list of integer* A list of integer arguments.
 % @param Options *list of term* Options for the constraint, e.g., `global(Boolean)`.
-%
+
 %! seq_precede_chain(+Vars)
 %
 % The same as `value_precede_chain`, for Values = `[1,2,...]`.
 %
 % @param Vars *list of integer* A list of integer arguments.
-%
+
 %! seq_precede_chain(+Vars, +Options)
 %
 % The same as `value_precede_chain`, for Values = `[1,2,...]`.
 %
 % @param Vars *list of integer* A list of integer arguments.
 % @param Options *list of term* Options for the constraint, e.g., `global(Boolean)`.
+
 %! fd_statistics
 %! fd_statistics(?Key, ?Value)
 %

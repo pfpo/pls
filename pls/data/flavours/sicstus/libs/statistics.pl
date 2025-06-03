@@ -100,7 +100,7 @@ correlation/3,median/2,fractile/3,normalize/2
 % A sample with negative skew is said to be *left-skewed*.
 % Most of its mass is on the right of the distribution, with the tail on the left.
 % Vice versa for positive skew.
-% A sample’s skewness is undefined if its variance is zero.
+% A sample's skewness is undefined if its variance is zero.
 %
 % @param Sample *list of number*
 % @param Value *number*
@@ -109,9 +109,9 @@ correlation/3,median/2,fractile/3,normalize/2
 %
 % is true when Value is the excess kurtosis of Sample.
 % This is a measure of the peakedness of its distribution.
-% A high kurtosis indicates that most of the sample’s variance is
+% A high kurtosis indicates that most of the sample's variance is
 % due to infrequent severe deviations, rather than frequent modest deviations.
-% A sample’s excess kurtosis is undefined if its variance is zero.
+% A sample's excess kurtosis is undefined if its variance is zero.
 % In this implementation, the kurtosis of the normal distribution is 0.
 %
 % @param Sample *list of number*
