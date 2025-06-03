@@ -10,89 +10,8 @@
       }
     },
     "comment": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "normal_comment"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "pldoc_comment"
-        }
-      ]
-    },
-    "normal_comment": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "normal_single_line_comment"
-        }
-      ]
-    },
-    "normal_single_line_comment": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "%"
-        },
-        {
-          "type": "PATTERN",
-          "value": ".*"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "\n"
-            },
-            {
-              "type": "STRING",
-              "value": "\u0000"
-            }
-          ]
-        }
-      ]
-    },
-    "normal_multiline_comment": {
-      "type": "ALIAS",
-      "content": {
-        "type": "TOKEN",
-        "content": {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "/*"
-            },
-            {
-              "type": "REPEAT",
-              "content": {
-                "type": "SEQ",
-                "members": [
-                  {
-                    "type": "PATTERN",
-                    "value": "(([^*\\n]\\/)|([^*\\/\\n])|\\*|(\\*[^\\/\\n]))*"
-                  },
-                  {
-                    "type": "PATTERN",
-                    "value": "\\n?"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "STRING",
-              "value": "*/"
-            }
-          ]
-        }
-      },
-      "named": false,
-      "value": "comment_token"
+      "type": "SYMBOL",
+      "name": "pldoc_comment"
     },
     "_template": {
       "type": "CHOICE",
@@ -468,8 +387,21 @@
                         "value": "%"
                       },
                       {
-                        "type": "STRING",
-                        "value": "\n"
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "STRING",
+                            "value": "\n"
+                          },
+                          {
+                            "type": "STRING",
+                            "value": "\r"
+                          },
+                          {
+                            "type": "STRING",
+                            "value": "\r\n"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -554,8 +486,21 @@
             "type": "CHOICE",
             "members": [
               {
-                "type": "STRING",
-                "value": "\n"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "\n"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r\n"
+                  }
+                ]
               },
               {
                 "type": "STRING",
@@ -569,15 +514,37 @@
     "prolog_style_description": {
       "type": "REPEAT1",
       "content": {
-        "type": "CHOICE",
+        "type": "SEQ",
         "members": [
           {
-            "type": "PATTERN",
-            "value": "%[\\r\\t\\f\\v ]*[^@\\s].*\\n"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "PATTERN",
+                "value": "%[\\r\\t\\f\\v ]*[^@\\s].*"
+              },
+              {
+                "type": "PATTERN",
+                "value": "%\\s*"
+              }
+            ]
           },
           {
-            "type": "PATTERN",
-            "value": "%\\s*\\n"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\n"
+              },
+              {
+                "type": "STRING",
+                "value": "\r"
+              },
+              {
+                "type": "STRING",
+                "value": "\r\n"
+              }
+            ]
           }
         ]
       }
@@ -615,8 +582,21 @@
                 "name": "_template"
               },
               {
-                "type": "STRING",
-                "value": "\n"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "\n"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r\n"
+                  }
+                ]
               }
             ]
           }
@@ -645,8 +625,21 @@
                         ]
                       },
                       {
-                        "type": "STRING",
-                        "value": "\n"
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "STRING",
+                            "value": "\n"
+                          },
+                          {
+                            "type": "STRING",
+                            "value": "\r"
+                          },
+                          {
+                            "type": "STRING",
+                            "value": "\r\n"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -700,8 +693,21 @@
                     "name": "c_tag"
                   },
                   {
-                    "type": "STRING",
-                    "value": "\n"
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": "\n"
+                      },
+                      {
+                        "type": "STRING",
+                        "value": "\r"
+                      },
+                      {
+                        "type": "STRING",
+                        "value": "\r\n"
+                      }
+                    ]
                   }
                 ]
               }
@@ -734,8 +740,21 @@
                 "name": "c_tag"
               },
               {
-                "type": "STRING",
-                "value": "\n"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "\n"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r\n"
+                  }
+                ]
               }
             ]
           }
@@ -752,8 +771,29 @@
             "value": "(([^*\\n]\\/)|([^*\\/\\n])|\\*|(\\*[^\\/\\n]))*"
           },
           {
-            "type": "PATTERN",
-            "value": "\\n?"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "\n"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\r\n"
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           }
         ]
       }
@@ -1563,13 +1603,6 @@
   "conflicts": [
     [
       "pldoc_prolog_style"
-    ],
-    [
-      "prolog_style_body"
-    ],
-    [
-      "operator_template",
-      "arg_name"
     ]
   ],
   "precedences": [],

@@ -6,9 +6,8 @@
 
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
+// TODO: remove \n for new_line_char
 const multi_line_comment_line = /(([^*\n]\/)|([^*\/\n])|\*|(\*[^\/\n]))*/
-const multi_line_comment1 = /\/\*(([^*]\/)|([^*\/])|\*|(\*[^\/]))*\*\//
-const multi_line_comment = alias(token(seq('/*', repeat(seq(multi_line_comment_line, /\n?/)), '*/')),"comment_token")
 const prolog_start_comment = '%'
 const pldoc_new_start_token = '! '
 const pldoc_old_start_token = '% '
@@ -20,6 +19,7 @@ const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', '
 
 const word = /[^\s]+/
 
+const new_line_char = choice("\n","\r","\r\n")
 const name = alias(token(word),'name')
 const text = word
 
@@ -43,23 +43,13 @@ const tags = [
 
 module.exports = grammar({
   name: "pldoc",
-  conflicts: $ => [[$.pldoc_prolog_style], [$.prolog_style_body],[$.operator_template,$.arg_name]],
+  conflicts: $ => [[$.pldoc_prolog_style]],
 
   rules: {
     // TODO: add the actual grammar rules
     source_file: $ => repeat($.comment),
 
-    comment: $ => choice(
-      $.normal_comment,
-      $.pldoc_comment
-    ),
-    normal_comment: $ => choice(
-      $.normal_single_line_comment,
-      // $.normal_multiline_comment,
-    ),
-
-    normal_single_line_comment: $ => seq('%', /.*/, choice('\n', '\0')),
-    normal_multiline_comment: $ => multi_line_comment,
+    comment: $ => $.pldoc_comment,
 
     _template: $=> choice(
       $.functor_template,
@@ -106,7 +96,7 @@ module.exports = grammar({
     pldoc_prolog_style: $ => seq(
       repeat1($.pldoc_prolog_directive),
       optional(seq(
-        repeat1(seq('%', '\n')),
+        repeat1(seq('%', new_line_char)),
         $.prolog_style_body))
     ),
 
@@ -119,30 +109,30 @@ module.exports = grammar({
       repeat1(seq('%', $.pl_tag)),
     ),
 
-    _prolog_style_description: $ => repeat1(seq('%', /([^@\s].*)|(\s+[^@].*)/, choice('\n', '\0'))),
-    prolog_style_description: $ => repeat1(choice(
-      /%[\r\t\f\v ]*[^@\s].*\n/,
-      /%\s*\n/,
-    )),
+    _prolog_style_description: $ => repeat1(seq('%', /([^@\s].*)|(\s+[^@].*)/, choice(new_line_char, '\0'))),
+    prolog_style_description: $ => repeat1(seq(choice(
+      /%[\r\t\f\v ]*[^@\s].*/,
+      /%\s*/,
+    ),new_line_char)),
 
     pldoc_c_style: $ => seq(
       pldoc_c_style_start_comment,
-      repeat1(seq('*', $._template, '\n')),
+      repeat1(seq('*', $._template, new_line_char)),
       optional(seq(
-        repeat1(seq(optional('*'), '\n')),
+        repeat1(seq(optional('*'),new_line_char)),
         $.c_style_body)),
       '*/'),
 
     c_style_body: $ => choice(
       seq(
         $.c_style_description,
-        repeat1(seq(optional('*'), $.c_tag, '\n'))
+        repeat1(seq(optional('*'), $.c_tag, new_line_char))
       ),
       $.c_style_description,
-      repeat1(seq(optional('*'), $.c_tag, '\n')),
+      repeat1(seq(optional('*'), $.c_tag, new_line_char)),
     ),
     
-    c_style_description: $ => repeat1(seq(multi_line_comment_line, /\n?/)),
+    c_style_description: $ => repeat1(seq(multi_line_comment_line, optional(new_line_char))),
 
 
     // c_tag: $ => choice(...(tags.map(((e) => e(seq(/.*\n/, optional($.c_style_description))))))),

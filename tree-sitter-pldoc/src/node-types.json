@@ -127,10 +127,6 @@
       "required": true,
       "types": [
         {
-          "type": "normal_comment",
-          "named": true
-        },
-        {
           "type": "pldoc_comment",
           "named": true
         }
@@ -179,26 +175,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "normal_comment",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "normal_single_line_comment",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "normal_single_line_comment",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "operator_template",
@@ -387,11 +363,15 @@
     "fields": {}
   },
   {
-    "type": "\u0000",
+    "type": "\n",
     "named": false
   },
   {
-    "type": "\n",
+    "type": "\r",
+    "named": false
+  },
+  {
+    "type": "\r\n",
     "named": false
   },
   {
