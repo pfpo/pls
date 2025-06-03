@@ -396,11 +396,11 @@
 %! shorter_list(?Short, ?Long)
 %
 % is true when Short is a list is strictly shorter than Long. Long
-% doesn’t have to be a proper list provided it is long enough. This
+% doesn't have to be a proper list provided it is long enough. This
 % can be used to generate lists shorter than Long, lengths 0, 1, 2...
 % will be tried, but backtracking will terminate with a list that is
 % one element shorter than Long. It cannot be used to generate lists
-% longer than Short, because it doesn’t look at all the elements of the
+% longer than Short, because it doesn't look at all the elements of the
 % longer list.
 %
 % @param Short list
@@ -499,8 +499,8 @@
 %
 % is true when there exists a list Prefix such that
 % `append_length(Prefix, Suffix, List, Length)` is true.
-% When you don’t want to know the Prefix, you should call this
-% predicate, because it doesn’t construct the Prefix argument,
+% When you don't want to know the Prefix, you should call this
+% predicate, because it doesn't construct the Prefix argument,
 % which `append_length/4` would do.
 %
 % @param Suffix list
@@ -712,7 +712,7 @@
 % of List. That is, List = _ <> Segment <> _ .
 % Terminates only if List is proper. If Segment is proper
 % it enumerates all solutions. If neither argument is proper, it
-% would have to diagonalize to find all solutions, but it doesn’t, so
+% would have to diagonalize to find all solutions, but it doesn't, so
 % it is then incomplete. If Segment is proper, it has at most N+1
 % solutions. Otherwise, it has at most (1/2)(N+1)(N+2) solutions.
 %
@@ -837,12 +837,12 @@
 
 %! map_product(Pred, Xs, Ys, PredOfProduct)
 %
-% Just as `maplist(P, Xs, L)` is the analogue of Miranda’s
+% Just as `maplist(P, Xs, L)` is the analogue of Miranda's
 %
 % ```
 %     let L = [ P x | x <- Xs ]
 % ```
-% so `map_product(P, Xs, Ys, L)` is the analogue of Miranda’s
+% so `map_product(P, Xs, Ys, L)` is the analogue of Miranda's
 %
 % ```
 %     let L = [ P x y | x <- Xs; y <- Ys ]
@@ -1112,7 +1112,7 @@
 %! group(:Pred, +Key, +List, ?Front, ?Back)
 %
 % is true when `append(Front, Back, List), maplist(call(Pred,Key), Front)`,
-% and Front is as long as possible. Strictly speaking we don’t need it;
+% and Front is as long as possible. Strictly speaking we don't need it;
 % `group(call(Pred,Key), List, Front, Back)` would do just as well.
 %
 % @param :Pred predicate

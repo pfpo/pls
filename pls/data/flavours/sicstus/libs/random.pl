@@ -6,13 +6,13 @@
 
 %! getrand(-RandomState)
 %
-% returns the random number generator’s current state
+% returns the random number generator's current state
 %
 % @param RandomState The current state of the random number generator.
 
 %! setrand(+RandomState)
 %
-% sets the random number generator’s state to RandomState.
+% sets the random number generator's state to RandomState.
 % RandomState can either be a random state previously obtained
 % with `getrand/1`, or an arbitrary integer. The latter is
 % useful when you want to initialize the random state to a fresh
