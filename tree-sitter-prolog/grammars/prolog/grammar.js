@@ -58,7 +58,7 @@ const fields = {
   // 6.5.4 Layout characters
   space_char = " ",
   horizontal_tab_char = "\t",
-  new_line_char = "\n",
+  new_line_char = choice("\n","\r","\r\n"),
   /* reasonable assumption: there are no NULL characters within the file. Use
    * eof() instead once https://github.com/tree-sitter/tree-sitter/pull/2488 is
    * in production (tree-sitter v0.23). The ISO specification does not deal with
