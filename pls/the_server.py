@@ -409,7 +409,7 @@ class PLS(LanguageServer):
         m = MooduleAnalyser(document.uri,self.tables)
         m.analyse_module_declarations()
         m.analyse_use_module_declarations(modules_to_include)
-        logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
+        # logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
     
 
 

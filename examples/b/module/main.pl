@@ -1,5 +1,4 @@
 :- module('main', [main/0]).
-:- module('main', [main/0]).
 
 % Import specific predicates from math_utils.pl
 :- use_module('math_utils.pl',[square/2,cube/2]).
