@@ -1423,8 +1423,8 @@
 %
 %     @param  :Mode   *term*
 
-%!    :- module(+ModuleName,+PublicPred).
-%!    :- module(+ModuleName,+PublicPred,+Options).
+%!    :- module(+ModuleName,+PublicPred)
+%!    :- module(+ModuleName,+PublicPred,+Options)
 %
 %     Declares the file in which the declaration appears to be a
 %     module file named ModuleName, with public predicates
