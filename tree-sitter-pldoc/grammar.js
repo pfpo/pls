@@ -19,6 +19,9 @@ const instantiation_modifiers = ['++', '+', '-', '--', '?', ':', '@', '!']
 const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', 'undefined']
 
 const word = /[^\s]+/
+const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\]/
+const alphanum = /[a-zA-Z0-9$_]/
+const functor= repeat1(choice(graphic_char,alphanum))
 
 const name = alias(token(word),'name')
 const text = word
@@ -92,7 +95,7 @@ module.exports = grammar({
         field("type",$.type),
       ))
     ),
-    functor: $ =>/[a-zA-Z0-9_$]+/,
+    functor: $=> functor,
     type: $ => word,
     arg_name: $ =>/[a-zA-Z0-9_$]+/,
 
