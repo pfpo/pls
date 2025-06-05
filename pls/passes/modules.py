@@ -71,7 +71,7 @@ class MooduleAnalyser:
             imported_table = self.tables[uri]
             self.table.imports[uri] = imported_table
                         
-        logging.error(f"Imported Signatures: {self.table.imported_signatures}")
+        #logging.error(f"Imported Signatures: {self.table.imported_signatures}")
 
 
     def add_exported_predicate_does_not_exist(self,signature:Signature):

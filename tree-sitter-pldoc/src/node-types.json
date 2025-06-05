@@ -1,61 +1,8 @@
 [
   {
-    "type": "arg_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "arg_spec",
     "named": true,
     "fields": {
-      "instantiation": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "!",
-            "named": false
-          },
-          {
-            "type": "+",
-            "named": false
-          },
-          {
-            "type": "++",
-            "named": false
-          },
-          {
-            "type": "-",
-            "named": false
-          },
-          {
-            "type": "--",
-            "named": false
-          },
-          {
-            "type": ":",
-            "named": false
-          },
-          {
-            "type": "?",
-            "named": false
-          },
-          {
-            "type": "@",
-            "named": false
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "arg_name",
-            "named": true
-          }
-        ]
-      },
       "type": {
         "multiple": false,
         "required": false,
@@ -157,11 +104,6 @@
     }
   },
   {
-    "type": "functor",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "functor_template",
     "named": true,
     "fields": {},
@@ -210,6 +152,10 @@
       "types": [
         {
           "type": "arg_spec",
+          "named": true
+        },
+        {
+          "type": "functor",
           "named": true
         }
       ]
@@ -275,6 +221,10 @@
         {
           "type": "functor_template",
           "named": true
+        },
+        {
+          "type": "operator_template",
+          "named": true
         }
       ]
     }
@@ -312,6 +262,10 @@
         },
         {
           "type": "functor_template",
+          "named": true
+        },
+        {
+          "type": "operator_template",
           "named": true
         }
       ]
@@ -395,10 +349,6 @@
     "named": false
   },
   {
-    "type": "!",
-    "named": false
-  },
-  {
     "type": "%",
     "named": false
   },
@@ -419,23 +369,7 @@
     "named": false
   },
   {
-    "type": "+",
-    "named": false
-  },
-  {
-    "type": "++",
-    "named": false
-  },
-  {
     "type": ",",
-    "named": false
-  },
-  {
-    "type": "-",
-    "named": false
-  },
-  {
-    "type": "--",
     "named": false
   },
   {
@@ -444,14 +378,6 @@
   },
   {
     "type": ":-",
-    "named": false
-  },
-  {
-    "type": "?",
-    "named": false
-  },
-  {
-    "type": "@",
     "named": false
   },
   {
@@ -513,6 +439,10 @@
   {
     "type": "failure",
     "named": false
+  },
+  {
+    "type": "functor",
+    "named": true
   },
   {
     "type": "is",

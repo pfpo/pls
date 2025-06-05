@@ -138,6 +138,7 @@ class PlDocVisitor(TreeVisitor):
 
         # Templates
         self.add_visit("functor_template", self.visit_functor)
+        self.add_visit("operator_template",self.visit_operator)
 
 
     def default_visit(self, node: Node):
@@ -154,6 +155,18 @@ class PlDocVisitor(TreeVisitor):
             type=fields["type"],
             instantiation=fields["instantiation"],
         )
+
+    def visit_operator(self, node: Node):
+        predicate_name = ""
+        name_range = None
+        args = []
+        for child in node.named_children:
+            if child.type == "functor":
+                predicate_name = self.get_text(child)
+                name_range = node_to_range(child)
+            elif child.type == "arg_spec":
+                args.append(self.visit(child))
+        self.templates.append(Template(predicate_name, args, text=self.get_text(node),name_range=name_range))
 
     def visit_functor(self, node: Node):
         predicate_name = ""

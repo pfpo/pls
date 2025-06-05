@@ -19,7 +19,7 @@ const instantiation_modifiers = ['++', '+', '-', '--', '?', ':', '@', '!']
 const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', 'undefined']
 
 const word = /[^\s]+/
-const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\]/
+const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\,]/
 const alphanum = /[a-zA-Z0-9$_]/
 const functor= token(repeat1(choice(graphic_char,alphanum)))
 
@@ -70,9 +70,9 @@ module.exports = grammar({
       $.directive_template,
     ),
     operator_template: $=> choice(
-      seq($.arg_spec,functor,$.arg_spec),
-      seq(functor,$.arg_spec),
-      seq($.arg_spec,functor),
+      seq($.arg_spec,$.functor,$.arg_spec),
+      seq($.functor,$.arg_spec),
+      seq($.arg_spec,$.functor),
     ),
     functor_template: $ => seq($._head, optional(seq('is', choice(...determinism_modifiers)))),
     directive_template: $=> seq(':-',choice($.functor_template,$.operator_template)),

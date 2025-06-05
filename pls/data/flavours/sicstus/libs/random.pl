@@ -117,7 +117,7 @@
 % @param List The input list.
 % @param Perm A random permutation of List.
 
-%! random_perm2(A,B, X,Y)
+%! random_perm2(?A,?B, ?X,?Y)
 %
 % unifies X,Y = A,B or X,Y = B,A, making the choice at random,
 % each choice being equally likely. It is equivalent to

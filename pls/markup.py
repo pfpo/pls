@@ -75,7 +75,6 @@ class Markup:
     def predicate_description(self, element: Predicate):
         string_comments = []
         other_comments = []
-        logging.error(f"{element.comments}")
         for c in element.comments:
             if type(c) is str:
                 string_comments.append(c)

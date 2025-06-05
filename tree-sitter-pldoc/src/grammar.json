@@ -103,6 +103,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "operator_template"
+        },
+        {
+          "type": "SYMBOL",
           "name": "directive_template"
         }
       ]
@@ -118,21 +122,8 @@
               "name": "arg_spec"
             },
             {
-              "type": "PATTERN",
-              "value": "[^\\s]+"
-            },
-            {
               "type": "SYMBOL",
-              "name": "arg_spec"
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "PATTERN",
-              "value": "[^\\s]+"
+              "name": "functor"
             },
             {
               "type": "SYMBOL",
@@ -145,11 +136,24 @@
           "members": [
             {
               "type": "SYMBOL",
+              "name": "functor"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "arg_spec"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
               "name": "arg_spec"
             },
             {
-              "type": "PATTERN",
-              "value": "[^\\s]+"
+              "type": "SYMBOL",
+              "name": "functor"
             }
           ]
         }
@@ -286,6 +290,89 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": "++"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "+"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "-"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "--"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "?"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": ":"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "@"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "!"
+                    }
+                  ]
+                },
+                {
+                  "type": "PATTERN",
+                  "value": "[A-Z][a-zA-Z0-9$_]*"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ":"
+                },
+                {
+                  "type": "FIELD",
+                  "name": "type",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "type"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "_arg_spec": {
+      "type": "SEQ",
+      "members": [
+        {
           "type": "FIELD",
           "name": "instantiation",
           "content": {
@@ -370,8 +457,23 @@
       ]
     },
     "functor": {
-      "type": "PATTERN",
-      "value": "[a-zA-Z0-9_$]+"
+      "type": "TOKEN",
+      "content": {
+        "type": "REPEAT1",
+        "content": {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "[#\\$\\&\\*\\+-\\.\\/:<=>\\?@\\^~\\\\,]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[a-zA-Z0-9$_]"
+            }
+          ]
+        }
+      }
     },
     "type": {
       "type": "PATTERN",
@@ -379,7 +481,7 @@
     },
     "arg_name": {
       "type": "PATTERN",
-      "value": "[a-zA-Z0-9_$]+"
+      "value": "[A-Z][a-zA-Z0-9$_]*"
     },
     "pldoc_comment": {
       "type": "CHOICE",

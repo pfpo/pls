@@ -3,6 +3,7 @@ import os
 import platformdirs
 
 LOG_DIR = platformdirs.user_log_dir("pls")
+LOG_DIR  = "/home/martim/Desktop/pls"
 os.makedirs(LOG_DIR, exist_ok=True)  
 LOG_FILE = os.path.join(LOG_DIR,"pls.log")
 print(LOG_FILE)
