@@ -21,7 +21,7 @@ const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', '
 const word = /[^\s]+/
 const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\]/
 const alphanum = /[a-zA-Z0-9$_]/
-const functor= repeat1(choice(graphic_char,alphanum))
+const functor= token(repeat1(choice(graphic_char,alphanum)))
 
 const name = alias(token(word),'name')
 const text = word
@@ -66,13 +66,13 @@ module.exports = grammar({
 
     _template: $=> choice(
       $.functor_template,
-      //$.operator_template,
+      $.operator_template,
       $.directive_template,
     ),
     operator_template: $=> choice(
-      seq($.arg_spec,word,$.arg_spec),
-      seq(word,$.arg_spec),
-      seq($.arg_spec,word),
+      seq($.arg_spec,functor,$.arg_spec),
+      seq(functor,$.arg_spec),
+      seq($.arg_spec,functor),
     ),
     functor_template: $ => seq($._head, optional(seq('is', choice(...determinism_modifiers)))),
     directive_template: $=> seq(':-',choice($.functor_template,$.operator_template)),
@@ -88,6 +88,14 @@ module.exports = grammar({
     ),
 
     arg_spec: $ => seq(
+      token(prec(1,seq(choice(...instantiation_modifiers),/[A-Z][a-zA-Z0-9$_]*/))),
+      optional(seq(
+        ':',
+        field("type",$.type),
+      ))
+    ),
+
+    _arg_spec: $ => seq(
       field("instantiation",optional(choice(...instantiation_modifiers))),
       field("name",$.arg_name),
       optional(seq(
@@ -97,7 +105,7 @@ module.exports = grammar({
     ),
     functor: $=> functor,
     type: $ => word,
-    arg_name: $ =>/[a-zA-Z0-9_$]+/,
+    arg_name: $ =>/[A-Z][a-zA-Z0-9$_]*/,
 
 
 
