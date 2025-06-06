@@ -1,6 +1,6 @@
 from lsprotocol import types
 from .utils import node_to_location
-from tree_sitter import Node
+from tree_sitter import Node, Tree
 from dataclasses import dataclass
 from .annotations import Annotations
 
@@ -228,3 +228,11 @@ def string_from_atom(atom_string: str) -> str:
     if len(atom_string) >= 2 and atom_string[0] == "'" and atom_string[-1] == "'":
         return atom_string[1:-1]
     return atom_string
+
+
+@dataclass
+class PrologAnalyzable:
+    uri : str
+    tables : dict[str,SymbolTable]
+    trees : dict[str,Tree]
+
