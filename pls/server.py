@@ -33,7 +33,7 @@ def debug():
     uri = "sicstus-doc-scraper/builtins.pl"
     uri = "examples/consult.pl"
     uri = "./test/commented_prolog_cliques_distinct.pl"
-    uri = "examples/b/b.pl"
+    uri = "examples/b/l.pl"
 
     uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)
@@ -60,11 +60,12 @@ def debug():
                 print(f"This module includes: {add_paths(uri, p)}")
 
 
+    ts = server.semantic_tokens(doc)
+    print(ts)
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )
     # print(f"Diagnostics:{server.tree_diagnostics(t)}")
-    # ts = server.semantic_tokens(t, uri)
     # for i in range(0, len(ts), 5):
     #     for k in range(0, 5):
     #         print(ts[i + k], end=",")

@@ -3,6 +3,16 @@
     "type": "arg_spec",
     "named": true,
     "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "arg_name_instantiation",
+            "named": true
+          }
+        ]
+      },
       "type": {
         "multiple": false,
         "required": false,
@@ -427,6 +437,10 @@
   {
     "type": "@version",
     "named": false
+  },
+  {
+    "type": "arg_name_instantiation",
+    "named": true
   },
   {
     "type": "comment_token",
