@@ -132,3 +132,28 @@ def node_and_parent_with_text(node: Node):
     if node.parent:
         s += f"\nParent:{log_node(node.parent)}"
     return s
+
+from collections import UserDict
+from typing import TypeVar, Generic
+from pygls.workspace import TextDocument
+
+V = TypeVar('V')  # Value type
+
+class FileVersionedDict(UserDict[str, tuple[int,V]], Generic[V]):
+    def custom_method(self) -> str:
+        return f"{len(self)} items in dict"
+    def _add(self,uri:str,version:int,val:V):
+        if uri not in self:
+            self[uri] = (version,val)
+        else:
+            current_version, result = self[uri]
+            if version != current_version:
+                result = []
+            result.extend(val)
+            self[uri] = (version, result)
+
+    def add_by_uri(self, uri: str, val:V):
+        self._add(uri,0,val)
+
+    def add(self, document: TextDocument, val:V):
+        self._add(document.uri,document.version,val)

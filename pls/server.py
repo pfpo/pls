@@ -21,6 +21,7 @@ from .utils import (
     Path,
     MyDoc,
     ranges_overlap,
+    FileVersionedDict
 )
 from .model import (
     Functor,
@@ -58,14 +59,14 @@ parser = Parser(PROLOG)
 class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.diagnostics = {}
+        self.actions: FileVersionedDict[list[types.CodeAction]] = FileVersionedDict()
+        self.diagnostics :FileVersionedDict[list[types.CodeAction]] = FileVersionedDict()
         self.tokens = {}
         self.tables: dict[str, SymbolTable] = {}
         self.original_tables: dict[str, SymbolTable] = {}
         self.comment_trees: dict[str, Annotations] = {}
         self.dg = DependencyGraphManager()
         self.trees: dict[str, Tree] = {}
-        self.actions: dict[str, list[types.CodeAction]] = {}
         self.files = []
         self.builtin_uri = builtins_path()
         self.builtin_table: SymbolTable = None
@@ -102,10 +103,10 @@ class PLS(LanguageServer):
 
     def get_analyser_results(self, analyser: Analyser):
         for uri, diagnostics in analyser.diagnostics.items():
-            self.add_diagnostics_by_uri(uri, diagnostics)
+            self.diagnostics.add_by_uri(uri, diagnostics)
 
         for uri, actions in analyser.actions.items():
-            self.add_actions_by_uri(uri, actions)
+            self.actions.add_by_uri(uri, actions)
 
     def semantic_tokens(self, document: TextDocument):
         tree = self.trees[document.uri][1]
@@ -122,43 +123,6 @@ class PLS(LanguageServer):
         logging.info(f"Parsing: {current_uri}")
         self.run_analysis(document)
 
-    def add_actions_by_uri(self, uri: str, actions: list):
-        if uri not in self.actions:
-            self.actions[uri] = (0, actions)
-        else:
-            version, new_actions = self.actions[uri]
-            new_actions.extend(actions)
-            self.actions[uri] = (version, new_actions)
-
-    def add_diagnostics_by_uri(self, uri: str, diagnostics: list):
-        if uri not in self.diagnostics:
-            self.diagnostics[uri] = (0, diagnostics)
-        else:
-            version, new_diagnostics = self.diagnostics[uri]
-            new_diagnostics.extend(diagnostics)
-            self.diagnostics[uri] = (version, new_diagnostics)
-
-    def add_actions(self, document: TextDocument, actions: list):
-        if document.uri not in self.actions:
-            self.actions[document.uri] = (document.version, actions)
-        else:
-            version, new_actions = self.actions[document.uri]
-            if version != document.version:
-                new_actions = []
-            new_actions.extend(actions)
-            self.actions[document.uri] = (document.version, new_actions)
-
-    def add_diagnostics(self, document: TextDocument, diagnostics: list):
-        if document.uri not in self.diagnostics:
-            # logging.error(f"Deleting warnings")
-            self.diagnostics[document.uri] = (document.version, diagnostics)
-        else:
-            version, new_diagnostics = self.diagnostics[document.uri]
-            if version != document.version:
-                # logging.error(f"Deleting warnings")
-                new_diagnostics = []
-            new_diagnostics.extend(diagnostics)
-            self.diagnostics[document.uri] = (document.version, new_diagnostics)
 
     def run_analysis(self, document: TextDocument):
         table = self.tables.get(document.uri)
