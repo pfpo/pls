@@ -429,14 +429,8 @@ class PLS(LanguageServer):
         if node is None:
             return None
         table = self.tables[uri]
-        if node.type == "variable_term":
+        if node.type in ("binary_operator","variable_term"):
             return table.notes[node]
-            # TODO
-            # scopes = table.scopes
-            # for _key, scope in scopes.items():
-            #     if position_inside_node(scope.node, position):
-            #         return scope.variables[bytes.decode(node.text, "utf-8")]
-            pass
         else:
             functor = None
             if (

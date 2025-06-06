@@ -196,6 +196,7 @@ class PrologVisitor(TreeVisitor):
             case [head, op, body]:
                 predicate = self.get_predicate(Functor(bytes.decode(op.text),[None,None]))
                 predicate.add_reference(self.uri,op)
+                self.notes[op] = predicate
                 is_parameter_definition = self.is_parameter_start_point(opts, op)
                 if is_parameter_definition:
                     opts = self.set_parameter_definition(opts)
