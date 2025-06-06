@@ -11,6 +11,8 @@ from pygls.workspace import TextDocument
 from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
+from pls.passes.analyser import Analyser
+
 from .utils import (
     node_at_position,
     builtins_path,
@@ -24,7 +26,7 @@ from .model import Functor, PrologAnalyseable, Variable, Predicate, SymbolTable,
 from .matching_signature_help import in_possible_signature_help
 from .annotations import Annotations
 from .prolog_visitor import PrologVisitor, Opts
-from .syntax_error_visitor import SyntaxErrorVisitor
+from .passes.syntax_error_visitor import SyntaxErrorVisitor
 from .highlight.highlight_visitor import HighlightVisitor
 from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
@@ -32,11 +34,13 @@ from .passes.unused_variable import UnusedVariablePass
 from .passes.predicate_definition import PredicateDefinition
 from .passes.undefined_predicate import UndefinedPredicate
 from .passes.modules import MooduleAnalyser
-from .passes.consults import ConsultPaths
+from .passes.missing_paths import MissingPaths
+from .passes.cyclic_paths import CyclicPaths
 from .dependency_graph import DependencyGraphManager
 from .my_logging import logging
 
 
+from .passes.pipeline import Pipeline
 
 
 PROLOG = Language(prolog())
@@ -64,7 +68,7 @@ class PLS(LanguageServer):
         self.comment_trees: dict[str, Annotations] = {}
         self.dg = DependencyGraphManager()
         self.trees: dict[str, Tree] = {}
-        self.fixes: dict[str, list[types.CodeAction]] = {}
+        self.actions: dict[str, list[types.CodeAction]] = {}
         self.files = []
         self.cycles = []
         self.builtin_uri = builtins_path()
@@ -72,7 +76,7 @@ class PLS(LanguageServer):
         self.root_path = None
 
     def get_analyseable(self,uri: str = "")-> PrologAnalyseable:
-        return PrologAnalyseable(uri,self.tables,self.trees)
+        return PrologAnalyseable(uri,self.tables,self.trees,self.dg)
 
     def discover_files(self):
         collected = []
@@ -94,47 +98,24 @@ class PLS(LanguageServer):
         await self.index_with_progress(self.files)
         # logging.error(f"Files: {self.files}")
 
-    def tree_diagnostics(self, tree: Tree):
-        syntax_error_visitor = SyntaxErrorVisitor()
-        return syntax_error_visitor.visit(tree.root_node), []
-
-    def unused_variables(
-        self, tree: Tree, table: SymbolTable
-    ) -> list[types.Diagnostic]:
-        analysis = UnusedVariablePass(table)
-        analysis.start(tree.root_node)
-        return analysis.reports, analysis.fixes
-
-    def undefined_predicate(
-        self, tree: Tree, table: SymbolTable
-    ) -> list[types.Diagnostic]:
-        analysis = UndefinedPredicate(table)
-        analysis.start(tree.root_node)
-        return analysis.reports, analysis.fixes
-
-    def predicate_definition(
-        self, tree: Tree, table: SymbolTable
-    ) -> list[types.Diagnostic]:
-        analysis = PredicateDefinition(tree, table.path, self.tables)
-        analysis.analyse()
-
-        return analysis.reports, analysis.fixes
 
     def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
-        tree = self.trees[document.uri][1]
-        table = self.tables[document.uri]
-        all_reports = []
-        all_fixes = []
-        analysis_results = [
-            self.tree_diagnostics(tree),
-            self.unused_variables(tree, table),
-            self.undefined_predicate(tree, table),
-            self.predicate_definition(tree, table),
-        ]
-        for reports, fixes in analysis_results:
-            all_reports.extend(reports)
-            all_fixes.extend(fixes)
-        return all_reports, all_fixes
+
+        content = self.get_analyseable(document.uri)
+        passes = Pipeline()
+        passes.analyse(content)
+        self.get_analyser_results(passes)
+    
+    def get_analyser_results(self,analyser:Analyser):
+
+        for uri,diagnostics in analyser.diagnostics.items():
+            self.add_diagnostics_by_uri(uri,diagnostics)
+
+        
+        for uri,actions in analyser.actions.items():
+            self.add_actions_by_uri(uri,actions)
+
+
 
     def semantic_tokens(self, document: TextDocument):
         tree = self.trees[document.uri][1]
@@ -151,6 +132,14 @@ class PLS(LanguageServer):
         logging.info(f"Parsing: {current_uri}")
         self.run_analysis(document)
 
+    def add_actions_by_uri(self, uri: str, actions: list):
+        if uri not in self.actions:
+            self.actions[uri] = (0, actions)
+        else:
+            version, new_actions = self.actions[uri]
+            new_actions.extend(actions)
+            self.actions[uri] = (version, new_actions)
+
     def add_diagnostics_by_uri(self, uri: str, diagnostics: list):
         if uri not in self.diagnostics:
             self.diagnostics[uri] = (0, diagnostics)
@@ -159,15 +148,15 @@ class PLS(LanguageServer):
             new_diagnostics.extend(diagnostics)
             self.diagnostics[uri] = (version, new_diagnostics)
 
-    def add_fixes(self, document: TextDocument, fixes: list):
-        if document.uri not in self.fixes:
-            self.fixes[document.uri] = (document.version, fixes)
+    def add_actions(self, document: TextDocument, actions: list):
+        if document.uri not in self.actions:
+            self.actions[document.uri] = (document.version, actions)
         else:
-            version, new_fixes = self.fixes[document.uri]
+            version, new_actions = self.actions[document.uri]
             if version != document.version:
-                new_fixes = []
-            new_fixes.extend(fixes)
-            self.fixes[document.uri] = (document.version, new_fixes)
+                new_actions = []
+            new_actions.extend(actions)
+            self.actions[document.uri] = (document.version, new_actions)
 
     def add_diagnostics(self, document: TextDocument, diagnostics: list):
         if document.uri not in self.diagnostics:
@@ -191,9 +180,7 @@ class PLS(LanguageServer):
         ):
             table.builtins = self.tables[self.builtin_uri]
 
-        diagnostics, fixes = self.run_passes(document)
-        self.add_diagnostics(document, diagnostics)
-        self.add_fixes(document, fixes)
+        self.run_passes(document)
 
         self.tokens[document.uri] = (
             document.version,
@@ -279,16 +266,10 @@ class PLS(LanguageServer):
         else:
             self.tables[document.uri] = deepcopy(self.original_tables[document.uri])
         self.dg.add_file(document.uri)
-        c = ConsultPaths(self.tables, self.dg)
-        consult_warnings, available_paths = c.analyse(document.uri)
-        self.cycles.extend(c.cycles)
-        # logging.error(f"Consult Warnings: {consult_warnings}")
-        if document.uri not in self.diagnostics:
-            # logging.error(f"Deleting warnings")
-            self.diagnostics[document.uri] = (document.version, [])
-        self.diagnostics[document.uri][1].extend(consult_warnings)
-
-        return available_paths
+        c = MissingPaths(self.dg)
+        c.analyse(self.get_analyseable(document.uri))
+        self.get_analyser_results(c)
+        return c.available_paths
 
     async def build_dependency_graph(self, uris: list[str], progress_report=None):
         visited = set()
@@ -325,24 +306,19 @@ class PLS(LanguageServer):
         # )
         self.cycles = []
         self.build_dependency_graph([document.uri])
-        cp = ConsultPaths(self.tables, self.dg)
-        cycles = self.dg.get_cycles()
-        # logging.error(f"CYCLES: {cycles}")
+        cp = CyclicPaths()
+        cp.analyse(self.get_analyseable(document.uri))
+
         chain = self.dg.get_files_to_analyse(document.uri)
-
-        cycle_reports: dict[str, list] = {}
-        for cycle in cycles:
-            cp.build_cyclic_consult_reports(cycle)
-
         logging.error(f"Parse Chain of {document.filename}: {chain}")
         logging.error(f"{self.dg.dg}")
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
-            cycle_reports = cp.cycle_reports.get(file_name, [])
-            self.add_diagnostics(next_document, cycle_reports)
 
             self.parse_assuming_dependencies_are_handled(next_document)
+
+        self.get_analyser_results(cp)
 
     async def index_with_progress(self, files: list[str]):
         """Create and start the progress on the client."""
@@ -406,12 +382,12 @@ class PLS(LanguageServer):
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table
 
-        m = MooduleAnalyser(document.uri, modules_to_include)
-        m.analyse(self.get_analyseable())
+        m = MooduleAnalyser(modules_to_include)
+        m.analyse(self.get_analyseable(document.uri))
         # logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
 
         self.run_analysis(document)
-        self.add_diagnostics(document, m.diagnostics[document.uri])
+        self.get_analyser_results(m)
         # logging.error(f"Finished Analysis of {document.filename}")
         # logging.error(
         #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"
@@ -498,9 +474,9 @@ class PLS(LanguageServer):
 
     def get_code_actions(self, doc: TextDocument, requested_range: types.Range):
         result = []
-        if doc.uri not in self.fixes:
+        if doc.uri not in self.actions:
             return result
-        ranged_actions = self.fixes[doc.uri][1]
+        ranged_actions = self.actions[doc.uri][1]
         for ra in ranged_actions:
             a = ra.action
             r = ra.range

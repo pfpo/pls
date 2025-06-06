@@ -1,6 +1,6 @@
 
 :- consult('utils.pl').
-
+:- consult('l.pl').
 :- use_module(library(clpfd)).
 
 % Solve Shift Problem Minimization using cumulatives 

@@ -1,20 +1,31 @@
-from pls.model import Predicate, SymbolTable, Functor, Variable, Term
+from pls.model import Predicate, Functor, Variable, Term
 from pls.pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
 from pls.my_logging import logging
 from pls.utils import RangedAction, file_uri_to_path, node_to_range
+from .analyser import Analyser,PrologAnalyseable
 
 
-class PredicateDefinition:
-    def __init__(self, tree, uri, all_tables: dict[str, SymbolTable]):
-        self.tree = tree
-        self.uri = uri
-        self.tables = all_tables
-        self.table = self.tables[uri]
+class PredicateDefinition(Analyser):
+    def __init__(self):
+        super().__init__()
+        self.uri = None
+        self.tables = None
+        self.table = None
+        self.tree = None
 
-        self.reports = []
-
-        self.fixes = []
+    def analyse(self,content : PrologAnalyseable):
+        self.uri = content.uri
+        self.tables = content.tables
+        self.table = content.tables[self.uri]
+        self.tree = content.trees[self.uri][1]
+        self.generate_export_all_predicates_action()
+        for key, predicate in self.table.predicate_index.items():
+            if len(predicate.definitions) > 0:
+                if not any([type(p) is PlDocComment for p in predicate.comments]):
+                    self.add_code_actions_comment_template(predicate)
+                if predicate.key() not in self.table.exported_signatures:
+                    self.add_code_actions_export_predicate(predicate)
 
     def declare_module_action(self, keys, title):
         if len(self.table.module_declarations) > 1:
@@ -52,19 +63,19 @@ class PredicateDefinition:
         else:
             return f":- {m}.\n"
 
-    def export_all_predicates(self):
+    def generate_export_all_predicates_action(self):
         keys = []
         for key in self.table.exportable_predicates:
             keys.append(key)
         action = self.declare_module_action(keys, "Export All Defined Predicates")
-        self.fixes.append(RangedAction(action, node_to_range(self.tree.root_node)))
+        self.add_file_action(RangedAction(action, node_to_range(self.tree.root_node)))
 
     def add_code_actions_export_predicate(self, predicate: Predicate):
         keys = set(self.table.exported_signatures)
         keys.add(predicate.key())
         action = self.declare_module_action(keys, "Export Predicate " + predicate.key())
         for definition in predicate.definitions:
-            self.fixes.append(RangedAction(action, definition.range))
+            self.add_file_action(RangedAction(action, definition.range))
 
     def add_code_actions_comment_template(self, predicate: Predicate):
         head = predicate.heads[0]
@@ -120,13 +131,4 @@ class PredicateDefinition:
         )
 
         for definition in predicate.definitions:
-            self.fixes.append(RangedAction(action, definition.range))
-
-    def analyse(self):
-        self.export_all_predicates()
-        for key, predicate in self.table.predicate_index.items():
-            if len(predicate.definitions) > 0:
-                if not any([type(p) is PlDocComment for p in predicate.comments]):
-                    self.add_code_actions_comment_template(predicate)
-                if predicate.key() not in self.table.exported_signatures:
-                    self.add_code_actions_export_predicate(predicate)
+            self.add_file_action(RangedAction(action, definition.range))

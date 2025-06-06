@@ -1,4 +1,6 @@
 from lsprotocol import types
+
+from pls.dependency_graph import DependencyGraphManager
 from .utils import node_to_location
 from tree_sitter import Node, Tree
 from dataclasses import dataclass
@@ -235,4 +237,5 @@ class PrologAnalyseable:
     uri : str
     tables : dict[str,SymbolTable]
     trees : dict[str,Tree]
+    dg : DependencyGraphManager
 

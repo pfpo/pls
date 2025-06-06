@@ -1,16 +1,13 @@
 from tree_sitter import Node
-from pls.model import Predicate, SymbolTable
+from pls.model import Predicate
 from pls.utils import node_to_range
-from pls.tree_visitor import TreeVisitor
 from lsprotocol import types
+from .analyser import TreeAnalyser
 
-
-class UndefinedPredicate(TreeVisitor):
-    def __init__(self, table: SymbolTable):
+class UndefinedPredicate(TreeAnalyser):
+    def __init__(self):
         super().__init__()
-        self.table = table
-        self.reports = []
-        self.fixes = []
+        self.table = None
 
     def start(self, node: Node):
         self.visit_all_children(node)
@@ -56,7 +53,7 @@ class UndefinedPredicate(TreeVisitor):
                 severity=severity,
                 range=node_to_range(node),
             )
-            self.reports.append(report)
+            self.add_file_diagnostic(report)
         elif predicate is not new_predicate:
             self.table.predicate_index
             new_predicate.references.extend(predicate.references)

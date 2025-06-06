@@ -2,12 +2,12 @@ from pls.model import ModuleDeclaration, Signature, UseModule
 from pls.pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
 from pls.my_logging import logging
-from .analyser import FileAnalyser
+from .analyser import Analyser
 from pls.model import PrologAnalyseable
 
-class MooduleAnalyser(FileAnalyser):
-    def __init__(self, uri,modules_to_include: set[str]):
-        super().__init__(uri)
+class MooduleAnalyser(Analyser):
+    def __init__(self,modules_to_include: set[str]):
+        super().__init__()
 
         self.table = None
         self.tables = None
@@ -17,6 +17,7 @@ class MooduleAnalyser(FileAnalyser):
         self.exported_signatures = set()
 
     def analyse(self,content:PrologAnalyseable):
+        self.uri = content.uri
         self.table = content.tables[self.uri]
         self.tables = content.tables
 
@@ -44,7 +45,7 @@ class MooduleAnalyser(FileAnalyser):
         self.exported_signatures = exported_signatures
         self.table.exported_signatures = exported_signatures
 
-    def analyse_use_module_declarations(self, ):
+    def analyse_use_module_declarations(self ):
         modules_to_include = self.modules_to_include
         signatures: dict[str, set[str]] = {}
         for module in self.table.use_module_declarations:
