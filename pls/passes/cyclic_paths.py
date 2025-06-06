@@ -1,22 +1,21 @@
 from pls.utils import add_paths
-from pls.dependency_graph import DependencyGraphManager
 from lsprotocol import types
 
-from .analyser import Analyser,PrologAnalyseable
+from .analyser import Analyser, PrologAnalyseable
+
 
 class CyclicPaths(Analyser):
     def __init__(self):
         super().__init__()
 
-    def analyse(self,content:PrologAnalyseable):
+    def analyse(self, content: PrologAnalyseable):
         self.all_tables = content.tables
 
-        cycles =content.dg.get_cycles()
+        cycles = content.dg.get_cycles()
         # logging.error(f"CYCLES: {cycles}")
 
         for cycle in cycles:
             self.build_cyclic_consult_reports(cycle)
-
 
     def build_cyclic_consult_reports(self, cycle: list[str]):
         for i in range(0, len(cycle)):
@@ -47,5 +46,4 @@ class CyclicPaths(Analyser):
             severity=types.DiagnosticSeverity.Error,
             range=location.range,
         )
-        self.add_diagnostic(uri,report)
-
+        self.add_diagnostic(uri, report)

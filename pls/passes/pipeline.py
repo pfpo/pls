@@ -1,32 +1,30 @@
 from .unused_variable import UnusedVariablePass
 from .predicate_definition import PredicateDefinition
 from .undefined_predicate import UndefinedPredicate
-from .analyser import Analyser,PrologAnalyseable
+from .analyser import Analyser, PrologAnalyseable
 from .syntax_error_visitor import SyntaxErrorVisitor
-
 
 
 class Pipeline(Analyser):
     def __init__(self):
         super().__init__()
-    
 
-    def passes(self)-> list[Analyser]:
-        return [SyntaxErrorVisitor(),
-                UndefinedPredicate(),
-                UnusedVariablePass(),
-                PredicateDefinition()
+    def passes(self) -> list[Analyser]:
+        return [
+            SyntaxErrorVisitor(),
+            UndefinedPredicate(),
+            UnusedVariablePass(),
+            PredicateDefinition(),
         ]
 
-    def add_analysis_results(self,analyser:Analyser):
-        for key,diagnostics in analyser.diagnostics.items():
+    def add_analysis_results(self, analyser: Analyser):
+        for key, diagnostics in analyser.diagnostics.items():
             self.diagnostics[key].extend(diagnostics)
 
-        
-        for key,actions in analyser.actions.items():
+        for key, actions in analyser.actions.items():
             self.actions[key].extend(actions)
 
-    def analyse(self, content:PrologAnalyseable ):
+    def analyse(self, content: PrologAnalyseable):
         for analyser in self.passes():
             analyser.analyse(content)
             self.add_analysis_results(analyser)

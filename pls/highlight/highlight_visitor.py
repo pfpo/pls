@@ -125,7 +125,6 @@ class HighlightVisitor(TreeVisitor):
 
         return
 
-
     def visit_operator_notation(self, node: Node):
         children = self.filter_children(node)
         match children:

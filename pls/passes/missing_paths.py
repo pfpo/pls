@@ -2,17 +2,18 @@ from pls.utils import add_paths
 from pls.dependency_graph import DependencyGraphManager
 from lsprotocol import types
 
-from .analyser import Analyser,PrologAnalyseable
+from .analyser import Analyser, PrologAnalyseable
+
 
 class MissingPaths(Analyser):
-    def __init__(self,  dg: DependencyGraphManager):
+    def __init__(self, dg: DependencyGraphManager):
         super().__init__()
         self.dg = dg
         self.all_tables = None
 
-        self.available_paths  = None
+        self.available_paths = None
 
-    def analyse(self,content:PrologAnalyseable):
+    def analyse(self, content: PrologAnalyseable):
         self.all_tables = content.tables
 
         self._analyse(content.uri)
@@ -24,9 +25,7 @@ class MissingPaths(Analyser):
             severity=types.DiagnosticSeverity.Warning,
             range=location.range,
         )
-        self.add_diagnostic(uri,report)
-
-
+        self.add_diagnostic(uri, report)
 
     def add_missing_file_report_for_use_module(
         self, uri, consult_path, location: types.Location
@@ -37,7 +36,7 @@ class MissingPaths(Analyser):
             severity=types.DiagnosticSeverity.Warning,
             range=location.range,
         )
-        self.add_diagnostic(uri,report)
+        self.add_diagnostic(uri, report)
 
     def build_cyclic_consult_reports(self, cycle: list[str]):
         for i in range(0, len(cycle)):
@@ -68,8 +67,7 @@ class MissingPaths(Analyser):
             severity=types.DiagnosticSeverity.Error,
             range=location.range,
         )
-        self.add_diagnostic(uri,report)
-
+        self.add_diagnostic(uri, report)
 
     def _analyse(self, uri: str):
         table = self.all_tables[uri]
@@ -78,7 +76,7 @@ class MissingPaths(Analyser):
         for consult_uri, locations in table.consult_paths.items():
             if not self.dg.file_exists(consult_uri):
                 for location in locations:
-                        self.add_missing_file_report(uri, consult_uri, location)
+                    self.add_missing_file_report(uri, consult_uri, location)
             else:
                 available_paths.add(consult_uri)
                 self.dg.file_includes_other(uri, consult_uri)
@@ -86,10 +84,10 @@ class MissingPaths(Analyser):
         for module_uri, locations in table.module_paths.items():
             if not self.dg.file_exists(module_uri):
                 for location in locations:
-                        self.add_missing_file_report_for_use_module(
-                            uri, module_uri, location
-                        )
+                    self.add_missing_file_report_for_use_module(
+                        uri, module_uri, location
+                    )
             else:
                 available_paths.add(module_uri)
                 self.dg.file_uses_module(uri, module_uri)
-        self.available_paths  = available_paths
+        self.available_paths = available_paths

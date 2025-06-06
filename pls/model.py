@@ -234,8 +234,7 @@ def string_from_atom(atom_string: str) -> str:
 
 @dataclass
 class PrologAnalyseable:
-    uri : str
-    tables : dict[str,SymbolTable]
-    trees : dict[str,Tree]
-    dg : DependencyGraphManager
-
+    uri: str
+    tables: dict[str, SymbolTable]
+    trees: dict[str, Tree]
+    dg: DependencyGraphManager

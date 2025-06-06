@@ -9,8 +9,6 @@ ERROR:root:File: l.pl depends on clpfd.pl
 ERROR:root:File: l.pl depends on clpfd.pl but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled
 ERROR:root:file:///home/martim/Desktop/pls/pls/data/flavours/sicstus/libs/clpfd.pl
 ERROR:root:file:///home/martim/Desktop/pls/pls/data/flavours/sicstus/libs/clpfd.pl is not to be included
-ERROR:root:Code actions Request
-ERROR:root:Range: 2:18-2:18 overlaps with 1:0-22:83
 ERROR:root:Dependency Graph:
 l.pl  includes: utils.pl,clpfd.pl
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
@@ -119,5 +117,3 @@ c.pl  is included by: b.pl
 math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
-ERROR:root:Code actions Request
-ERROR:root:Range: 2:18-2:18 overlaps with 1:0-22:83

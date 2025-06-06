@@ -12,6 +12,14 @@ class RangedAction:
     action: types.CodeAction
     range: types.Range
 
+class MyDoc:
+    def __init__(self, uri: str):
+        self.uri = uri
+        self.filename = ""
+        self.source = ""
+        self.version = 0
+        with open(file_uri_to_path(self.uri)) as f:
+            self.source = f.read()
 
 def _left_after_right(left: types.Range, right: types.Range):
     return left.start.line > right.end.line or (

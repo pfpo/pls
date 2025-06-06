@@ -3,7 +3,7 @@ from pls.pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
 from pls.my_logging import logging
 from pls.utils import RangedAction, file_uri_to_path, node_to_range
-from .analyser import Analyser,PrologAnalyseable
+from .analyser import Analyser, PrologAnalyseable
 
 
 class PredicateDefinition(Analyser):
@@ -14,7 +14,7 @@ class PredicateDefinition(Analyser):
         self.table = None
         self.tree = None
 
-    def analyse(self,content : PrologAnalyseable):
+    def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri
         self.tables = content.tables
         self.table = content.tables[self.uri]

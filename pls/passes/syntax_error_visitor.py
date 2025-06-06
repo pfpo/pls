@@ -9,24 +9,27 @@ class SyntaxErrorVisitor(TreeAnalyser):
     def build_visitors(self):
         self.set_default_visitor(self.visit_errors)
 
-
     def handle_error_node(self, node: Node):
         severity = types.DiagnosticSeverity.Error
         message = "Syntax Error "
-        self.add_file_diagnostic(types.Diagnostic(
-            message=message + str(node),
-            severity=severity,
-            range=node_to_range(node),
-        ))
+        self.add_file_diagnostic(
+            types.Diagnostic(
+                message=message + str(node),
+                severity=severity,
+                range=node_to_range(node),
+            )
+        )
 
     def handle_missing_node(self, node: Node):
         severity = types.DiagnosticSeverity.Error
         message = "Syntax Error "
-        self.add_file_diagnostic(types.Diagnostic(
-            message=message + str(node),
-            severity=severity,
-            range=node_to_range(node),
-        ))
+        self.add_file_diagnostic(
+            types.Diagnostic(
+                message=message + str(node),
+                severity=severity,
+                range=node_to_range(node),
+            )
+        )
 
     def visit_errors(self, node: Node):
         may_contain_errors: list[Node] = [node]

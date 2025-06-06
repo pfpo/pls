@@ -19,20 +19,25 @@ from .utils import (
     path_to_file_uri,
     file_uri_to_path,
     Path,
+    MyDoc,
     ranges_overlap,
 )
-from .model import Functor, PrologAnalyseable, Variable, Predicate, SymbolTable, scope_at_position, Scope
+from .model import (
+    Functor,
+    PrologAnalyseable,
+    Variable,
+    Predicate,
+    SymbolTable,
+    scope_at_position,
+    Scope,
+)
 
 from .matching_signature_help import in_possible_signature_help
 from .annotations import Annotations
 from .prolog_visitor import PrologVisitor, Opts
-from .passes.syntax_error_visitor import SyntaxErrorVisitor
 from .highlight.highlight_visitor import HighlightVisitor
 from .highlight.highlight import TokenModifier, TokenTypes
 from .markup import descriptions
-from .passes.unused_variable import UnusedVariablePass
-from .passes.predicate_definition import PredicateDefinition
-from .passes.undefined_predicate import UndefinedPredicate
 from .passes.modules import MooduleAnalyser
 from .passes.missing_paths import MissingPaths
 from .passes.cyclic_paths import CyclicPaths
@@ -48,14 +53,6 @@ PROLOG = Language(prolog())
 parser = Parser(PROLOG)
 
 
-class MyDoc:
-    def __init__(self, uri: str):
-        self.uri = uri
-        self.filename = ""
-        self.source = ""
-        self.version = 0
-        with open(file_uri_to_path(self.uri)) as f:
-            self.source = f.read()
 
 
 class PLS(LanguageServer):
@@ -70,13 +67,12 @@ class PLS(LanguageServer):
         self.trees: dict[str, Tree] = {}
         self.actions: dict[str, list[types.CodeAction]] = {}
         self.files = []
-        self.cycles = []
         self.builtin_uri = builtins_path()
         self.builtin_table: SymbolTable = None
         self.root_path = None
 
-    def get_analyseable(self,uri: str = "")-> PrologAnalyseable:
-        return PrologAnalyseable(uri,self.tables,self.trees,self.dg)
+    def get_analyseable(self, uri: str = "") -> PrologAnalyseable:
+        return PrologAnalyseable(uri, self.tables, self.trees, self.dg)
 
     def discover_files(self):
         collected = []
@@ -98,24 +94,18 @@ class PLS(LanguageServer):
         await self.index_with_progress(self.files)
         # logging.error(f"Files: {self.files}")
 
-
     def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
-
         content = self.get_analyseable(document.uri)
         passes = Pipeline()
         passes.analyse(content)
         self.get_analyser_results(passes)
-    
-    def get_analyser_results(self,analyser:Analyser):
 
-        for uri,diagnostics in analyser.diagnostics.items():
-            self.add_diagnostics_by_uri(uri,diagnostics)
+    def get_analyser_results(self, analyser: Analyser):
+        for uri, diagnostics in analyser.diagnostics.items():
+            self.add_diagnostics_by_uri(uri, diagnostics)
 
-        
-        for uri,actions in analyser.actions.items():
-            self.add_actions_by_uri(uri,actions)
-
-
+        for uri, actions in analyser.actions.items():
+            self.add_actions_by_uri(uri, actions)
 
     def semantic_tokens(self, document: TextDocument):
         tree = self.trees[document.uri][1]
@@ -225,21 +215,6 @@ class PLS(LanguageServer):
             logging.error(f"Could Not get file: {uri}\n{e}")
             return MyDoc(uri)
 
-    def should_reanalyse(
-        self, document: TextDocument, dependencies_changed: bool = False
-    ):
-        if dependencies_changed:
-            return True, "Dependencies Changed"
-        if document.uri not in self.diagnostics:
-            return True, "Not Yet Parsed"
-        version, _ = self.diagnostics[document.uri]
-        if version != document.version:
-            return (
-                True,
-                f"Document Has a Different Version Parsed:{version}, Received {document.version}",
-            )
-
-        return False, ""
 
     def should_reparse(self, document: TextDocument):
         version = document.version
@@ -304,7 +279,6 @@ class PLS(LanguageServer):
         # logging.error(
         #     f"Parse Chain triggered by: {document.filename}:v{document.version}"
         # )
-        self.cycles = []
         self.build_dependency_graph([document.uri])
         cp = CyclicPaths()
         cp.analyse(self.get_analyseable(document.uri))
@@ -426,6 +400,7 @@ class PLS(LanguageServer):
 
             return self.get_predicate(functor.key(), uri)
 
+    # TODO: Substitute By table get_predicate
     def get_predicate(self, key: str, uri: str):
         res = self.tables[uri].predicate_index.get(key)
         if res is None or len(res.definitions) == 0:

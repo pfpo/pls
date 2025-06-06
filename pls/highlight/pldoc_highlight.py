@@ -2,7 +2,6 @@ from pls.tree_visitor import TreeVisitor
 from tree_sitter import Node
 from .highlight import Token
 from dataclasses import dataclass
-from pls.my_logging import logging
 
 
 @dataclass

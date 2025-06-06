@@ -199,7 +199,6 @@ class PrologVisitor(TreeVisitor):
         v.references.append(definition_loc)
         return v
 
-
     def visit_operator_notation(self, node: Node, opts: Opts):
         assert node.type == "operator_notation"
         children = self.filter_children(node)

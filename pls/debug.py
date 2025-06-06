@@ -1,9 +1,8 @@
 from tree_sitter import Node
-from .server import server, MyDoc
+from .server import server
 from .dependency_graph import DependencyGraphManager
-from .utils import add_paths, path_to_file_uri, node_text, Path
+from .utils import add_paths, path_to_file_uri, node_text, Path, MyDoc
 from dataclasses import dataclass
-
 
 
 def rec_print(node: Node, tab=0):
@@ -70,8 +69,6 @@ def debug():
     #     s = PlDocVisitor()
     #     s.start(t.root_node)
     #     print(s.get_comment())
-
-
 
 
 # import tree_sitter_prolog as pl

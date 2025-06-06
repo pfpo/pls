@@ -4,6 +4,7 @@ from pls.utils import node_to_range
 from lsprotocol import types
 from .analyser import TreeAnalyser
 
+
 class UndefinedPredicate(TreeAnalyser):
     def __init__(self):
         super().__init__()

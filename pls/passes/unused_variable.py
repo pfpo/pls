@@ -1,10 +1,10 @@
 from tree_sitter import Node
-from pls.model import Variable, SymbolTable
+from pls.model import Variable
 from pls.utils import node_to_range, RangedAction
-from pls.tree_visitor import TreeVisitor
 from lsprotocol import types
 
-from .analyser import  TreeAnalyser
+from .analyser import TreeAnalyser
+
 
 class UnusedVariablePass(TreeAnalyser):
     def __init__(self):
