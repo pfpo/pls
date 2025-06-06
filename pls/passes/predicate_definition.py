@@ -77,7 +77,7 @@ class PredicateDefinition:
                     arg_counter["c"] += 1
                     return name
                 
-            args = [get_arg_name(a) for a in head.args]
+            args = ["?"+get_arg_name(a) for a in head.args]
             to_add = ""
             if len(args) > 0:
                 arg_list = ",".join(args) 
