@@ -1,8 +1,6 @@
 from pygls.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
-import time
-import traceback
 import os
 # from pygls.cli import start_server
 
@@ -10,17 +8,15 @@ from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 from copy import deepcopy
 
-from.matching_signature_help import in_possible_signature_help
+from .matching_signature_help import in_possible_signature_help
 from .model import Functor, Variable, Predicate, SymbolTable, scope_at_position, Scope
 from .utils import (
     node_at_position,
-    position_inside_node,
     builtins_path,
     path_to_file_uri,
     file_uri_to_path,
     Path,
-    add_paths,
-    ranges_overlap
+    ranges_overlap,
 )
 
 from .annotations import Annotations
@@ -34,13 +30,12 @@ from .passes.predicate_definition import PredicateDefinition
 from .passes.undefined_predicate import UndefinedPredicate
 from .passes.modules import MooduleAnalyser
 from .passes.consults import ConsultPaths
-from .dependency_graph import DependencyGraph, DependencyGraphManager
+from .dependency_graph import DependencyGraphManager
 from .my_logging import logging
 
 
 import asyncio
 import uuid
-import os
 
 
 PROLOG = Language(prolog())
@@ -64,11 +59,11 @@ class PLS(LanguageServer):
         self.diagnostics = {}
         self.tokens = {}
         self.tables: dict[str, SymbolTable] = {}
-        self.original_tables:dict[str, SymbolTable] = {}
-        self.comment_trees : dict[str,Annotations] = {}
+        self.original_tables: dict[str, SymbolTable] = {}
+        self.comment_trees: dict[str, Annotations] = {}
         self.dg = DependencyGraphManager()
         self.trees: dict[str, Tree] = {}
-        self.fixes :dict[str,list[types.CodeAction]]  = {}
+        self.fixes: dict[str, list[types.CodeAction]] = {}
         self.files = []
         self.cycles = []
         self.builtin_uri = builtins_path()
@@ -104,43 +99,44 @@ class PLS(LanguageServer):
     ) -> list[types.Diagnostic]:
         analysis = UnusedVariablePass(table)
         analysis.start(tree.root_node)
-        return analysis.reports,analysis.fixes
+        return analysis.reports, analysis.fixes
 
     def undefined_predicate(
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
         analysis = UndefinedPredicate(table)
         analysis.start(tree.root_node)
-        return analysis.reports,analysis.fixes
-    
+        return analysis.reports, analysis.fixes
+
     def predicate_definition(
         self, tree: Tree, table: SymbolTable
     ) -> list[types.Diagnostic]:
-        analysis = PredicateDefinition(tree,table.path,self.tables)
+        analysis = PredicateDefinition(tree, table.path, self.tables)
         analysis.analyse()
-        
-        return analysis.reports,analysis.fixes
+
+        return analysis.reports, analysis.fixes
 
     def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
         tree = self.trees[document.uri][1]
         table = self.tables[document.uri]
         all_reports = []
         all_fixes = []
-        analysis_results  = [ self.tree_diagnostics(tree),
+        analysis_results = [
+            self.tree_diagnostics(tree),
             self.unused_variables(tree, table),
-        self.undefined_predicate(tree, table),
-        self.predicate_definition(tree,table)
+            self.undefined_predicate(tree, table),
+            self.predicate_definition(tree, table),
         ]
-        for reports,fixes in analysis_results:
+        for reports, fixes in analysis_results:
             all_reports.extend(reports)
             all_fixes.extend(fixes)
-        return all_reports,all_fixes
+        return all_reports, all_fixes
 
     def semantic_tokens(self, document: TextDocument):
         tree = self.trees[document.uri][1]
         table = self.tables.get(document.uri)
         comment_trees = self.comment_trees.get(document.uri)
-        tokens_visitor = HighlightVisitor(table,comment_trees)
+        tokens_visitor = HighlightVisitor(table, comment_trees)
         tokens_visitor.visit(tree.root_node)
         return tokens_visitor.token_list
 
@@ -159,11 +155,11 @@ class PLS(LanguageServer):
             new_diagnostics.extend(diagnostics)
             self.diagnostics[uri] = (version, new_diagnostics)
 
-    def add_fixes(self, document: TextDocument,fixes: list):
+    def add_fixes(self, document: TextDocument, fixes: list):
         if document.uri not in self.fixes:
-            self.fixes[document.uri] = (document.version,fixes)
+            self.fixes[document.uri] = (document.version, fixes)
         else:
-            version,  new_fixes = self.fixes[document.uri]
+            version, new_fixes = self.fixes[document.uri]
             if version != document.version:
                 new_fixes = []
             new_fixes.extend(fixes)
@@ -191,9 +187,9 @@ class PLS(LanguageServer):
         ):
             table.builtins = self.tables[self.builtin_uri]
 
-        diagnostics, fixes  = self.run_passes(document)
+        diagnostics, fixes = self.run_passes(document)
         self.add_diagnostics(document, diagnostics)
-        self.add_fixes(document,fixes)
+        self.add_fixes(document, fixes)
 
         self.tokens[document.uri] = (
             document.version,
@@ -211,18 +207,18 @@ class PLS(LanguageServer):
             scopes=prolog_visitor.scopes,
             notes=prolog_visitor.notes,
             predicate_index=prolog_visitor.predicate_index,
-            predicate_index_by_name =prolog_visitor.predicate_index_by_name,
+            predicate_index_by_name=prolog_visitor.predicate_index_by_name,
             builtins=None,
             imports={},
-            imported_signatures= {},
+            imported_signatures={},
             consults={},
             consult_paths=prolog_visitor.consult_paths,
-            module_paths= prolog_visitor.module_paths,
-            module_declarations= prolog_visitor.module_declarations,
-            use_module_declarations= prolog_visitor.used_modules,
-            exported_signatures= set(),
-            libs= prolog_visitor.libs,
-            exportable_predicates= prolog_visitor.exportable_predicates,
+            module_paths=prolog_visitor.module_paths,
+            module_declarations=prolog_visitor.module_declarations,
+            use_module_declarations=prolog_visitor.used_modules,
+            exported_signatures=set(),
+            libs=prolog_visitor.libs,
+            exportable_predicates=prolog_visitor.exportable_predicates,
             path=doc.uri,
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees
@@ -315,6 +311,7 @@ class PLS(LanguageServer):
                 await progress_report(len(visited), len(received_uris))
 
         logging.error(f"{self.dg.dg}")
+
     def clear_diagnostics(self, document: TextDocument):
         self.diagnostics[document.uri] = (document.version, [])
 
@@ -405,20 +402,17 @@ class PLS(LanguageServer):
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table
 
-
-        m = MooduleAnalyser(document.uri,self.tables)
+        m = MooduleAnalyser(document.uri, self.tables)
         m.analyse_module_declarations()
         m.analyse_use_module_declarations(modules_to_include)
         # logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
-    
-
 
         self.run_analysis(document)
-        self.add_diagnostics(document,m.reports)
-        #logging.error(f"Finished Analysis of {document.filename}")
-        #logging.error(
+        self.add_diagnostics(document, m.reports)
+        # logging.error(f"Finished Analysis of {document.filename}")
+        # logging.error(
         #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"
-        #)
+        # )
 
     def parse_with_dependencies(self, document: TextDocument):
         self.start_parse_chain(document)
@@ -429,11 +423,15 @@ class PLS(LanguageServer):
         if node is None:
             return None
         table = self.tables[uri]
-        if node.parent and node.parent.type == "operator_notation" and node.parent.child_by_field_name('operator') == node:
+        if (
+            node.parent
+            and node.parent.type == "operator_notation"
+            and node.parent.child_by_field_name("operator") == node
+        ):
             return table.notes[node]
         if node.type in ("variable_term"):
             return table.notes[node]
-        
+
         else:
             functor = None
             if (
@@ -497,19 +495,19 @@ class PLS(LanguageServer):
 
     def get_code_actions(self, doc: TextDocument, requested_range: types.Range):
         result = []
-        if doc.uri not in  self.fixes:
+        if doc.uri not in self.fixes:
             return result
         ranged_actions = self.fixes[doc.uri][1]
         for ra in ranged_actions:
             a = ra.action
             r = ra.range
-            if  ranges_overlap(r,requested_range):
+            if ranges_overlap(r, requested_range):
                 logging.error(f"Range: {requested_range} overlaps with {r}")
                 result.append(a)
-        
-        return result
-    def hover(self, doc: TextDocument, position: types.Position):
 
+        return result
+
+    def hover(self, doc: TextDocument, position: types.Position):
         uri = doc.uri
         tree = self.trees.get(uri, (0, None))[1]
         if tree is None:
@@ -548,13 +546,10 @@ class PLS(LanguageServer):
         location_items = []
         location_items.extend(table.consult_paths.items())
         location_items.extend(table.module_paths.items())
-        for path , locations in location_items:
-            for l in locations:
+        for path, locations in location_items:
+            for location in locations:
                 result.append(
-                    types.DocumentLink(
-                        range=l.range,
-                        target=path
-                    ),
+                    types.DocumentLink(range=location.range, target=path),
                 )
         return result
 
@@ -591,18 +586,18 @@ class PLS(LanguageServer):
                 ),
             )
 
-        available_predicates =  list(table.predicate_index.values())
+        available_predicates = list(table.predicate_index.values())
         for consulted in table.consults.values():
             available_predicates.extend(consulted.predicate_index.values())
 
-
-        available_predicates = [p for p in available_predicates if len(p.definitions) > 0]
+        available_predicates = [
+            p for p in available_predicates if len(p.definitions) > 0
+        ]
 
         if table.builtins:
             available_predicates.extend(table.builtins.predicate_index.values())
 
-        
-        for module_path , key_set in table.imported_signatures.items():
+        for module_path, key_set in table.imported_signatures.items():
             module = table.imports[module_path]
             for key in key_set:
                 if key in module.predicate_index:
@@ -612,13 +607,15 @@ class PLS(LanguageServer):
             # logging.error(f"{predicate}{type(predicate)}")
 
             content = descriptions.predicate_description(predicate)
-            template =descriptions.predicate_template(predicate)
+            template = descriptions.predicate_template(predicate)
             result.append(
                 types.CompletionItem(
                     predicate.name,
-                    label_details=types.CompletionItemLabelDetails(detail=f"/{predicate.arity}"),
+                    label_details=types.CompletionItemLabelDetails(
+                        detail=f"/{predicate.arity}"
+                    ),
                     kind=types.CompletionItemKind.Function,
-                    insert_text= template,
+                    insert_text=template,
                     insert_text_format=types.InsertTextFormat.Snippet,
                     documentation=types.MarkupContent(
                         types.MarkupKind.Markdown, "\n".join(content)
@@ -628,13 +625,15 @@ class PLS(LanguageServer):
 
         return result
 
-    def signature_help_proposals(self, document: TextDocument, position: types.Position):
+    def signature_help_proposals(
+        self, document: TextDocument, position: types.Position
+    ):
         if document.uri not in self.tables:
             return []
 
         tree = self.trees[document.uri][1]
         table = self.tables[document.uri]
-        node = node_at_position(tree.root_node,position)
+        node = node_at_position(tree.root_node, position)
         # logging.error(f"{node} {node.type}")
         is_functor, predicate_name, active_parameter = in_possible_signature_help(node)
 
@@ -646,7 +645,7 @@ class PLS(LanguageServer):
 
         signatures = []
         for predicate in with_matchin_name:
-            signature = descriptions.signature_information(predicate,active_parameter)
+            signature = descriptions.signature_information(predicate, active_parameter)
             signatures.append(signature)
 
         return types.SignatureHelp(
@@ -655,51 +654,56 @@ class PLS(LanguageServer):
             active_parameter=active_parameter,
         )
 
-
-    def rename_edits(self, document:TextDocument, position:types.Position,new_name:str):
+    def rename_edits(
+        self, document: TextDocument, position: types.Position, new_name: str
+    ):
         tree = self.trees.get(document.uri, (0, None))[1]
         if tree is None:
             return None
 
-        element: Variable | Predicate | None = self.discover_node(tree, position,document.uri)
+        element: Variable | Predicate | None = self.discover_node(
+            tree, position, document.uri
+        )
 
         if element is None:
             return None
 
-        changes : dict[str,list[types.TextEdit]] ={}
-        def add_edit(changes,name,location:types.Location):
+        changes: dict[str, list[types.TextEdit]] = {}
+
+        def add_edit(changes, name, location: types.Location):
             if location.uri not in changes:
-                changes[location.uri] =  []
-            
-            changes[location.uri].append( types.TextEdit(
-                new_text=name,
-                range=location.range
-            ))
+                changes[location.uri] = []
+
+            changes[location.uri].append(
+                types.TextEdit(new_text=name, range=location.range)
+            )
 
         locations_to_rename = []
         if type(element) is Variable:
-            locations_to_rename = element.references 
+            locations_to_rename = element.references
         elif type(element) is Predicate:
-            can_rename, reason  = self.tables[document.uri].is_renameable(element.key())
+            can_rename, reason = self.tables[document.uri].is_renameable(element.key())
             if not can_rename:
-                self.show_message(f"Cannot Rename Predicate: {reason}", msg_type=types.MessageType.Error)
-                return 
+                self.show_message(
+                    f"Cannot Rename Predicate: {reason}",
+                    msg_type=types.MessageType.Error,
+                )
+                return
             locations_to_rename = element.name_references
 
         for location in locations_to_rename:
-            add_edit(changes,new_name,location)
-        
+            add_edit(changes, new_name, location)
 
         return types.WorkspaceEdit(changes)
 
-
-    def is_renameable(self, document:TextDocument, position:types.Position):
-
+    def is_renameable(self, document: TextDocument, position: types.Position):
         tree = self.trees.get(document.uri, (0, None))[1]
         if tree is None:
             return None
 
-        element: Variable | Predicate | None = self.discover_node(tree, position,document.uri)
+        element: Variable | Predicate | None = self.discover_node(
+            tree, position, document.uri
+        )
 
         return types.PrepareRenameDefaultBehavior(default_behavior=element is not None)
 
@@ -789,35 +793,40 @@ def completions(ls: PLS, params: types.CompletionParams):
     r = ls.send_completions(document, params.position)
     return r
 
-@server.feature(types.TEXT_DOCUMENT_SIGNATURE_HELP, types.SignatureHelpOptions(trigger_characters=['(',',']))
-def signature_help(ls:PLS, params: types.SignatureHelpParams):
+
+@server.feature(
+    types.TEXT_DOCUMENT_SIGNATURE_HELP,
+    types.SignatureHelpOptions(trigger_characters=["(", ","]),
+)
+def signature_help(ls: PLS, params: types.SignatureHelpParams):
     doc = ls.workspace.get_document(params.text_document.uri)
-    r = ls.signature_help_proposals(doc,params.position)
+    r = ls.signature_help_proposals(doc, params.position)
     return r
+
+
 @server.feature(types.TEXT_DOCUMENT_RENAME)
-def rename(ls:PLS, params: types.RenameParams):
+def rename(ls: PLS, params: types.RenameParams):
     """Rename the symbol at the given position."""
     doc = params.text_document
     position = params.position
     new_name = params.new_name
-    return ls.rename_edits(doc,position,new_name)
+    return ls.rename_edits(doc, position, new_name)
 
 
 @server.feature(types.TEXT_DOCUMENT_PREPARE_RENAME)
-def prepare_rename(ls:PLS, params: types.PrepareRenameParams):
+def prepare_rename(ls: PLS, params: types.PrepareRenameParams):
     """Called by the client to determine if renaming the symbol at the given location
     is a valid operation."""
     doc = params.text_document
     position = params.position
-    return ls.is_renameable(doc,position)
-
+    return ls.is_renameable(doc, position)
 
 
 @server.feature(
     types.TEXT_DOCUMENT_CODE_ACTION,
     types.CodeActionOptions(code_action_kinds=[types.CodeActionKind.QuickFix]),
 )
-def code_actions(ls:PLS,params: types.CodeActionParams):
+def code_actions(ls: PLS, params: types.CodeActionParams):
     logging.error("Code actions Request")
     doc = ls.workspace.get_text_document(params.text_document.uri)
     result = ls.get_code_actions(doc, params.range)

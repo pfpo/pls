@@ -2,7 +2,6 @@ from pls.model import SymbolTable
 from pls.utils import add_paths
 from pls.dependency_graph import DependencyGraphManager
 from lsprotocol import types
-from pls.my_logging import logging
 from collections import defaultdict
 
 
@@ -13,21 +12,23 @@ class ConsultPaths:
         self.all_tables = all_tables
         self.cycles = []
 
-    def add_missing_file_report(self, uri, consult_path, l: types.Location):
+    def add_missing_file_report(self, uri, consult_path, location: types.Location):
         message = f"File Not Found {consult_path}-> {add_paths(uri, consult_path)}"
         report = types.Diagnostic(
             message=message,
             severity=types.DiagnosticSeverity.Warning,
-            range=l.range,
+            range=location.range,
         )
         return report
 
-    def add_missing_file_report_for_use_module(self, uri, consult_path, l: types.Location):
+    def add_missing_file_report_for_use_module(
+        self, uri, consult_path, location: types.Location
+    ):
         message = f"Consulted Module not Found {consult_path}-> {add_paths(uri, consult_path)}"
         report = types.Diagnostic(
             message=message,
             severity=types.DiagnosticSeverity.Warning,
-            range=l.range,
+            range=location.range,
         )
         return report
 
@@ -42,11 +43,13 @@ class ConsultPaths:
                 consult_uri = add_paths(origin, relative_path)
                 if consult_uri != destiny:
                     continue
-                for l in locations:
-                    self.add_cyclic_consult_report(origin, relative_path, l, i, cycle)
+                for location in locations:
+                    self.add_cyclic_consult_report(
+                        origin, relative_path, location, i, cycle
+                    )
 
     def add_cyclic_consult_report(
-        self, uri: str, consult_path, l: types.Location, i: int, cycle: list[str]
+        self, uri: str, consult_path, location: types.Location, i: int, cycle: list[str]
     ):
         message = f"Cyclic **Imports**: {consult_path}\nHere is the Cycle:\n"
         for i in range(i, i + len(cycle)):
@@ -56,7 +59,7 @@ class ConsultPaths:
         report = types.Diagnostic(
             message=message,
             severity=types.DiagnosticSeverity.Error,
-            range=l.range,
+            range=location.range,
         )
         self.cycle_reports[uri].append(report)
 
@@ -67,17 +70,23 @@ class ConsultPaths:
         available_paths = set()
         for consult_uri, locations in table.consult_paths.items():
             if not self.dg.file_exists(consult_uri):
-                for l in locations:
-                    reports.append(self.add_missing_file_report(uri, consult_uri, l))
+                for location in locations:
+                    reports.append(
+                        self.add_missing_file_report(uri, consult_uri, location)
+                    )
             else:
                 available_paths.add(consult_uri)
                 self.dg.file_includes_other(uri, consult_uri)
-        
+
         for module_uri, locations in table.module_paths.items():
             if not self.dg.file_exists(module_uri):
-                for l in locations:
-                    reports.append(self.add_missing_file_report_for_use_module(uri,module_uri, l))
+                for location in locations:
+                    reports.append(
+                        self.add_missing_file_report_for_use_module(
+                            uri, module_uri, location
+                        )
+                    )
             else:
                 available_paths.add(module_uri)
-                self.dg.file_uses_module(uri,module_uri)
+                self.dg.file_uses_module(uri, module_uri)
         return reports, list(available_paths)

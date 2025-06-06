@@ -3,26 +3,25 @@ import sys
 from .the_server import server, MyDoc
 from .my_logging import logging, old_print, print
 from .dependency_graph import DependencyGraphManager
-from .utils import add_paths, path_to_file_uri, Path
+from .utils import add_paths, path_to_file_uri, node_text, Path
 from dataclasses import dataclass
-from .matching_signature_help import MT
+
 
 def main():
     server.start_io()
 
 
 def rec_print(node: Node, tab=0):
-    log = lambda n: f"{bytes.decode(n.text, 'utf-8')}"
-    print(f"{'  ' * tab}{node.type} - {log(node)}")
+    print(f"{'  ' * tab}{node.type} - {node_text(node)}")
     for child in node.children:
         rec_print(child, tab + 1)
 
+
 @dataclass
 class N:
-    type : str = ""
-    parent : "N" = None
-    prev_sibling : "N" = None
-
+    type: str = ""
+    parent: "N" = None
+    prev_sibling: "N" = None
 
 
 def debug():
@@ -58,7 +57,6 @@ def debug():
             for p in table.consult_paths:
                 print(p)
                 print(f"This module includes: {add_paths(uri, p)}")
-
 
     ts = server.semantic_tokens(doc)
     print(ts)

@@ -1,28 +1,32 @@
 from tree_sitter import Node
 from lsprotocol import types
 from pathlib import Path
-from urllib.request import pathname2url,url2pathname
-from urllib.parse import urlparse, unquote,urljoin
+from urllib.request import pathname2url, url2pathname
+from urllib.parse import urlparse, unquote, urljoin
 from dataclasses import dataclass
 from importlib.resources import files
 
 
 @dataclass
 class RangedAction:
-    action : types.CodeAction
-    range : types.Range
+    action: types.CodeAction
+    range: types.Range
 
 
-def _left_after_right(left : types.Range, right: types.Range):
-    return  left.start.line > right.end.line or  (left.start.line == right.end.line  and left.start.character > right.end.character and left.start.character )
+def _left_after_right(left: types.Range, right: types.Range):
+    return left.start.line > right.end.line or (
+        left.start.line == right.end.line
+        and left.start.character > right.end.character
+        and left.start.character
+    )
 
-def ranges_overlap(left : types.Range, right: types.Range):
 
-    left_is_after = _left_after_right(left,right)
-    right_is_after = _left_after_right(right,left)
-
+def ranges_overlap(left: types.Range, right: types.Range):
+    left_is_after = _left_after_right(left, right)
+    right_is_after = _left_after_right(right, left)
 
     return not (left_is_after or right_is_after)
+
 
 def file_uri_to_path(uri: str) -> Path:
     parsed = urlparse(uri)
@@ -39,13 +43,15 @@ def add_paths(file_uri: str, module_relative_path: str) -> str:
     return path_to_file_uri(final_path)
 
 
-
 def builtins_path():
     file_path = files("pls.data.flavours.sicstus").joinpath("builtins.pl")
     return path_to_file_uri(file_path)
+
+
 def library_path(module_name: str):
     file_path = files("pls.data.flavours.sicstus.libs").joinpath(f"{module_name}.pl")
     return path_to_file_uri(file_path)
+
 
 def node_to_range(node: Node):
     return types.Range(
@@ -99,8 +105,12 @@ def node_at_position(node: Node, p: types.Position):
     return current
 
 
+def node_text(n):
+    return bytes.decode(n.text, "utf-8")
+
+
 def log_node(n):
-    return f"{n}\n{bytes.decode(n.text, 'utf-8')}"
+    return f"{n}\n" + node_text(n)
 
 
 def node_with_text(node: Node):

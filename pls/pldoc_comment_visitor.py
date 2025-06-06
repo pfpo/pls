@@ -2,9 +2,9 @@ from tree_sitter import Node
 from .model import Term
 from .tree_visitor import TreeVisitor
 from dataclasses import dataclass
-from .my_logging import logging
 from lsprotocol import types
 from .utils import node_to_range
+
 
 @dataclass
 class Tag:
@@ -27,12 +27,12 @@ class Arg:
 
 
 class Template(Term):
-    def __init__(self, name, args: list[Arg], text,name_range:types.Range):
+    def __init__(self, name, args: list[Arg], text, name_range: types.Range):
         super().__init__(name)
         self.args = args
         self.arity = len(args)
         self.text = text
-        self.name_range :types.Range = name_range
+        self.name_range: types.Range = name_range
 
 
 @dataclass
@@ -41,7 +41,7 @@ class PlDocComment:
     description: str
     tags: list[Tag]
 
-    def to_str(self,tags) -> str:
+    def to_str(self, tags) -> str:
         r = ""
         if len(self.templates) > 0:
             r += "```pl\n"
@@ -56,23 +56,27 @@ class PlDocComment:
             r += f"- {t}\n"
         return r
 
-    def __str__(self)->str:
+    def __str__(self) -> str:
         return self.to_str(self.tags)
 
-    def templates_with_arity(self,arity:int)-> list[Template]:
+    def templates_with_arity(self, arity: int) -> list[Template]:
         return [t for t in self.templates if t.arity == arity]
 
-    def parameter_description(self, name: str)-> list[Tag]:
+    def parameter_description(self, name: str) -> list[Tag]:
         tags = []
         for tag in self.tags:
             # tag.name[1:] is because of the instantiation operator
-            if tag.type == "arg" or tag.type == "param" and (tag.name == name or tag.name[1:] == name):
+            if (
+                tag.type == "arg"
+                or tag.type == "param"
+                and (tag.name == name or tag.name[1:] == name)
+            ):
                 tags.append(tag)
 
         r = ""
         for t in tags:
             r += f"- {t}\n"
-        return  r
+        return r
 
     def parameter(self, name: str):
         args = []
@@ -90,9 +94,9 @@ class PlDocComment:
 
     def to_markdown(self) -> str:
         return str(self)
-    
-    def to_markdown_without_parameters(self)->str:
-        tags =[t for t in self.tags if t.type not in ("arg","param")]
+
+    def to_markdown_without_parameters(self) -> str:
+        tags = [t for t in self.tags if t.type not in ("arg", "param")]
         r = ""
         r += "---\n\n"
         if len(self.templates) > 0:
@@ -106,7 +110,6 @@ class PlDocComment:
         for t in tags:
             r += f"- {t}\n"
         return r
-
 
 
 class PlDocVisitor(TreeVisitor):
@@ -138,8 +141,7 @@ class PlDocVisitor(TreeVisitor):
 
         # Templates
         self.add_visit("functor_template", self.visit_functor)
-        self.add_visit("operator_template",self.visit_operator)
-
+        self.add_visit("operator_template", self.visit_operator)
 
     def default_visit(self, node: Node):
         self.visit_all_children(node)
@@ -166,7 +168,11 @@ class PlDocVisitor(TreeVisitor):
                 name_range = node_to_range(child)
             elif child.type == "arg_spec":
                 args.append(self.visit(child))
-        self.templates.append(Template(predicate_name, args, text=self.get_text(node),name_range=name_range))
+        self.templates.append(
+            Template(
+                predicate_name, args, text=self.get_text(node), name_range=name_range
+            )
+        )
 
     def visit_functor(self, node: Node):
         predicate_name = ""
@@ -178,7 +184,11 @@ class PlDocVisitor(TreeVisitor):
                 name_range = node_to_range(child)
             elif child.type == "arg_spec":
                 args.append(self.visit(child))
-        self.templates.append(Template(predicate_name, args, text=self.get_text(node),name_range=name_range))
+        self.templates.append(
+            Template(
+                predicate_name, args, text=self.get_text(node), name_range=name_range
+            )
+        )
 
     def visit_description(self, node: Node):
         text = self.pl_tag_text(node)

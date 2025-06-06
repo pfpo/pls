@@ -3,7 +3,6 @@ from .utils import node_to_location
 from tree_sitter import Node
 from dataclasses import dataclass
 from .annotations import Annotations
-from .my_logging import logging
 
 
 class Term:
@@ -82,55 +81,58 @@ class Scope:
         self.predicate: None | "Predicate" = None
         # self.node = None
 
+
 class Signature(Term):
-    def __init__(self, name,arity,loc):
+    def __init__(self, name, arity, loc):
         super().__init__(name)
         self.arity = arity
-        self.loc : types.Range = loc
+        self.loc: types.Range = loc
+
 
 @dataclass
 class Module:
-    uri : str
+    uri: str
     name: str
-    loc : types.Range
-    is_library :bool
+    loc: types.Range
+    is_library: bool
+
 
 @dataclass
 class ModuleDeclaration(Module):
-    exported : list[Signature]
+    exported: list[Signature]
 
 
 @dataclass
 class UseModule(Module):
-    imported : list[Signature] | None
+    imported: list[Signature] | None
+
 
 @dataclass
 class SymbolTable:
     scopes: dict[str, Scope]
     predicate_index: dict[str, Predicate]
-    predicate_index_by_name : dict[str,set[str]] 
+    predicate_index_by_name: dict[str, set[str]]
     path: str
     notes: Annotations
 
     builtins: "SymbolTable"
 
     imports: dict["str", "SymbolTable"]
-    imported_signatures: dict["str",set[str]]
+    imported_signatures: dict["str", set[str]]
     module_paths: dict[str, list[types.Location]]
 
-    libs : set["str"]
+    libs: set["str"]
     consults: dict["str", "SymbolTable"]
     consult_paths: dict[str, list[types.Location]]
 
     module_declarations: list[ModuleDeclaration]
     use_module_declarations: list[UseModule]
 
-    exported_signatures : set[str]
+    exported_signatures: set[str]
 
-    exportable_predicates : set[str]
+    exportable_predicates: set[str]
 
-
-    def find_predicate_not_in_builtins(self,key:str):
+    def find_predicate_not_in_builtins(self, key: str):
         p = self.predicate_index.get(key)
         if p is not None and (len(p.definitions) > 0 or p.defined_by_comment):
             return p
@@ -138,24 +140,26 @@ class SymbolTable:
         for table in self.consults.values():
             if consulted_predicate := table.find_predicate_not_in_builtins(key):
                 return consulted_predicate
-        
-        for module_path , key_set in self.imported_signatures.items():
+
+        for module_path, key_set in self.imported_signatures.items():
             if key in key_set:
-                if imported_predicate:= self.imports[module_path].find_predicate_not_in_builtins(key):
+                if imported_predicate := self.imports[
+                    module_path
+                ].find_predicate_not_in_builtins(key):
                     return imported_predicate
         return None
 
-    def is_renameable(self,key:str):
+    def is_renameable(self, key: str):
         exportable = key in self.exportable_predicates
         if exportable:
-            return True , ""
+            return True, ""
 
         builtin = self.builtins is not None and key in self.builtins.predicate_index
-        
+
         if builtin:
             return False, f"{key} is a builtin predicate"
-        
-        imported = False 
+
+        imported = False
 
         for lib in self.libs:
             if lib not in self.imported_signatures:
@@ -169,16 +173,15 @@ class SymbolTable:
 
         return True, ""
 
-
-    def get_predicates_that_match(self,name:str)->list[Predicate]:
+    def get_predicates_that_match(self, name: str) -> list[Predicate]:
         tables = [self]
         tables.extend(self.consults.values())
-    
+
         available_keys = set()
-    
+
         predicates = []
         for t in tables:
-            available_keys.update(t.predicate_index_by_name.get(name,[]))
+            available_keys.update(t.predicate_index_by_name.get(name, []))
 
         for key in available_keys:
             p = self.find_predicate_not_in_builtins(key)
@@ -187,13 +190,13 @@ class SymbolTable:
 
         if self.builtins:
             builtin_keys = set()
-            builtin_keys.update(self.builtins.predicate_index_by_name.get(name,[]))
+            builtin_keys.update(self.builtins.predicate_index_by_name.get(name, []))
 
-        
             for key in builtin_keys:
                 p = self.builtins.predicate_index[key]
                 predicates.append(p)
         return predicates
+
 
 def scope_at_position(node: Node, table: SymbolTable, p: types.Position):
     in_row_between = node.start_point.row < p.line and node.end_point.row > p.line
@@ -222,10 +225,6 @@ def scope_at_position(node: Node, table: SymbolTable, p: types.Position):
 
 
 def string_from_atom(atom_string: str) -> str:
-    if (
-        len(atom_string) >= 2
-        and atom_string[0] == "'"
-        and atom_string[-1] == "'"
-    ):
+    if len(atom_string) >= 2 and atom_string[0] == "'" and atom_string[-1] == "'":
         return atom_string[1:-1]
     return atom_string

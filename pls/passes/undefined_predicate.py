@@ -17,7 +17,7 @@ class UndefinedPredicate(TreeVisitor):
 
     def build_visitors(self):
         self.add_visit("functional_notation", self.visit_functional_notation)
-        self.add_visit("operator_notation",self.visit_operator_notation)
+        self.add_visit("operator_notation", self.visit_operator_notation)
         self.set_default_visitor(self.visit_all_children)
 
     def is_undefined(self, predicate: Predicate) -> tuple[bool, Predicate]:
@@ -40,8 +40,8 @@ class UndefinedPredicate(TreeVisitor):
         if self.table is None:
             return
         self.handle_annotated_node(node)
-        
-    def handle_annotated_node(self,node:Node):
+
+    def handle_annotated_node(self, node: Node):
         may_be_old_predicate = self.table.notes[node]
         predicate = self.table.predicate_index[may_be_old_predicate.key()]
         if predicate is None or type(predicate) is not Predicate:
@@ -66,7 +66,6 @@ class UndefinedPredicate(TreeVisitor):
 
     def visit_operator_notation(self, node: Node):
         assert node.type == "operator_notation"
-        children = self.filter_children(node)
         operator = node.child_by_field_name("operator")
         for child in node.children:
             if child == operator:

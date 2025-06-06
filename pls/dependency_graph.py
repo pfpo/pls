@@ -1,4 +1,4 @@
-from .utils import Path, add_paths, file_uri_to_path, path_to_file_uri
+from .utils import file_uri_to_path
 from dataclasses import dataclass
 
 
@@ -9,10 +9,11 @@ class File:
     includes: dict[str, "Dependency"]
     is_included: dict[str, "Dependency"]
 
+
 @dataclass
 class Dependency:
-    file : File
-    is_module : bool= False
+    file: File
+    is_module: bool = False
 
 
 class DependencyGraph:
@@ -97,12 +98,12 @@ class DependencyGraph:
 
         file.includes[other_name] = Dependency(other)
         other.is_included[file_name] = Dependency(file)
-    
-    def file_uses_module(self,file_name: str, module_path : str):
+
+    def file_uses_module(self, file_name: str, module_path: str):
         file = self.get_file(file_name)
         other = self.get_file(module_path)
 
-        file.includes[module_path] = Dependency(other,is_module=True)
+        file.includes[module_path] = Dependency(other, is_module=True)
         other.is_included[file_name] = Dependency(file)
 
     def remove_file_includes_other(self, file_name: str, other_name: str):
@@ -158,7 +159,7 @@ class DependencyGraph:
     def __str__(self) -> str:
         r = "Dependency Graph:\n"
 
-        def file_dict_string(d: dict[str,Dependency]) -> str:
+        def file_dict_string(d: dict[str, Dependency]) -> str:
             return ",".join([f.file.name for f in d.values()])
 
         for _, file in self.files.items():
@@ -210,8 +211,6 @@ class DependencyGraphManager:
         if not is_cycle:
             self.dg.file_uses_module(file_name, other_name)
         self.may_be_wrong.file_uses_module(file_name, other_name)
-
-
 
     def file_exists(self, uri: str):
         return file_uri_to_path(uri).exists()

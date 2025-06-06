@@ -1,6 +1,22 @@
 from tree_sitter import Node, Parser, Language
-from .model import Signature, Term, Functor, Predicate, Variable, Scope, string_from_atom, ModuleDeclaration,UseModule
-from .utils import node_to_location, node_and_parent_with_text, node_to_range,add_paths,library_path
+from .model import (
+    Signature,
+    Term,
+    Functor,
+    Predicate,
+    Variable,
+    Scope,
+    string_from_atom,
+    ModuleDeclaration,
+    UseModule,
+)
+from .utils import (
+    node_to_location,
+    node_and_parent_with_text,
+    node_to_range,
+    add_paths,
+    library_path,
+)
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
 import tree_sitter_pldoc as pldoc
@@ -9,6 +25,7 @@ from lsprotocol import types
 from collections import defaultdict
 from .pldoc_comment_visitor import PlDocVisitor
 from .my_logging import logging
+
 
 @dataclass
 class Opts:
@@ -20,8 +37,8 @@ class Opts:
 class PrologVisitor(TreeVisitor):
     def __init__(self, uri: str):
         super().__init__()
-        self.predicate_index : dict[str, Predicate]= {}
-        self.predicate_index_by_name : dict[str,set[str]] = {}
+        self.predicate_index: dict[str, Predicate] = {}
+        self.predicate_index_by_name: dict[str, set[str]] = {}
         self.uri = uri
 
         self.notes = Annotations()
@@ -33,15 +50,14 @@ class PrologVisitor(TreeVisitor):
         self.consult_paths: dict[str, list[types.Location]] = defaultdict(list)
         self.comment_parser = Parser(Language(pldoc.language()))
 
-        self.used_modules : list[UseModule] = []
+        self.used_modules: list[UseModule] = []
         self.module_paths: dict[str, list[types.Location]] = defaultdict(list)
-        self.module_declarations : list[ModuleDeclaration] = []
+        self.module_declarations: list[ModuleDeclaration] = []
         self.libs = set()
         self.all_comments = []
         self.comments = []
 
-        self.exportable_predicates : set[str] = set()
-
+        self.exportable_predicates: set[str] = set()
 
     def set_current_scope(self, scope):
         if self.current_scope is not None:
@@ -72,7 +88,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("comma", self.visit_binary_operator)
         self.add_visit("arg_list", self.visit_arg_list)
 
-        ignore = ["open", "end","comma","arg_list_separator","close"]
+        ignore = ["open", "end", "comma", "arg_list_separator", "close"]
         for t in ignore:
             self.add_visit(t, self.ignore)
 
@@ -151,7 +167,7 @@ class PrologVisitor(TreeVisitor):
                 p = self.get_predicate(f)
                 self.notes[node] = p
                 p.add_reference(self.uri, node)
-                p.add_name_reference(self.uri,atom)
+                p.add_name_reference(self.uri, atom)
                 if is_parameter_definition:
                     opts = self.un_set_parameter_definitions(opts)
                 return f
@@ -179,10 +195,6 @@ class PrologVisitor(TreeVisitor):
         v.references.append(definition_loc)
         return v
 
-    def filter_children(self, node: Node):
-        return [
-            child for child in node.children if child.type not in ("comment", "ERROR")
-        ]
 
     def visit_operator_notation(self, node: Node, opts: Opts):
         assert node.type == "operator_notation"
@@ -224,9 +236,9 @@ class PrologVisitor(TreeVisitor):
             t = Term(bytes.decode(operator_node.text, "utf-8"))
             t.arity = arity
             operator = self.get_predicate(t)
-            operator.add_reference(self.uri,operator_node)
+            operator.add_reference(self.uri, operator_node)
             self.notes[operator_node] = operator
-        return  to_return
+        return to_return
 
     def functor_is_parameter_start_point(self, opts: Opts):
         return opts.predicate_definition and not opts.started_predicate_definition
@@ -296,39 +308,37 @@ class PrologVisitor(TreeVisitor):
         def is_module(functor: Functor) -> bool:
             return functor.name == "module"
 
-
         for child in node.children:
             if child.type == "functional_notation":
                 functor = self.visit(child, opts)
                 if is_consult(functor):
-                    self.handle_consult(child,functor)
+                    self.handle_consult(child, functor)
                 elif is_use_module(functor):
                     # TODO: Handle Modules
-                    self.handle_use_module(child,functor)
+                    self.handle_use_module(child, functor)
                     pass
                 elif is_module(functor):
-                    self.handle_module_declaration(child,functor)
+                    self.handle_module_declaration(child, functor)
             else:
                 self.visit(child, opts)
         self.notes[node] = self.current_scope
         self.save_scope()
         return
 
-    def handle_consult(self, node: Node,functor: Functor):
+    def handle_consult(self, node: Node, functor: Functor):
         consult_path = string_from_atom(functor.args[0].name)
         functor.args[0].data["link"] = consult_path
-    
-        path  = add_paths(self.uri,consult_path)
-        self.consult_paths[path].append(
-            node_to_location(self.uri,node)
-        )
-    def handle_use_module(self, node:Node,functor:Functor):
-        name = "" 
+
+        path = add_paths(self.uri, consult_path)
+        self.consult_paths[path].append(node_to_location(self.uri, node))
+
+    def handle_use_module(self, node: Node, functor: Functor):
+        name = ""
         imported_predicates = None
         is_library = False
         if len(functor.args) >= 1:
             arg0 = functor.args[0]
-            if type(arg0) is Functor and arg0.name == 'library':
+            if type(arg0) is Functor and arg0.name == "library":
                 if len(arg0.args) == 1 and type(arg0.args[0]) is Term:
                     is_library = True
                     name = string_from_atom(arg0.args[0].name)
@@ -346,44 +356,51 @@ class PrologVisitor(TreeVisitor):
             path = library_path(name)
             self.libs.add(path)
         else:
-            path = add_paths(self.uri,name)
+            path = add_paths(self.uri, name)
 
-        self.module_paths[path].append(
-            node_to_location(self.uri,node)
-        )
+        self.module_paths[path].append(node_to_location(self.uri, node))
 
-        m =UseModule(path,name,node_to_range(node),is_library,imported_predicates)
+        m = UseModule(path, name, node_to_range(node), is_library, imported_predicates)
         self.used_modules.append(m)
 
-    def visit_signature(self,node:Node)->Signature:
-        op = node.child_by_field_name('operator')
-        if node.type != 'operator_notation' and (op is None or op.text != b'/'):
+    def visit_signature(self, node: Node) -> Signature:
+        op = node.child_by_field_name("operator")
+        if node.type != "operator_notation" and (op is None or op.text != b"/"):
             return None, False
-        if not(node.child(0).type == 'atom' and node.child(1).type == 'binary_operator' and node.child(2).type == 'integer'):
+        if not (
+            node.child(0).type == "atom"
+            and node.child(1).type == "binary_operator"
+            and node.child(2).type == "integer"
+        ):
             return None, False
-            
-        # TODO Check if integer is less than zero
-        return  Signature(bytes.decode(node.child(0).text),int(bytes.decode(node.child(2).text)),node_to_range(node)),True
 
-    def visit_signature_list(self,node:Node)->list[Signature]:
+        # TODO Check if integer is less than zero
+        return Signature(
+            bytes.decode(node.child(0).text),
+            int(bytes.decode(node.child(2).text)),
+            node_to_range(node),
+        ), True
+
+    def visit_signature_list(self, node: Node) -> list[Signature]:
         children = list(node.children)
         children = children[1:-1]
         signatures = []
         for child in children:
-            if child.type == 'list_notation_separator':
+            if child.type == "list_notation_separator":
                 continue
-            if child.type == 'operator_notation':
+            if child.type == "operator_notation":
                 signature, succ = self.visit_signature(child)
                 if succ:
                     # TODO add a reference to the predicate
                     signatures.append(signature)
                 else:
-                    logging.error(f"Could not add signature")
+                    logging.error("Could not add signature")
                     # TODO should deal with warnings
                     pass
         return signatures
-    def handle_module_declaration(self,node:Node,functor:Functor):
-        name = "" 
+
+    def handle_module_declaration(self, node: Node, functor: Functor):
+        name = ""
         exported_predicates = []
         if len(functor.args) >= 1:
             name = string_from_atom(functor.args[0].name)
@@ -393,10 +410,15 @@ class PrologVisitor(TreeVisitor):
             exported_predicates = self.visit_signature_list(list_notation)
 
         path_name = name
-        if not name.endswith('.pl'):
-            path_name = name + '.pl'
-        m = ModuleDeclaration(add_paths(self.uri,path_name),name,node_to_range(node),False,exported_predicates
-                              )
+        if not name.endswith(".pl"):
+            path_name = name + ".pl"
+        m = ModuleDeclaration(
+            add_paths(self.uri, path_name),
+            name,
+            node_to_range(node),
+            False,
+            exported_predicates,
+        )
         self.module_declarations.append(m)
 
     def visit_list_notation(self, node: Node, opts: Opts):
@@ -426,7 +448,7 @@ class PrologVisitor(TreeVisitor):
                 name_range.start.line += node.start_point.row
                 name_range.end.line += node.start_point.row
                 predicate.name_references.append(
-                    types.Location(uri=self.uri,range=name_range),
+                    types.Location(uri=self.uri, range=name_range),
                 )
         else:
             self.comments.append(bytes.decode(node.text, "utf-8"))
@@ -435,7 +457,7 @@ class PrologVisitor(TreeVisitor):
     def get_predicate(self, t: Term) -> Predicate:
         key = t.key()
         if key not in self.predicate_index:
-            self.predicate_index[key] =Predicate(t.name, t.arity)
+            self.predicate_index[key] = Predicate(t.name, t.arity)
         if t.name not in self.predicate_index_by_name:
             self.predicate_index_by_name[t.name] = set()
         self.predicate_index_by_name[t.name].add(key)
