@@ -67,21 +67,9 @@ class UndefinedPredicate(TreeVisitor):
     def visit_operator_notation(self, node: Node):
         assert node.type == "operator_notation"
         children = self.filter_children(node)
-        match children:
-            case [open, op, close] if (
-                open.type == "open" and close.type == "close"
-            ):
-                self.visit(op)
-            case [head, op, body]:
-                self.visit(head)
-                self.handle_annotated_node(op)
-                self.visit(body)
-            case [op, operand] if op.type == "prefix_operator":
-                self.handle_annotated_node(op)
-                self.visit(operand)
-            case _:
-                self.visit_all_children(node)
-                # raise TypeError(
-                #     f"Unhandeled operator notation:`{node.children}`\n"
-                #     + node_and_parent_with_text(node)
-                # )
+        operator = node.child_by_field_name("operator")
+        for child in node.children:
+            if child == operator:
+                self.handle_annotated_node(child)
+            else:
+                self.visit(child)

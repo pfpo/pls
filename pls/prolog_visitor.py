@@ -187,16 +187,16 @@ class PrologVisitor(TreeVisitor):
     def visit_operator_notation(self, node: Node, opts: Opts):
         assert node.type == "operator_notation"
         children = self.filter_children(node)
+        operator_node = node.child_by_field_name("operator")
+        arity = None
+        to_return = None
         match children:
             case [open, operand, close] if (
                 open.type == "open" and close.type == "close"
             ):
-                operand = self.visit(operand, opts)
-                return operand
+                to_return = self.visit(operand, opts)
             case [head, op, body]:
-                predicate = self.get_predicate(Functor(bytes.decode(op.text,"utf-8"),[None,None]))
-                predicate.add_reference(self.uri,op)
-                self.notes[op] = predicate
+                arity = 2
                 is_parameter_definition = self.is_parameter_start_point(opts, op)
                 if is_parameter_definition:
                     opts = self.set_parameter_definition(opts)
@@ -204,21 +204,29 @@ class PrologVisitor(TreeVisitor):
                 if is_parameter_definition:
                     opts = self.un_set_parameter_definitions(opts)
                 body = self.visit(body, opts)
-                return head
-            case [op, operand] if op.type == "prefix_operator":
+                to_return = head
+            case [op, operand] if op == operator_node:
                 operand = self.visit(operand, opts)
-                logging.error(f"{op.text}")
-                logging.error(f"{bytes.decode(op.text)}")
-                predicate = self.get_predicate(Functor(bytes.decode(op.text,"utf-8"),[None]))
-                predicate.add_reference(self.uri,op)
-                self.notes[op] = predicate
-                return operand
+                arity = 1
+                to_return = operand
+            case [operand, op] if op == operator_node:
+                operand = self.visit(operand, opts)
+                arity = 1
+                to_return = operand
             case _:
                 self.visit_all_children(node, opts)
                 # raise TypeError(
                 #     f"Unhandeled operator notation:`{node.children}`\n"
                 #     + node_and_parent_with_text(node)
                 # )
+
+        if arity is not None:
+            t = Term(bytes.decode(operator_node.text, "utf-8"))
+            t.arity = arity
+            operator = self.get_predicate(t)
+            operator.add_reference(self.uri,operator_node)
+            self.notes[operator_node] = operator
+        return  to_return
 
     def functor_is_parameter_start_point(self, opts: Opts):
         return opts.predicate_definition and not opts.started_predicate_definition
