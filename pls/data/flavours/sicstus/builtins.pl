@@ -453,7 +453,7 @@
 %     The resulting byte count of the stream.
 
 %!    call(+P)
-%!    call(+P,?Q,...)
+%!    call(+P,?Q,?Qs_Up_To_256)
 %
 %     Proves (executes) P.
 %     Executes the goal obtained by
@@ -812,7 +812,7 @@
 %
 %     @param  Term   *term*
 
-%!    (+Iteratordo+Body)
+%!    +Iterator do +Body
 %
 %     @param  +Iterator   *iterator*, must be nonvar
 %     @param  :Body       *callable*, must be nonvar
@@ -2190,8 +2190,8 @@
 
 %!    read(-Term)
 %!    read(+Stream,-Term)
-%!    read_term(Term, [])
-%!    read_term(Stream,Term, [])
+%!    read_term(-Term, -EmptyList)
+%!    read_term(+Stream,-Term, -EmptyList)
 %
 %     Reads the next term from Stream and unifies it with Term.
 %     Same as:
