@@ -31,3 +31,8 @@ class TreeVisitor(ABC):
             f"There is no registered visitor for: {node.type}\n{node}:"
             + node_and_parent_with_text(node)
         )
+
+    def filter_children(self, node: Node):
+        return [
+            child for child in node.children if child.type not in ("comment", "ERROR")
+        ]

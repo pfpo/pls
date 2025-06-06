@@ -17,6 +17,7 @@ class UndefinedPredicate(TreeVisitor):
 
     def build_visitors(self):
         self.add_visit("functional_notation", self.visit_functional_notation)
+        self.add_visit("operator_notation",self.visit_operator_notation)
         self.set_default_visitor(self.visit_all_children)
 
     def is_undefined(self, predicate: Predicate) -> tuple[bool, Predicate]:
@@ -38,6 +39,9 @@ class UndefinedPredicate(TreeVisitor):
     def visit_functional_notation(self, node: Node):
         if self.table is None:
             return
+        self.handle_annotated_node(node)
+        
+    def handle_annotated_node(self,node:Node):
         may_be_old_predicate = self.table.notes[node]
         predicate = self.table.predicate_index[may_be_old_predicate.key()]
         if predicate is None or type(predicate) is not Predicate:
@@ -59,3 +63,25 @@ class UndefinedPredicate(TreeVisitor):
             new_predicate.name_references.extend(predicate.name_references)
             self.table.notes[node] = new_predicate
             self.table.predicate_index[predicate.key()] = new_predicate
+
+    def visit_operator_notation(self, node: Node):
+        assert node.type == "operator_notation"
+        children = self.filter_children(node)
+        match children:
+            case [open, op, close] if (
+                open.type == "open" and close.type == "close"
+            ):
+                self.visit(op)
+            case [head, op, body]:
+                self.visit(head)
+                self.handle_annotated_node(op)
+                self.visit(body)
+            case [op, operand] if op.type == "prefix_operator":
+                op = self.visit(op)
+                self.visit(operand)
+            case _:
+                self.visit_all_children(node)
+                # raise TypeError(
+                #     f"Unhandeled operator notation:`{node.children}`\n"
+                #     + node_and_parent_with_text(node)
+                # )
