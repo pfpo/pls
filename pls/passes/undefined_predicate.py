@@ -77,7 +77,7 @@ class UndefinedPredicate(TreeVisitor):
                 self.handle_annotated_node(op)
                 self.visit(body)
             case [op, operand] if op.type == "prefix_operator":
-                op = self.visit(op)
+                self.handle_annotated_node(op)
                 self.visit(operand)
             case _:
                 self.visit_all_children(node)

@@ -194,7 +194,7 @@ class PrologVisitor(TreeVisitor):
                 operand = self.visit(operand, opts)
                 return operand
             case [head, op, body]:
-                predicate = self.get_predicate(Functor(bytes.decode(op.text),[None,None]))
+                predicate = self.get_predicate(Functor(bytes.decode(op.text,"utf-8"),[None,None]))
                 predicate.add_reference(self.uri,op)
                 self.notes[op] = predicate
                 is_parameter_definition = self.is_parameter_start_point(opts, op)
@@ -207,6 +207,11 @@ class PrologVisitor(TreeVisitor):
                 return head
             case [op, operand] if op.type == "prefix_operator":
                 operand = self.visit(operand, opts)
+                logging.error(f"{op.text}")
+                logging.error(f"{bytes.decode(op.text)}")
+                predicate = self.get_predicate(Functor(bytes.decode(op.text,"utf-8"),[None]))
+                predicate.add_reference(self.uri,op)
+                self.notes[op] = predicate
                 return operand
             case _:
                 self.visit_all_children(node, opts)

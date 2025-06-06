@@ -1589,7 +1589,7 @@
 %     @param  LastVar    *integer*
 
 %!    on_exception(-Exception,+ProtectedGoal,+Handler)
-%!    catch(ProtectedGoal,Exception,Handler)
+%!    catch(+ProtectedGoal,+Exception,+Handler)
 %
 %     same as:
 %     Specify an exception handler for ProtectedGoal, and call

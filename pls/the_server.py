@@ -429,8 +429,11 @@ class PLS(LanguageServer):
         if node is None:
             return None
         table = self.tables[uri]
-        if node.type in ("binary_operator","variable_term"):
+        if node.parent and node.parent.type == "operator_notation" and node.parent.child_by_field_name('operator') == node:
             return table.notes[node]
+        if node.type in ("variable_term"):
+            return table.notes[node]
+        
         else:
             functor = None
             if (

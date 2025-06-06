@@ -81,7 +81,7 @@ class Markup:
             else:
                 other_comments.append(c)
 
-        res = [f"### Predicate: {element.key()}"]
+        res = [f"### Predicate: `{element.name}`/{element.arity}"]
         for c in other_comments:
             res.append(c.to_markdown())
         for c in string_comments:
