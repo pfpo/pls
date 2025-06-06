@@ -72,7 +72,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("comma", self.visit_binary_operator)
         self.add_visit("arg_list", self.visit_arg_list)
 
-        ignore = ["open", "end","comma","arg_list_separator"]
+        ignore = ["open", "end","comma","arg_list_separator","close"]
         for t in ignore:
             self.add_visit(t, self.ignore)
 

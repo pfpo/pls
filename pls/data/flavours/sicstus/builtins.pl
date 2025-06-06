@@ -794,7 +794,7 @@
 %     @param  BIDs   *list of integer*, must be ground
 %     Breakpoint identifiers.
 
-%!    :- discontiguous+PredSpecs
+%!    :- discontiguous +PredSpecs
 %
 %     Declares the clauses of the predicates defined by PredSpecs to be
 %     discontiguous in the source file (suppresses compile\-time warnings).
@@ -817,7 +817,7 @@
 %     @param  +Iterator   *iterator*, must be nonvar
 %     @param  :Body       *callable*, must be nonvar
 
-%!    :- dynamic+PredSpecs
+%!    :- dynamic +PredSpecs
 %
 %     Declares the clauses of the predicates defined by PredSpecs to be
 %     dynamic.
@@ -842,7 +842,7 @@
 %     A file specification or a list of file specifications;
 %     extension optional.
 
-%!    +Expr1=:=+Expr2
+%!    +Expr1 =:= +Expr2
 %
 %     Succeeds if the results of evaluating Expr1 and
 %     Expr2 *are equal*.
@@ -882,7 +882,7 @@
 %     explicit existential quantifier outside `setof/3` and `bagof/3`
 %     is superfluous.
 %
-%     @param  X    *term*
+%     @param  +X    *term*
 %     @param  :P   *callable*, must be nonvar
 
 %!    expand_term(+Term1,-Term2)
@@ -1157,7 +1157,7 @@
 %     @param  :Q   *callable*, must be nonvar
 %     @param  :R   *callable*, must be nonvar
 
-%!    +P->+Q
+%!    +P-> +Q
 %
 %     When occurring other than as the first argument of a disjunction operator
 %     (`;/2`), this is equivalent to:
@@ -1294,10 +1294,9 @@
 
 %!    load_files(+Files)
 %!    load_files(+Files,+Options)
-%!    [+Files]
 %
 %     Loads the specified Prolog source and/or object file(s) into memory.
-%     Subsumes all other load predicates.
+%     Subsumes all other load predicates. Alternative syntax: `[+Files]`
 %
 %     @param  :Files    *file\_spec* or *list of file\_spec*, must be ground
 %     A file specification or a list of file specifications;
@@ -1423,8 +1422,8 @@
 %
 %     @param  :Mode   *term*
 
-%!    :- module(+ModuleName,+PublicPred).
-%!    :- module(+ModuleName,+PublicPred,+Options).
+%!    :- module(+ModuleName,+PublicPred)
+%!    :- module(+ModuleName,+PublicPred,+Options)
 %
 %     Declares the file in which the declaration appears to be a
 %     module file named ModuleName, with public predicates
@@ -1506,7 +1505,7 @@
 %     Removes all the spypoints (including the generic ones) that have
 %     been set.
 
-%!    +Expr1=\=+Expr2
+%!    +Expr1 =\= +Expr2
 %
 %     Succeeds if the results of evaluating Expr1 and
 %     Expr2 are *not equal*.
@@ -1514,7 +1513,7 @@
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
 
-%!    +Expr1=<+Expr2
+%!    +Expr1 =< +Expr2
 %
 %     Succeeds if the result of evaluating Expr1 is *less
 %     than or equal* to the result of evaluating Expr2.
@@ -1530,7 +1529,7 @@
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
 
-%!    \++P
+%!    \+ +P
 %
 %     Fails if the goal P has a solution, and succeeds otherwise.
 %     Equivalent to:
@@ -1541,7 +1540,7 @@
 %
 %     @param  :P   *callable*, must be nonvar
 
-%!    +Term1\=+Term2
+%!    +Term1 \= +Term2
 %
 %     Term1 and Term2 do not unify.
 %
@@ -2273,7 +2272,7 @@
 %     the `consume_layout` option is `false`.
 
 %!    reconsult(+Files)
-%!    consult(Files)
+%!    consult(+Files)
 %
 %     same as:
 %
@@ -2346,7 +2345,7 @@
 %     @param  :Head   *callable*, must be nonvar
 %     Head of a Prolog clause.
 
-%!    user:runtime_entry(Event)
+%!    user:runtime_entry(+Event)
 %
 %     This predicate is called upon start\-up of stand alone
 %     applications. Currently, Event will be `start`, and the
@@ -2475,7 +2474,7 @@
 %     A valid output stream.
 
 %!    set_prolog_flag(+FlagName,+Value)
-%!    prolog_flag(FlagName, _,Value)
+%!    prolog_flag(+FlagName, +Other,+Value)
 %
 %     same as:
 %
@@ -2745,7 +2744,7 @@
 %
 %     @param  FileOrStream   *file\_spec* or *stream\_object*
 
-%!    +Term1==+Term2
+%!    +Term1 == +Term2
 %
 %     Succeeds if Term1 and Term2 are *identical terms*.
 %
@@ -2783,7 +2782,7 @@
 %     @param  Term1   *term*
 %     @param  Term2   *term*
 
-%!    +Term1\==+Term2
+%!    +Term1 \== +Term2
 %
 %     Succeeds if Term1 and Term2 are *non\-identical terms*.
 %
@@ -2938,7 +2937,7 @@
 %
 %     @param  Term   *term*
 
-%!    :- volatile+PredSpecs
+%!    :- volatile +PredSpecs
 %
 %     Declares PredSpecs to be volatile. Clauses of volatile predicates are not
 %     saved by the '`save_*`' predicates.
