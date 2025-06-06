@@ -17,11 +17,10 @@ from .utils import (
     node_at_position,
     builtins_path,
     path_to_file_uri,
-    file_uri_to_path,
     Path,
     MyDoc,
     ranges_overlap,
-    FileVersionedDict
+    FileVersionedDict,
 )
 from .model import (
     Functor,
@@ -54,13 +53,13 @@ PROLOG = Language(prolog())
 parser = Parser(PROLOG)
 
 
-
-
 class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.actions: FileVersionedDict[list[types.CodeAction]] = FileVersionedDict()
-        self.diagnostics :FileVersionedDict[list[types.CodeAction]] = FileVersionedDict()
+        self.diagnostics: FileVersionedDict[list[types.CodeAction]] = (
+            FileVersionedDict()
+        )
         self.tokens = {}
         self.tables: dict[str, SymbolTable] = {}
         self.original_tables: dict[str, SymbolTable] = {}
@@ -123,7 +122,6 @@ class PLS(LanguageServer):
         logging.info(f"Parsing: {current_uri}")
         self.run_analysis(document)
 
-
     def run_analysis(self, document: TextDocument):
         table = self.tables.get(document.uri)
 
@@ -178,7 +176,6 @@ class PLS(LanguageServer):
         except Exception as e:
             logging.error(f"Could Not get file: {uri}\n{e}")
             return MyDoc(uri)
-
 
     def should_reparse(self, document: TextDocument):
         version = document.version
