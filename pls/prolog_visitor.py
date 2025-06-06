@@ -1,4 +1,11 @@
+from dataclasses import dataclass
+from collections import defaultdict
+
+from lsprotocol import types
+
 from tree_sitter import Node, Parser, Language
+import tree_sitter_pldoc as pldoc
+
 from .model import (
     Signature,
     Term,
@@ -19,11 +26,8 @@ from .utils import (
 )
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
-import tree_sitter_pldoc as pldoc
-from dataclasses import dataclass
-from lsprotocol import types
-from collections import defaultdict
 from .pldoc_comment_visitor import PlDocVisitor
+
 from .my_logging import logging
 
 

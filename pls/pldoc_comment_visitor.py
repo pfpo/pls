@@ -1,8 +1,8 @@
+from dataclasses import dataclass
+from lsprotocol import types
 from tree_sitter import Node
 from .model import Term
 from .tree_visitor import TreeVisitor
-from dataclasses import dataclass
-from lsprotocol import types
 from .utils import node_to_range
 
 
