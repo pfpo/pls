@@ -1,21 +1,27 @@
-from pls.model import ModuleDeclaration, Signature, SymbolTable, UseModule
+from pls.model import ModuleDeclaration, Signature, UseModule
 from pls.pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
 from pls.my_logging import logging
+from .analyser import FileAnalyser
+from pls.model import PrologAnalyseable
 
+class MooduleAnalyser(FileAnalyser):
+    def __init__(self, uri,modules_to_include: set[str]):
+        super().__init__(uri)
 
-class MooduleAnalyser:
-    def __init__(self, uri, all_tables: dict[str, SymbolTable]):
-        self.uri = uri
-        self.tables = all_tables
-        self.table = self.tables[uri]
-
-        self.reports = []
+        self.table = None
+        self.tables = None
+        self.modules_to_include: set[str] = modules_to_include
 
         self.imported_signatures = {}
         self.exported_signatures = set()
 
-        self.fixes = []
+    def analyse(self,content:PrologAnalyseable):
+        self.table = content.tables[self.uri]
+        self.tables = content.tables
+
+        self.analyse_module_declarations()
+        self.analyse_use_module_declarations()
 
     def analyse_module_declarations(self):
         if len(self.table.module_declarations) == 0:
@@ -38,7 +44,8 @@ class MooduleAnalyser:
         self.exported_signatures = exported_signatures
         self.table.exported_signatures = exported_signatures
 
-    def analyse_use_module_declarations(self, modules_to_include: set[str]):
+    def analyse_use_module_declarations(self, ):
+        modules_to_include = self.modules_to_include
         signatures: dict[str, set[str]] = {}
         for module in self.table.use_module_declarations:
             path = module.uri
@@ -80,7 +87,7 @@ class MooduleAnalyser:
             severity=types.DiagnosticSeverity.Warning,
             range=signature.loc,
         )
-        self.reports.append(report)
+        self.add_file_diagnostic(report)
 
     def add_multiple_module_declarations(self, module: ModuleDeclaration):
         message = "Duplicated module declaration"
@@ -89,7 +96,7 @@ class MooduleAnalyser:
             severity=types.DiagnosticSeverity.Warning,
             range=module.loc,
         )
-        self.reports.append(report)
+        self.add_file_diagnostic(report)
 
     def add_module_does_not_export_signature(
         self, module: UseModule, signature: Signature
@@ -100,7 +107,7 @@ class MooduleAnalyser:
             severity=types.DiagnosticSeverity.Warning,
             range=signature.loc,
         )
-        self.reports.append(report)
+        self.add_file_diagnostic(report)
 
     def add_duplicated_import(self, name: str, loc: types.Range):
         message = f"Duplicated Use Module Declaration {name}"
@@ -109,4 +116,4 @@ class MooduleAnalyser:
             severity=types.DiagnosticSeverity.Warning,
             range=loc,
         )
-        self.reports.append(report)
+        self.add_file_diagnostic(report)

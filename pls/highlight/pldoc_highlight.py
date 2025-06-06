@@ -103,7 +103,6 @@ class PlDocHighlightVisitor(TreeVisitor):
         self.create_token(name_node, 1, 0)
 
     def arg_spec(self, node: Node):
-        logging.error(f"{node.children}")
         fields = {"instantiation": (4, 0), "name": (1, 0), "type": (7, 0)}
         for child in node.children:
             if child.type == "arg_name_instantiation":

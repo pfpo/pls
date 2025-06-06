@@ -19,7 +19,7 @@ from .utils import (
     Path,
     ranges_overlap,
 )
-from .model import Functor, Variable, Predicate, SymbolTable, scope_at_position, Scope
+from .model import Functor, PrologAnalyseable, Variable, Predicate, SymbolTable, scope_at_position, Scope
 
 from .matching_signature_help import in_possible_signature_help
 from .annotations import Annotations
@@ -70,6 +70,9 @@ class PLS(LanguageServer):
         self.builtin_uri = builtins_path()
         self.builtin_table: SymbolTable = None
         self.root_path = None
+
+    def get_analyseable(self,uri: str = "")-> PrologAnalyseable:
+        return PrologAnalyseable(uri,self.tables,self.trees)
 
     def discover_files(self):
         collected = []
@@ -403,13 +406,12 @@ class PLS(LanguageServer):
                 consult_table = self.tables[file.uri]
                 symbol_table.consults[file.uri] = consult_table
 
-        m = MooduleAnalyser(document.uri, self.tables)
-        m.analyse_module_declarations()
-        m.analyse_use_module_declarations(modules_to_include)
+        m = MooduleAnalyser(document.uri, modules_to_include)
+        m.analyse(self.get_analyseable())
         # logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
 
         self.run_analysis(document)
-        self.add_diagnostics(document, m.reports)
+        self.add_diagnostics(document, m.diagnostics[document.uri])
         # logging.error(f"Finished Analysis of {document.filename}")
         # logging.error(
         #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"

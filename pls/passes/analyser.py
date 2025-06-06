@@ -2,7 +2,7 @@ from abc import ABC,abstractmethod
 from collections import defaultdict
 from lsprotocol.types import Diagnostic
 from pls.utils import RangedAction
-from pls.model import PrologAnalyzable
+from pls.model import PrologAnalyseable
 
 class Analyser(ABC):
     def __init__(self):
@@ -19,11 +19,11 @@ class Analyser(ABC):
     
 
     @abstractmethod
-    def analyse(content : PrologAnalyzable):
+    def analyse(content : PrologAnalyseable):
         pass
 
 
-class FileAnalyser(ABC):
+class FileAnalyser(Analyser):
     def __init__(self,uri:str):
         super().__init__()
         self.uri = uri
