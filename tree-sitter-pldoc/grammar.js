@@ -19,7 +19,7 @@ const instantiation_modifiers = ['++', '+', '-', '--', '?', ':', '@', '!']
 const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', 'undefined']
 
 const word = /[^\s]+/
-const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\,]/
+const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\,!;]/
 const alphanum = /[a-zA-Z0-9$_]/
 const functor= token(repeat1(choice(graphic_char,alphanum)))
 
