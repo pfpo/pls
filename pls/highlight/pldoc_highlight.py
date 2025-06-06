@@ -2,7 +2,6 @@ from pls.tree_visitor import TreeVisitor
 from tree_sitter import Node
 from .highlight import Token
 from dataclasses import dataclass
-from pls.my_logging import logging
 
 
 @dataclass
@@ -16,22 +15,26 @@ class TsPoint:
     line: int
     character: int
 
+
 @dataclass
 class NodeLike:
-    text : str
-    start_point : None
-    end_point : None
+    text: str
+    start_point: None
+    end_point: None
 
-def node_with_offset(node:Node, text: str,where:bool= False,offset=None)-> NodeLike:
+
+def node_with_offset(
+    node: Node, text: str, where: bool = False, offset=None
+) -> NodeLike:
     s = node.start_point
     e = node.end_point
-    start = Point(s.row,s.column)
-    end = Point(e.row,e.column)
+    start = Point(s.row, s.column)
+    end = Point(e.row, e.column)
     if not where:
-        end = Point(s.row,s.column+len(text)) 
+        end = Point(s.row, s.column + len(text))
     else:
-        start = Point(s.row,s.column+len(offset)) 
-    return NodeLike(text,start,end)
+        start = Point(s.row, s.column + len(offset))
+    return NodeLike(text, start, end)
 
 
 @dataclass
@@ -68,7 +71,7 @@ class PlDocHighlightVisitor(TreeVisitor):
 
         # Templates
         self.add_visit("functor_template", self.visit_functor)
-        self.add_visit("operator_template",self.visit_functor)
+        self.add_visit("operator_template", self.visit_functor)
 
     def end(self, node: Node):
         self.ended = True
@@ -82,31 +85,26 @@ class PlDocHighlightVisitor(TreeVisitor):
                 break
             self.visit(child)
 
-    def arg_name_isntantiation(self,node:Node):
-        text = bytes.decode(node.text,"utf-8").strip()
+    def arg_name_isntantiation(self, node: Node):
+        text = bytes.decode(node.text, "utf-8").strip()
         final = 0
-        for i,c in enumerate(text):
+        for i, c in enumerate(text):
             if c.isupper():
                 final = i
                 break
 
         operator = text[:final]
-        op_node = node_with_offset(node,operator)
-        self.create_token(op_node,4,0)
+        op_node = node_with_offset(node, operator)
+        self.create_token(op_node, 4, 0)
 
         parameter = text[final:]
-        name_node =node_with_offset(node,parameter,True,operator)
-        self.create_token(name_node,1,0)
-    
-
-        
+        name_node = node_with_offset(node, parameter, True, operator)
+        self.create_token(name_node, 1, 0)
 
     def arg_spec(self, node: Node):
-        
-        logging.error(f"{node.children}")
         fields = {"instantiation": (4, 0), "name": (1, 0), "type": (7, 0)}
         for child in node.children:
-            if child.type == 'arg_name_instantiation':
+            if child.type == "arg_name_instantiation":
                 self.arg_name_isntantiation(child)
         for name in fields.keys():
             if field := node.child_by_field_name(name):
@@ -165,12 +163,11 @@ class PlDocHighlightVisitor(TreeVisitor):
             self.current_token = Token(current_row, col, "")
             col = 0
             self.token_list.extend([line_offset, col_offset, current_line_len, 6, 0])
-        
 
-
-    def visit_normal_and_consume_one_line(self, original_node:Node):
+    def visit_normal_and_consume_one_line(self, original_node: Node):
         self.visit_normal_comment(original_node)
         self.current_token.line -= 1
+
     def relative_node_range(self, node: Node):
         return Range(
             Point(

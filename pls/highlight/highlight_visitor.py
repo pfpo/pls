@@ -10,7 +10,7 @@ from pls.annotations import Annotations
 
 
 class HighlightVisitor(TreeVisitor):
-    def __init__(self, symbol_table: SymbolTable,comment_trees:Annotations):
+    def __init__(self, symbol_table: SymbolTable, comment_trees: Annotations):
         super().__init__()
         self.token_list = []
         self.current_token = Token(0, 0, "")
@@ -19,9 +19,7 @@ class HighlightVisitor(TreeVisitor):
             if symbol_table is not None
             else defaultdict(lambda: None)
         )
-        self.comment_trees  = comment_trees
-        
-
+        self.comment_trees = comment_trees
 
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
@@ -126,11 +124,6 @@ class HighlightVisitor(TreeVisitor):
                 )
 
         return
-
-    def filter_children(self, node: Node):
-        return [
-            child for child in node.children if child.type not in ("comment", "ERROR")
-        ]
 
     def visit_operator_notation(self, node: Node):
         children = self.filter_children(node)
