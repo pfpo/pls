@@ -3471,3 +3471,23 @@
 %! pi
 %
 % The value is approximately 3.14159.
+
+%! :- +Goal
+%
+% This is a directive. When encountered during the loading of a Prolog source file,
+% `Goal` is executed immediately. Directives are used to perform actions such as
+% setting Prolog flags, loading other files, or initializing predicates.
+%
+% @param Goal *callable* The goal to be executed as a directive.
+
+%! +Head :- +Body
+%
+% This defines a rule in Prolog. `Head` is true if `Body` is true.
+% The `Head` must be a single positive literal. The `Body` can consist of
+% one or more goals, combined with conjunctions (`,`) for "and" or
+% disjunctions (`;`) for "or". This structure represents a Horn clause,
+% a fundamental concept in Prolog's logic programming paradigm. If the `Body`
+% is empty, it signifies a fact (`Head.`), which is equivalent to `Head :- true.`.
+%
+% @param Head *callable* The head of the rule, representing the conclusion or fact.
+% @param Body *callable* The body of the rule, representing the conditions or premises for the head to be true.
