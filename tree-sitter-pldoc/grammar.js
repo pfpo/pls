@@ -19,7 +19,7 @@ const instantiation_modifiers = ['++', '+', '-', '--', '?', ':', '@', '!']
 const determinism_modifiers = ['det', 'semidet', 'failure', 'nondet', 'multi', 'undefined']
 
 const word = /[^\s]+/
-const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\,]/
+const graphic_char = /[#\$\&\*\+-\.\/:<=>\?@\^~\\,!;]/
 const alphanum = /[a-zA-Z0-9$_]/
 const functor= token(repeat1(choice(graphic_char,alphanum)))
 
@@ -87,8 +87,9 @@ module.exports = grammar({
       ))
     ),
 
+    arg_name_instantiation: $ => token(prec(1,seq(choice(...instantiation_modifiers),/[A-Z][a-zA-Z0-9$_]*/))),
     arg_spec: $ => seq(
-      token(prec(1,seq(choice(...instantiation_modifiers),/[A-Z][a-zA-Z0-9$_]*/))),
+      field("name",$.arg_name_instantiation),
       optional(seq(
         ':',
         field("type",$.type),
