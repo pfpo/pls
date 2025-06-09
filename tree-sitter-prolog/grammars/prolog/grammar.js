@@ -549,10 +549,10 @@ module.exports = grammar({
           $._arg,
           repeat(seq(
             $.list_notation_separator,
-            $._arg,
+            $._list_notation_items,
           )),
         )),
-        seq($._arg, ht_sep, $._arg),
+        seq($._arg, ht_sep, $._list_notation_items),
       ),
     list_notation_separator: $ => $.comma,
     // 6.3.6 Compound terms - curly bracketed forms
