@@ -1,20 +1,19 @@
 ERROR:root:Running on Initialized
-ERROR:root:Parse Chain of l.pl: ['file:///home/martim/Desktop/pls/examples/b/l.pl']
+ERROR:root:Parse Chain of lists.pl: ['file:///home/martim/Desktop/pls/examples/lists.pl']
 ERROR:root:Dependency Graph:
-l.pl 
+lists.pl 
 
-ERROR:root:File: l.pl depends on utils.pl
-ERROR:root:File: l.pl depends on utils.pl but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled
-ERROR:root:File: l.pl depends on clpfd.pl
-ERROR:root:File: l.pl depends on clpfd.pl but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled
-ERROR:root:file:///home/martim/Desktop/pls/pls/data/flavours/sicstus/libs/clpfd.pl
-ERROR:root:file:///home/martim/Desktop/pls/pls/data/flavours/sicstus/libs/clpfd.pl is not to be included
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:16-12:16 overlaps with 0:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -22,11 +21,12 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -34,11 +34,12 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -46,11 +47,12 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -58,11 +60,12 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -70,11 +73,12 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -82,11 +86,12 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -94,11 +99,12 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
@@ -106,14 +112,154 @@ math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
 ERROR:root:Dependency Graph:
-l.pl  includes: utils.pl,clpfd.pl
+lists.pl 
 utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
-clpfd.pl  is included by: l.pl
 process.pl  is included by: utils.pl
 file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
 a.pl  includes: b.pl
 b.pl  includes: c.pl is included by: a.pl
 c.pl  is included by: b.pl
 math_utils.pl  is included by: main.pl
 main.pl  includes: math_utils.pl
 
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:16-12:16 overlaps with 0:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:5-12:6 overlaps with 12:5-12:6
+ERROR:root:Range: 12:5-12:6 overlaps with 12:5-12:6
+ERROR:root:Range: 12:5-12:6 overlaps with 0:0-12:17
+ERROR:root:Range: 12:5-12:6 overlaps with 12:0-12:17
+ERROR:root:Range: 12:5-12:6 overlaps with 12:0-12:17
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:3-12:4 overlaps with 12:3-12:4
+ERROR:root:Range: 12:3-12:4 overlaps with 12:3-12:4
+ERROR:root:Range: 12:3-12:4 overlaps with 0:0-12:17
+ERROR:root:Range: 12:3-12:4 overlaps with 12:0-12:17
+ERROR:root:Range: 12:3-12:4 overlaps with 12:0-12:17
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:16-12:16 overlaps with 0:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Code actions Request
+ERROR:root:Range: 10:3-10:4 overlaps with 10:3-10:4
+ERROR:root:Range: 10:3-10:4 overlaps with 10:3-10:4
+ERROR:root:Range: 10:3-10:4 overlaps with 0:0-12:17
+ERROR:root:Range: 10:3-10:4 overlaps with 10:0-10:15
+ERROR:root:Range: 10:3-10:4 overlaps with 10:0-10:15
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:3-12:4 overlaps with 12:3-12:4
+ERROR:root:Range: 12:3-12:4 overlaps with 12:3-12:4
+ERROR:root:Range: 12:3-12:4 overlaps with 0:0-12:17
+ERROR:root:Range: 12:3-12:4 overlaps with 12:0-12:17
+ERROR:root:Range: 12:3-12:4 overlaps with 12:0-12:17
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:3-12:4 overlaps with 12:3-12:4
+ERROR:root:Range: 12:3-12:4 overlaps with 12:3-12:4
+ERROR:root:Range: 12:3-12:4 overlaps with 0:0-12:17
+ERROR:root:Range: 12:3-12:4 overlaps with 12:0-12:17
+ERROR:root:Range: 12:3-12:4 overlaps with 12:0-12:17
+ERROR:root:Parse Chain of go_to_definition.pl: ['file:///home/martim/Desktop/pls/examples/go_to_definition.pl']
+ERROR:root:Dependency Graph:
+lists.pl 
+utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
+process.pl  is included by: utils.pl
+file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
+a.pl  includes: b.pl
+b.pl  includes: c.pl is included by: a.pl
+c.pl  is included by: b.pl
+math_utils.pl  is included by: main.pl
+main.pl  includes: math_utils.pl
+go_to_definition.pl 
+
+ERROR:root:Code actions Request
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-25:0
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:2
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:2
+ERROR:root:Parse Chain of consult.pl: ['file:///home/martim/Desktop/pls/examples/consult.pl']
+ERROR:root:Dependency Graph:
+lists.pl 
+utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
+process.pl  is included by: utils.pl
+file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
+a.pl  includes: b.pl
+b.pl  includes: c.pl is included by: a.pl
+c.pl  is included by: b.pl
+math_utils.pl  is included by: main.pl
+main.pl  includes: math_utils.pl
+go_to_definition.pl 
+consult.pl 
+
+ERROR:root:File: consult.pl depends on my_maths.pl
+ERROR:root:File: consult.pl depends on my_maths.pl but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled
+ERROR:root:Code actions Request
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:28
+ERROR:root:Parse Chain of go_to_definition.pl: ['file:///home/martim/Desktop/pls/examples/go_to_definition.pl']
+ERROR:root:Dependency Graph:
+lists.pl 
+utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
+process.pl  is included by: utils.pl
+file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
+a.pl  includes: b.pl
+b.pl  includes: c.pl is included by: a.pl
+c.pl  is included by: b.pl
+math_utils.pl  is included by: main.pl
+main.pl  includes: math_utils.pl
+go_to_definition.pl 
+consult.pl  includes: my_maths.pl
+my_maths.pl  is included by: consult.pl
+
+ERROR:root:Code actions Request
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-25:0
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:2
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:2
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-25:0
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:2
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:2
+ERROR:root:Parse Chain of list_map.pl: ['file:///home/martim/Desktop/pls/examples/list_map.pl']
+ERROR:root:Dependency Graph:
+lists.pl 
+utils.pl  includes: process.pl,file_systems.pl is included by: l.pl
+process.pl  is included by: utils.pl
+file_systems.pl  is included by: utils.pl
+l.pl  includes: utils.pl,clpfd.pl
+clpfd.pl  is included by: l.pl
+a.pl  includes: b.pl
+b.pl  includes: c.pl is included by: a.pl
+c.pl  is included by: b.pl
+math_utils.pl  is included by: main.pl
+main.pl  includes: math_utils.pl
+go_to_definition.pl 
+consult.pl  includes: my_maths.pl
+my_maths.pl  is included by: consult.pl
+list_map.pl 
+
+ERROR:root:Code actions Request
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-13:10
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:12
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:12
+ERROR:root:Code actions Request
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-13:10
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:12
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:12
+ERROR:root:Code actions Request
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-12:17
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:6
+ERROR:root:Range: 0:0-0:0 overlaps with 0:0-0:6
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:16-12:16 overlaps with 0:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Code actions Request
+ERROR:root:Range: 12:16-12:16 overlaps with 0:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
+ERROR:root:Range: 12:16-12:16 overlaps with 12:0-12:17
