@@ -36,9 +36,15 @@ async function restartLanguageClient(): Promise<void> {
   const config = workspace.getConfiguration("pls");
   log.appendLine(`PLS configuration ${config}`);
 
-  let execPath: string =
+
+  let execString: string =
     process.env.PLS_EXECUTABLE_PATH|| config.get("executablePath") || "pls";
-   let execArgs: Array<string> = ["-vv"];
+
+  
+  log.appendLine(`Exec path: ${execString}`);
+  const parts = execString.trim().split(/\s+/);
+  let execPath = parts[0];
+  let execArgs: Array<string> = parts.slice(1);
 
   log.appendLine(`Exec path: ${execPath}`);
   log.appendLine(`Exec args: ${execArgs}`);
