@@ -71,6 +71,9 @@ class PLS(LanguageServer):
         self.builtin_table: SymbolTable = None
         self.root_path = None
 
+        self.analysed_without_index_being_created = set()
+        self.index_created = False
+
     def get_analyseable(self, uri: str = "") -> PrologAnalyseable:
         return PrologAnalyseable(uri, self.tables, self.trees, self.dg)
 
@@ -295,9 +298,21 @@ class PLS(LanguageServer):
             await asyncio.sleep(0)
         # End
         # logging.error(f"{self.dg.dg}")
+        self.finish_indexing()
         self.progress.end(token, types.WorkDoneProgressEnd(message="Finished"))
 
+    def finish_indexing(self):
+        self.index_created = True
+        logging.error("Finished Indexing")
+        for uri in self.analysed_without_index_being_created:
+            logging.error(f"Will have to reanalyse: {uri}")
+            doc = self.workspace.get_text_document(uri)
+            self.parse_with_dependencies(doc)
+            self.publish_diagnostics(uri,self.diagnostics[uri][1])
+        pass
     def parse_assuming_dependencies_are_handled(self, document: TextDocument):
+        if not self.index_created:
+            self.analysed_without_index_being_created.add(document.uri)
         self.shallow_parse(document)
         symbol_table = self.tables[document.uri]
 
@@ -311,6 +326,7 @@ class PLS(LanguageServer):
                 logging.error(
                     f"File: {document.filename} depends on {file.name} but it hasn't been parsed yet, in  parse_assuming_dependencies_are_handled"
                 )
+                self.analysed_without_index_being_created.add(document.uri)
             elif dep.is_module:
                 modules_to_include.add(file.uri)
             else:
