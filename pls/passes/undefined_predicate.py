@@ -55,18 +55,21 @@ class UndefinedPredicate(TreeAnalyser):
                 range=node_to_range(node),
             )
             self.add_file_diagnostic(report)
-        elif predicate is not new_predicate:
-            self.table.predicate_index
-            new_predicate.references.extend(predicate.references)
-            new_predicate.name_references.extend(predicate.name_references)
+        else:
+            if predicate is not new_predicate:
+                self.table.predicate_index
+                new_predicate.references.extend(predicate.references)
+                new_predicate.name_references.extend(predicate.name_references)
+                self.table.predicate_index[predicate.key()] = new_predicate
             self.table.notes[node] = new_predicate
-            self.table.predicate_index[predicate.key()] = new_predicate
 
     def visit_operator_notation(self, node: Node):
         assert node.type == "operator_notation"
         operator = node.child_by_field_name("operator")
+
         for child in node.children:
             if child == operator:
+            
                 self.handle_annotated_node(child)
             else:
                 self.visit(child)
