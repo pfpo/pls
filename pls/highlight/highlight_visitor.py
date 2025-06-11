@@ -24,6 +24,7 @@ class HighlightVisitor(TreeVisitor):
     def build_visitors(self):
         self.set_default_visitor(self.visit_all_children)
         self.add_visit("integer", self.visit_integer)
+        self.add_visit("float_number", self.visit_integer)
 
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("atom", self.visit_atom)

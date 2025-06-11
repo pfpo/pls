@@ -83,6 +83,7 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("functional_notation", self.visit_functional_notation)
         self.add_visit("operator_notation", self.visit_operator_notation)
         self.add_visit("integer", self.text_visit)
+        self.add_visit("float_number", self.text_visit)
         self.add_visit("variable_term", self.visit_variable_term)
         self.add_visit("list_notation", self.visit_list_notation)
         self.add_visit("double_quoted_list_notation", self.text_visit)
