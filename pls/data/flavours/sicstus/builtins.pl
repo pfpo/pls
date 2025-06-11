@@ -1239,7 +1239,7 @@
 %     the predicate is determinate.
 %
 %     @param  List      *list of term*
-%     @param  Integer   *integer*, non\-negative
+%     @param  Integer   *integer*, non-negative
 
 %!    +Expr1 < +Expr2
 %

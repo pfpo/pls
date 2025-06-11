@@ -369,6 +369,7 @@ class PrologVisitor(TreeVisitor):
 
     def visit_signature(self, node: Node) -> Signature:
         op = node.child_by_field_name("operator")
+        
         if node.type != "operator_notation" and (op is None or op.text != b"/"):
             return None, False
         if not (
@@ -378,10 +379,21 @@ class PrologVisitor(TreeVisitor):
         ):
             return None, False
 
+
+            
+        name_node = node.child(0)
+        name = bytes.decode(node.child(0).text) 
+        arity = int(bytes.decode(node.child(2).text))
+
+        t = Term(name)
+        t.arity = arity
+        p = self.get_predicate(t)
+        self.notes[node] = p
+        p.add_reference(self.uri, node)
+        p.add_name_reference(self.uri,name_node)
         # TODO Check if integer is less than zero
         return Signature(
-            bytes.decode(node.child(0).text),
-            int(bytes.decode(node.child(2).text)),
+            name,arity,
             node_to_range(node),
         ), True
 
