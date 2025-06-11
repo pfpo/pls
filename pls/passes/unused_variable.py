@@ -17,7 +17,7 @@ class UnusedVariablePass(TreeAnalyser):
 
     def add_unused_variable_warning(self, variable: Variable, node: Node):
         severity = types.DiagnosticSeverity.Warning
-        message = "Unused Variable"
+        message = "Singleton Variable"
         report = types.Diagnostic(
             message=message + " " + variable.name,
             severity=severity,
@@ -26,7 +26,7 @@ class UnusedVariablePass(TreeAnalyser):
         self.add_file_diagnostic(report)
 
     def add_code_actions(self, variable: Variable, node: Node):
-        msg = f"Replace unused variable {variable.name} with "
+        msg = f"Replace singleton variable {variable.name} with "
         preserve_name = types.CodeAction(
             title=msg + f"_{variable.name}",
             kind=types.CodeActionKind.QuickFix,
