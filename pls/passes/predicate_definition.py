@@ -87,7 +87,9 @@ class PredicateDefinition(Analyser):
             arg_counter = {"c": 0}
 
             def get_arg_name(arg):
-                if type(arg) is Variable:
+                if type(arg) is Variable and arg.name != "_":
+                    if arg.name[0] == "_":
+                        return arg.name[1:]
                     return arg.name
                 else:
                     name = f"Arg{arg_counter['c']}"
