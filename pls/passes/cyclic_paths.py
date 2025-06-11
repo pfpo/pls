@@ -1,6 +1,6 @@
 from lsprotocol import types
 from .analyser import Analyser, PrologAnalyseable
-
+from pls.my_logging import logging
 
 class CyclicPaths(Analyser):
     def __init__(self):

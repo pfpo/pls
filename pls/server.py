@@ -239,6 +239,9 @@ class PLS(LanguageServer):
 
     def clear_diagnostics(self, document: TextDocument):
         self.diagnostics[document.uri] = (document.version, [])
+    
+    def clear_code_actions(self,document: TextDocument):
+        self.actions[document.uri] = (document.version, [])
 
     def start_parse_chain(self, document: TextDocument):
         # logging.error(
@@ -254,6 +257,7 @@ class PLS(LanguageServer):
         for file_name in chain:
             next_document = self.document_from_workspace_or_fs(file_name)
             self.clear_diagnostics(next_document)
+            self.clear_code_actions(next_document)
 
             self.parse_assuming_dependencies_are_handled(next_document)
 
