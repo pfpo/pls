@@ -64,4 +64,37 @@ If something isn't looking quite or there is some unexpected error or weird beha
 If there is a persisting bug or any missing features please [open an issue](https://github.com/MartimVideira/pls/issues)
 
 
+# Pldoc
+
+# Features
+
+
+## Go to Definition
+## Find references
+## Hover
+## Autocomplete
+## Rename
+## Signature Help
+## Document Link
+
+## Diagnostics
+
+### Syntax Errors
+### Duplicated Module Declarations
+### Undefined predicate 
+### Consulted Path does not exist
+### Consulted Module does not exist
+### Cyclic Consults
+### Singleton Variable
+### Imported Module does not export predicate
+
+
+## Code Actions
+
+
+### Substitute Singleton variable for `_` or prepend it with `_`
+### Export all currently defined predicates
+### Export predicate
+### Generate pldoc template for a predicate
+
 
