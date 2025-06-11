@@ -105,6 +105,7 @@ class PLS(LanguageServer):
 
     def get_analyser_results(self, analyser: Analyser):
         for uri, diagnostics in analyser.diagnostics.items():
+            logging.error(f"{diagnostics}")
             self.diagnostics.add_by_uri(uri, diagnostics)
 
         for uri, actions in analyser.actions.items():
@@ -256,6 +257,7 @@ class PLS(LanguageServer):
 
             self.parse_assuming_dependencies_are_handled(next_document)
 
+        logging.error(f"{cp.diagnostics}")
         self.get_analyser_results(cp)
 
     async def index_with_progress(self, files: list[str]):

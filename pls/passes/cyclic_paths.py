@@ -1,6 +1,4 @@
-from pls.utils import add_paths
 from lsprotocol import types
-
 from .analyser import Analyser, PrologAnalyseable
 
 
@@ -10,6 +8,7 @@ class CyclicPaths(Analyser):
 
     def analyse(self, content: PrologAnalyseable):
         self.all_tables = content.tables
+        self.dg = content.dg
 
         cycles = content.dg.get_cycles()
         # logging.error(f"CYCLES: {cycles}")
@@ -24,13 +23,12 @@ class CyclicPaths(Analyser):
             if origin not in self.all_tables:
                 continue
             table = self.all_tables[origin]
-            for relative_path, locations in table.consult_paths.items():
-                consult_uri = add_paths(origin, relative_path)
+            for consult_uri, locations in table.consult_paths.items():
                 if consult_uri != destiny:
                     continue
                 for location in locations:
                     self.add_cyclic_consult_report(
-                        origin, relative_path, location, i, cycle
+                        origin, consult_uri, location, i, cycle
                     )
 
     def add_cyclic_consult_report(
@@ -46,4 +44,5 @@ class CyclicPaths(Analyser):
             severity=types.DiagnosticSeverity.Error,
             range=location.range,
         )
+    
         self.add_diagnostic(uri, report)
