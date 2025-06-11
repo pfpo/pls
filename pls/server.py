@@ -433,7 +433,6 @@ class PLS(LanguageServer):
             a = ra.action
             r = ra.range
             if ranges_overlap(r, requested_range):
-                logging.error(f"Range: {requested_range} overlaps with {r}")
                 result.append(a)
 
         return result

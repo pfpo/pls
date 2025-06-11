@@ -152,6 +152,8 @@ class PlDocVisitor(TreeVisitor):
             if field := node.child_by_field_name(name):
                 fields[name] = self.get_text(field).strip()
 
+        fields["instantiation"] = fields["name"][0]
+        fields["name"] = fields["name"][1:]
         return Arg(
             name=fields["name"],
             type=fields["type"],
