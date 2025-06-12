@@ -273,23 +273,27 @@ class PrologVisitor(TreeVisitor):
         opts.predicate_definition = True
         opts.started_predicate_definition = False
         f = self.visit(node, opts)
+        predicate = None
+        if f is not None:
 
-        predicate = self.get_predicate(f)
-        predicate.heads.append(f)
-        predicate.comments.extend(self.comments.copy())
-        self.comments = []
-        self.notes[parent] = predicate
+            predicate = self.get_predicate(f)
+            predicate.heads.append(f)
+            predicate.comments.extend(self.comments.copy())
+            self.comments = []
+            self.notes[parent] = predicate
 
-        predicate.add_definition(self.uri, parent)
-        self.exportable_predicates.add(predicate.key())
-        # TODO WHy
-        predicate.uri = self.uri
-        key = predicate.key()
+            predicate.add_definition(self.uri, parent)
+            self.exportable_predicates.add(predicate.key())
+            # TODO WHy
+            predicate.uri = self.uri
+            key = predicate.key()
 
-        self.current_scope.name = f"{key}_{len(predicate.definitions)}"
-        self.current_scope.predicate = predicate
-        predicate.scopes.append(self.current_scope)
-
+            self.current_scope.name = f"{key}_{len(predicate.definitions)}"
+            self.current_scope.predicate = predicate
+            predicate.scopes.append(self.current_scope)
+        else:
+            logging.error(f"Visited clause_term but not functor was returned: {node_and_parent_with_text(node)}")
+            self.current_scope.name = f"pls_predicate_not_present"
         self.save_scope()
         return predicate
 

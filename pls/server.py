@@ -236,7 +236,6 @@ class PLS(LanguageServer):
             if progress_report:
                 await progress_report(len(visited), len(received_uris))
 
-        logging.error(f"{self.dg.dg}")
 
     def clear_diagnostics(self, document: TextDocument):
         self.diagnostics[document.uri] = (document.version, [])
@@ -269,6 +268,7 @@ class PLS(LanguageServer):
         """Create and start the progress on the client."""
         token = str(uuid.uuid4())
         # Create
+        logging.error("\n\nStart Indexing Project\n\n")
         await self.progress.create_async(token)
         # Begin
         self.progress.begin(
@@ -292,7 +292,7 @@ class PLS(LanguageServer):
                 )
 
         # Report
-        for i in range(1, 10):
+        for i in range(1, 2):
             # Check for cancellation from client
             if self.progress.tokens[token].cancelled():
                 # ... and stop the computation if client cancelled
@@ -304,12 +304,13 @@ class PLS(LanguageServer):
             )
             await asyncio.sleep(0)
         # End
-        # logging.error(f"{self.dg.dg}")
         self.finish_indexing()
         self.progress.end(token, types.WorkDoneProgressEnd(message="Finished"))
 
     def finish_indexing(self):
         self.index_created = True
+        logging.error(f"{self.dg.dg}")
+        logging.error(f"Analysed {len(self.dg.dg.files.keys())} files")
         logging.error("Finished Indexing")
         for uri in self.analysed_without_index_being_created:
             logging.error(f"Will have to reanalyse: {uri}")
