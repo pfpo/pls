@@ -2493,7 +2493,7 @@
 
 %!    setof(+Template,+Generator,-Set)
 %
-%     Returns the non\-empty set Set of all instances of Template such
+%     Returns the non-empty set Set of all instances of Template such
 %     that Generator is provable.
 %
 %     @param  Template     *term*
@@ -2513,7 +2513,7 @@
 %     read up to and including the first occurrence of Byte on the
 %     current input stream or on the input stream Stream.
 %
-%     @param  Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream_object*, must be ground
 %     A valid input *binary* stream, defaults to the current input stream.
 %     @param  Byte     *byte*
 
@@ -2968,7 +2968,7 @@
 %
 %     Writes Term on Stream, without quoting atoms.
 %
-%     @param  Stream   *stream\_object*, must be ground
+%     @param  Stream   *stream_object*, must be ground
 %     A valid open Prolog stream, defaults to the current output stream.
 %     @param  Term     *term*
 

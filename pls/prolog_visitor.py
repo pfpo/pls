@@ -93,9 +93,11 @@ class PrologVisitor(TreeVisitor):
         self.add_visit("comma", self.visit_binary_operator)
         self.add_visit("arg_list", self.visit_arg_list)
 
-        ignore = ["open", "end", "comma", "arg_list_separator", "close","list_notation_separator"]
+        ignore = ["open", "end", "comma", "arg_list_separator", "close","list_notation_separator","open_curly","close_curly","open_list","close_list"]
         for t in ignore:
             self.add_visit(t, self.ignore)
+        # FOR Release
+        self.set_default_visitor(self.log_no_registered_visitor_for)
 
         self.add_visit("ERROR", self.visit_all_children)
         self.add_visit("comment", self.visit_comment)
@@ -457,7 +459,7 @@ class PrologVisitor(TreeVisitor):
         v = PlDocVisitor()
         v.start(result.root_node)
         pldoc = v.get_comment()
-        if len(pldoc.templates) > 0:
+        if False and len(pldoc.templates) > 0:
             for template in pldoc.templates:
                 predicate = self.get_predicate(template)
                 predicate.defined_by_comment = True

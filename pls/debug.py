@@ -27,6 +27,7 @@ def debug():
     uri = "examples/consult.pl"
     uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "examples/b/l.pl"
+    uri = "bad/basics._pl"
 
     uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)

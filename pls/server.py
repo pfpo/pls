@@ -78,21 +78,22 @@ class PLS(LanguageServer):
         return PrologAnalyseable(uri, self.tables, self.trees, self.dg)
 
     def discover_files(self):
-        collected = []
+        collected = set()
         root_path = self.root_path
         for dirpath, _, filenames in os.walk(root_path):
             for fname in filenames:
                 if fname.endswith(".pl"):
                     path = os.path.join(dirpath, fname)
                     uri = path_to_file_uri(Path(path))
-                    collected.append(uri)
-        return collected
+                    collected.add(uri)
+        logging.error(f"{collected}")
+        return list(collected)
 
     async def start_up(self):
         doc = MyDoc(self.builtin_uri)
         self.parse(doc)
 
-        self.root_path = "./examples/b"
+        self.root_path = self.workspace.root_path
         self.files = self.discover_files()
         await self.index_with_progress(self.files)
         # logging.error(f"Files: {self.files}")
