@@ -38,7 +38,7 @@ code-insiders --install-extension pls-vscode-extension.vsix
 ``` 
 
 
-### Customizing PLS startup Command
+### Customizing pls startup Command
 
 1. Open command pallet  **CTRL+Shift+P** and search for user settings
 
@@ -65,6 +65,37 @@ If there is a persisting bug or any missing features please [open an issue](http
 
 
 ### pldoc
+
+
+
+[pldoc](https://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pldoc.html%27)) is the standard way to document Prolog code.
+The Prolog Language Server (pls) can parse pldoc comments to provide features like signature help, hover documentation, and more.
+The more thoroughly you document your code using pldoc, the more useful and context-aware assistance pls can offer.
+
+Here is an example of a pldoc comment of the builtin `setof` predicate. 
+
+![](./imgs/pldoc.png)
+
+pls supports these forms of pldoc comments:
+
+With Multiple predicate templates
+
+![](./imgs/pldoc_multiple_templates.png)
+
+With just the predicate description
+
+![](./imgs/pldoc_just_description.png)
+
+With just the predicate parameters
+
+![](./imgs/pldoc_just_params.png)
+
+With just the predicate template
+
+![](./imgs/pldoc_just_template.png)
+
+
+(`%! `) starts a pldoc comment and an empty comment line with (`%`) starts the body of the pldoc.
 
 ## Feature Overview 
 ### Multifile Support with consult, Hover and undefined predicate warnings
