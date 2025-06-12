@@ -27,7 +27,7 @@ def debug():
     uri = "examples/consult.pl"
     uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "examples/b/l.pl"
-    uri = "bad/basics._pl"
+    uri = "bad/clpfd._cannot_parse_pl"
 
     uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)
@@ -38,7 +38,7 @@ def debug():
     #     rec_print(child,0)
     # print(t.root_node)
 
-    if uri in server.tables:
+    if False and uri in server.tables:
         print("Symbol table of: ", uri)
         table = server.tables[uri]
         for key, predicate in table.predicate_index.items():

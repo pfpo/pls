@@ -110,12 +110,13 @@ class PrologVisitor(TreeVisitor):
         return
 
     def curly_braces_visit(self, node: Node, opts: Opts):
-        children = node.children
+        children = self.filter_children(node)
+
         match children:
             case [brace_left, body, brace_right] if (
                 brace_left.type == "open_curly" and brace_right.type == "close_curly"
             ):
-                self.visit(body, opts)
+                self.visit_all_children(node,opts)
             case _:
                 raise TypeError(
                     f"Invalid shape of curly brace notation: {node.children}"
@@ -454,24 +455,27 @@ class PrologVisitor(TreeVisitor):
 
     def visit_comment(self, node: Node, opts: Opts):
         # Detected cases where the parser hangs
-        result = self.comment_parser.parse(node.text)
-        self.comment_trees[node] = result
-        v = PlDocVisitor()
-        v.start(result.root_node)
-        pldoc = v.get_comment()
-        if False and len(pldoc.templates) > 0:
-            for template in pldoc.templates:
-                predicate = self.get_predicate(template)
-                predicate.defined_by_comment = True
-                self.exportable_predicates.add(predicate.key())
-                predicate.comments.append(pldoc)
-                name_range = template.name_range
-                name_range.start.line += node.start_point.row
-                name_range.end.line += node.start_point.row
-                predicate.name_references.append(
-                    types.Location(uri=self.uri, range=name_range),
-                )
-        else:
+        added_pldoc_template = False
+        if node.text.startswith(b'%! '):
+            result = self.comment_parser.parse(node.text)
+            self.comment_trees[node] = result
+            v = PlDocVisitor()
+            v.start(result.root_node)
+            pldoc = v.get_comment()
+            if len(pldoc.templates) > 0:
+                added_pldoc_template = True
+                for template in pldoc.templates:
+                    predicate = self.get_predicate(template)
+                    predicate.defined_by_comment = True
+                    self.exportable_predicates.add(predicate.key())
+                    predicate.comments.append(pldoc)
+                    name_range = template.name_range
+                    name_range.start.line += node.start_point.row
+                    name_range.end.line += node.start_point.row
+                    predicate.name_references.append(
+                        types.Location(uri=self.uri, range=name_range),
+                    )
+        if not added_pldoc_template:
             self.comments.append(bytes.decode(node.text, "utf-8"))
         return
 
