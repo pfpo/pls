@@ -360,7 +360,10 @@ class PrologVisitor(TreeVisitor):
             path = library_path(name)
             self.libs.add(path)
         else:
-            path = add_paths(self.uri, name)
+            path_name = name
+            if not name.endswith('.pl'):
+                path_name = name + '.pl'
+            path = add_paths(self.uri,path_name)
 
         self.module_paths[path].append(node_to_location(self.uri, node))
 
