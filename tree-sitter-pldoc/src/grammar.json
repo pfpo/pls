@@ -14,10 +14,6 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "normal_comment"
-        },
-        {
-          "type": "SYMBOL",
           "name": "pldoc_comment"
         }
       ]
@@ -497,10 +493,6 @@
         {
           "type": "SYMBOL",
           "name": "pldoc_prolog_style"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "pldoc_c_style"
         }
       ]
     },

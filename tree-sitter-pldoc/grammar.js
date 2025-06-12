@@ -53,7 +53,7 @@ module.exports = grammar({
     source_file: $ => repeat($.comment),
 
     comment: $ => choice(
-      $.normal_comment,
+      //$.normal_comment,
       $.pldoc_comment
     ),
     normal_comment: $ => choice(
@@ -111,7 +111,7 @@ module.exports = grammar({
 
 
 
-    pldoc_comment: $ => choice($.pldoc_prolog_style, $.pldoc_c_style),
+    pldoc_comment: $ => choice($.pldoc_prolog_style, /*$.pldoc_c_style*/),
 
     pldoc_prolog_directive: $ => seq(alias(pldoc_start_comment,"comment_token"), $._template),
 
