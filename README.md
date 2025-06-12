@@ -2,6 +2,15 @@
 
 Prolog Language Server
 
+- [Installing the Language Server](#installing-the-language-server)
+- [Installing VS Code Extension](#installing-vs-code-extension)
+- [Customizing pls Startup Command](#customizing-pls-startup-command)
+- [Restarting the Server](#restarting-the-server)
+- [PlDoc Support](#pldoc)
+- [Feature Overview](#feature-overview)
+- [Full Feature List](#full-feature-list)
+
+
 ## Installing the Language Server
 
 - Clone, or download this repository
@@ -142,7 +151,7 @@ With just the predicate template
 
 
 
-##  💡 Language Server Features for Prolog
+##  Full Feature List
 
 ### 🔍 Language Navigation
 
