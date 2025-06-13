@@ -1,31 +1,42 @@
-:- module(clpfd,[(#<=>)/2, keysorting/3, first_bound/2, all_equal_reif/2,
- domain/2, geost/2, fd_statistics/2, scalar_product/4,
- symmetric_all_different/1, table/2, regular/2, if_then_else/4,
- global_cardinality/2, (#\)/2, sum/3, smt/1,
- subcircuit/1, diffn/2, automaton/8, assignment/2,
- (#=>)/2, inflexion/3, (#>)/2, (#<)/2,
- cumulatives/2, scalar_product_reif/6, disjoint1/2, solve/2,
- automaton/3, maximize/3, multi_cumulative/3, domain/3,
- maximum/2, (#\=)/2, maximize/2, automaton/9,
- increasing/1, all_different_except_0/1, disjoint2/1, all_different/2,
- case/4, network_flow/3, nvalue/2, cumulative/1,
- seq_precede_chain/2, bool_and/2, relation/3, (#/\)/2,
- lex_chain/2, decreasing/1, all_distinct_except_0/1, (#\/)/2,
- maximum_arg/2, value_precede_chain/3, cumulative/2, circuit/2,
- all_distinct/1, case/3, cumulatives/3, in/2,
- element/2, (#\)/1, fd_statistics/0, subcircuit/2,
- assignment/3, network_flow/2, value_precede_chain/2, seq_precede_chain/1,
- (#<=)/2, increasing/2, all_equal/1, ($=)/2,
- geost/3, keysorting/2, multi_cumulative/2, scalar_product_reif/5,
- later_bound/2, lex_chain/1, bool_xor/2, scalar_product/5,
- (#>=)/2, ($=<)/2, global_cardinality/3, decreasing/2,
- minimum/2, indomain/1, geost/4, inflexion_signature/2,
- minimum_arg/2, (#=<)/2, in_set/2, sorting/3,
- count/4, minimize/3, bin_packing/2, table/3,
- labeling/2, (#=)/2, diffn/1, all_distinct/2,
- disjoint1/1, bool_or/2, all_different/1, minimize/2,
- bool_channel/4, circuit/1, disjoint2/2, element/3,
- ($>=)/2, symmetric_all_distinct/1]).
+:- module(clpfd,[finf/0, scalar_product_reif/5, lex_chain/2, minimum/2, (#<=)/2,
+ (#\=)/2,
+ value_precede_chain/3, disjoint2/2, count/4, maximize/3, bool_channel/4,
+ cumulatives/2,
+ fd_statistics/0, subcircuit/1, automaton/8, indomain/1, value_precede_chain/2,
+ network_flow/3,
+ in/2, (#\/)/2, seq_precede_chain/2, nvalue/2, fd_statistics/2,
+ cumulative/1,
+ circuit/1, cumulative/2, ($>=)/2, table/2, keysorting/3,
+ bool_or/2,
+ disjoint1/2, bin_packing/2, minimize/2, case/4, scalar_product/4,
+ element/3,
+ scalar_product_reif/6, assignment/3, (\)/1, all_distinct_except_0/1, diffn/1,
+ all_distinct/2,
+ geost/2, multi_cumulative/3, ($=<)/2, regular/2, minimum_arg/2,
+ maximize/2,
+ subcircuit/2, sorting/3, diffn/2, (#=>)/2, global_cardinality/2,
+ (#=)/2,
+ symmetric_all_distinct/1, increasing/2, (#/\)/2, in_set/2, (#\)/2,
+ smt/1,
+ element/2, symmetric_all_different/1, solve/2, automaton/3, multi_cumulative/2,
+ assignment/2,
+ lex_chain/1, all_different/2, domain/3, if_then_else/4, (#>)/2,
+ geost/3,
+ maximum/2, scalar_product/5, all_different/1, first_bound/2, geost/4,
+ inflexion_signature/2,
+ increasing/1, all_equal/1, case/3, fsup/0, (\/)/2,
+ minimize/3,
+ sum/3, (#>=)/2, sup/0, (/\)/2, domain/2,
+ (#<=>)/2,
+ later_bound/2, (#\)/1, all_different_except_0/1, all_distinct/1, relation/3,
+ ($=)/2,
+ seq_precede_chain/1, all_equal_reif/2, (#<)/2, table/3, keysorting/2,
+ decreasing/1,
+ decreasing/2, maximum_arg/2, disjoint1/1, inflexion/3, circuit/2,
+ bool_and/2,
+ (#=<)/2, bool_xor/2, network_flow/2, inf/0, labeling/2,
+ cumulatives/3,
+ disjoint2/1, automaton/9, global_cardinality/3, (..)/2]).
 
 %! #= (?IExpr, ?IExpr)
 %
@@ -97,13 +108,6 @@
 % @param Xs *list of integer* a list of integer arguments
 % @param IRelOp *relational_symbol* a relational symbol
 % @param Value *integer* an integer argument
-%
-% @example
-% ```
-% | ?- Y in -1 .. 1, 10 div Y #= Z, indomain(Y).
-% Y = -1, Z = -10 ? ;
-% Y = 1, Z = 10 ? ;
-% ```
 
 %! scalar_product(+Coeffs, +Xs, +IRelOp, ?Value)
 %
@@ -2028,3 +2032,86 @@
 %
 % @param Key atom
 % @param Value number
+
+
+%! +Lower .. +Upper
+%
+% This infix operator defines a continuous integer range between two integer constants,
+% inclusive of the bounds. `IntConstant` can be an integer, `inf` (minus infinity), or `sup` (plus infinity).
+%
+% Examples: `1..10`, `inf..sup`, `0..100`.
+% Or: 
+% This infix operator defines a continuous real range between two real constants,
+% inclusive of the bounds. `RealConstant` can be a float, `finf` (minus infinity for floats), or `fsup` (plus infinity for floats).
+%
+% Examples: `0.0..1.0`, `finf..fsup`, `-5.5..12.3`.
+%
+% @param Lower  The lower IntConstant or RealConstant bound of the integer range.
+% @param Upper  The upper IntConstant or RealConstant bound of the integer range.
+
+
+%! +Range1 \/ +Range2
+%
+% This infix operator denotes the union of two `IntegerRange` expressions.
+% The resulting `IntegerRange` includes all integers present in either of the
+% operand ranges.
+%
+% Example: `{1,2,3} \/ {3,4,5}` represents the range `{1,2,3,4,5}`.
+%
+% @param Range1  The first `IntegerRange` operand.
+% @param Range2  The second `IntegerRange` operand.
+
+
+%! +Range1 /\ +Range2
+%
+% This infix operator denotes the intersection of two `IntegerRange` expressions.
+% The resulting `IntegerRange` includes only those integers that are present
+% in *both* of the operand ranges.
+%
+% Example: `{1,2,3} /\ {3,4,5}` represents the range `{3}`.
+%
+% @param Range1  The first `IntegerRange` operand.
+% @param Range2  The second `IntegerRange` operand.
+
+
+%! \ +Range
+%
+% This prefix operator denotes the complement of an `IntegerRange` expression.
+% The resulting `IntegerRange` includes all integers *not* present in the
+% operand range, relative to a universal set of integers (often implicitly `inf..sup`).
+%
+% Example: `\ {1,2}` would represent all integers except 1 and 2 within the domain.
+%
+% @param Range The `IntegerRange` operand whose complement is to be taken.
+
+
+%! inf
+%
+% This atom represents "minus infinity" specifically for integer range expressions.
+% It is used as a bound in conjunction with the `..` operator.
+%
+% Example: `inf..0` represents all integers less than or equal to 0.
+
+
+%! sup
+%
+% This atom represents "plus infinity" specifically for integer range expressions.
+% It is used as a bound in conjunction with the `..` operator.
+%
+% Example: `0..sup` represents all integers greater than or equal to 0.
+
+
+%! finf
+%
+% This atom represents "minus infinity" specifically for real (floating-point) range expressions.
+% It is used as a bound in conjunction with the `..` operator for `RealRange`.
+%
+% Example: `finf..0.0` represents all real numbers less than or equal to 0.0.
+
+
+%! fsup
+%
+% This atom represents "plus infinity" specifically for real (floating-point) range expressions.
+% It is used as a bound in conjunction with the `..` operator for `RealRange`.
+%
+% Example: `0.0..fsup` represents all real numbers greater than or equal to 0.0.
