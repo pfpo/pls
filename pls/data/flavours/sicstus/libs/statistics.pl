@@ -1,13 +1,14 @@
-:- module(statistics,[min/2,max/2,min_max/3,
-range/2,mode/2,mean/2,
-arithmetic_mean/2,weighted_mean/3,geometric_mean/2,
-harmonic_mean/2,central_moment/3,skewness/2,
-kurtosis/2,ml_variance/2,population_variance/2,
-sample_variance/2,unbiased_variance/2,weighted_variance/3,
-ml_standard_deviation/2,population_standard_deviation/2,sample_standard_deviation/2,
-unbiased_standard_deviation/2,weighted_standard_deviation/3,covariance/3,
-correlation/3,median/2,fractile/3,normalize/2
-]).
+:- module(statistics,[unbiased_variance/2, normalize/2,
+ mode/2, min/2, sample_variance/2,
+ covariance/3, correlation/3, geometric_mean/2,
+ weighted_variance/3, ml_standard_deviation/2, mean/2,
+ population_standard_deviation/2, median/2, kurtosis/2,
+ sample_standard_deviation/2, max/2, central_moment/3,
+ harmonic_mean/2, skewness/2, ml_variance/2,
+ unbiased_standard_deviation/2, fractile/3, population_variance/2,
+ range/2, min_max/3, arithmetic_mean/2,
+ weighted_mean/3, weighted_standard_deviation/3]).
+
 %! min(+Sample, -Value)
 %
 % is true when Value is the smallest element of Sample.

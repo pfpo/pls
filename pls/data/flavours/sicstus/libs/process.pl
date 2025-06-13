@@ -1,9 +1,7 @@
-:- module(process, [
-	process_create/2,process_create/3,process_wait/2,
-	process_wait/3,process_id/1,process_id/2,
-	is_process/1,process_release/1,process_kill/1,
-	process_kill/2
-]).
+:- module(process,[process_kill/1, process_create/3,
+ process_wait/2, process_kill/2, process_release/1,
+ is_process/1, process_id/2, process_wait/3,
+ process_id/1, process_create/2]).
 
 
 %! process_create(+File, +Args)

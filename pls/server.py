@@ -281,7 +281,7 @@ class PLS(LanguageServer):
         async def report_hook(i, total):
             if total == 0:
                 total = 1
-            # logging.error(f"Parsed {i}/{total}")
+            logging.error(f"Parsed {i}/{total}")
             if i % 5 == 0 or i == total - 1:
                 percent = int((i + 1) / total * 100)
                 self.progress.report(
@@ -292,7 +292,7 @@ class PLS(LanguageServer):
                 )
 
         # Report
-        for i in range(1, 2):
+        for i in range(1, 10):
             # Check for cancellation from client
             if self.progress.tokens[token].cancelled():
                 # ... and stop the computation if client cancelled

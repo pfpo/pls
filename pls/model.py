@@ -14,7 +14,11 @@ class Term:
         self.data = {}
 
     def key(self) -> str:
-        return f"{self.name}/{self.arity}"
+        if not self.name[0].isalpha():
+            name = f"({self.name})"
+        else:
+            name = self.name
+        return f"{name}/{self.arity}"
 
 
 class Predicate(Term):

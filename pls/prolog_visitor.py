@@ -383,16 +383,26 @@ class PrologVisitor(TreeVisitor):
         if node.type != "operator_notation" and (op is None or op.text != b"/"):
             return None, False
         if not (
-            node.child(0).type == "atom"
-            and node.child(1).type == "binary_operator"
+            #node.child(0).type == "atom" and
+             node.child(1).type == "binary_operator"
             and node.child(2).type == "integer"
         ):
             return None, False
 
 
+        functor_node = node.child(0)
+        name_node = None
+        if functor_node.type == "atom":
+            name_node = functor_node
+        elif functor_node.type == "operator_notation" and functor_node.child(0).type == "open" and functor_node.child(1).type == "atom" and functor_node.child(2).type == "close":
+            name_node = functor_node.child(1)
             
-        name_node = node.child(0)
-        name = bytes.decode(node.child(0).text) 
+        
+        if name_node is None:
+            return None, False
+
+        name = bytes.decode(name_node.text) 
+
         arity = int(bytes.decode(node.child(2).text))
 
         t = Term(name)

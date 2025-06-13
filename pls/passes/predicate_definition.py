@@ -57,7 +57,7 @@ class PredicateDefinition(Analyser):
         return action
 
     def declare_module(self, name, keys, substitution):
-        m = f"module({name},[{','.join(keys)}])"
+        m = f"module({name},[{', '.join(keys)}])"
         if substitution:
             return m
         else:

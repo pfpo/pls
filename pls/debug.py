@@ -28,25 +28,34 @@ def debug():
     uri = "./test/commented_prolog_cliques_distinct.pl"
     uri = "examples/b/l.pl"
     uri = "bad/clpfd._cannot_parse_pl"
+    uri = "pls/data/flavours/sicstus/libs/clpfd.pl"
 
     uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)
     # server.start_up()
     server.parse_with_dependencies(doc)
 
+    # uri = "a.pl"
+
+    # uri = path_to_file_uri(Path(uri))
+    # doc = MyDoc(uri)
+    # server.parse_with_dependencies(doc)
+
+
     # for child in t.root_node.children:
     #     rec_print(child,0)
     # print(t.root_node)
 
-    if False and uri in server.tables:
+    if True and uri in server.tables:
         print("Symbol table of: ", uri)
         table = server.tables[uri]
-        for key, predicate in table.predicate_index.items():
-            print(key)
-            print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
-            print(f"Refs {len(predicate.references)}{predicate.references}")
-            print(f"Comments: {predicate.comments}")
-            print("========")
+        print(table.exported_signatures)
+        # for key, predicate in table.predicate_index.items():
+        #     print(key)
+        #     print(f"Defs {len(predicate.definitions)}{predicate.definitions}")
+        #     print(f"Refs {len(predicate.references)}{predicate.references}")
+        #     print(f"Comments: {predicate.comments}")
+        #     print("========")
         if len(table.consult_paths) > 0:
             print("Consult Paths:")
             for p in table.consult_paths:
@@ -54,7 +63,7 @@ def debug():
                 print(f"This module includes: {add_paths(uri, p)}")
 
     ts = server.semantic_tokens(doc)
-    print(ts)
+    #print(ts)
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )

@@ -1,9 +1,8 @@
-:- module(json,[json_read/2,json_read/3,json_write/2,
-json_write/3,is_json_term/1,is_json_term/2,
-json_to_codes/2,json_to_codes/3,json_to_atom/2,
-json_to_atom/3,json_from_codes/2,json_from_codes/3,
-json_from_atom/2,json_from_atom/3
-]).
+:- module(json,[is_json_term/1, json_to_atom/3,
+ json_to_atom/2, json_read/2, json_write/3,
+ json_from_atom/2, json_from_codes/2, json_to_codes/3,
+ is_json_term/2, json_read/3, json_from_codes/3,
+ json_from_atom/3, json_to_codes/2, json_write/2]).
 
 %! json_read(+Stream, -Term)
 %! json_read(+Stream, -Term, +Options)

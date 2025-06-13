@@ -1,8 +1,8 @@
-:- module(random,[random_member/2,maybe/2,random_select/3,
-	getrand/1,setrand/1,random_perm2/4,
-	random/1,maybe/0,random_permutation/2,
-	random_numlist/4,random/3,maybe/1,
-	random_subseq/3]).
+:- module(random,[random_select/3, random_permutation/2,
+ maybe/1, random/3, maybe/2,
+ random_subseq/3, maybe/0, random_numlist/4,
+ random_member/2, random/1, setrand/1,
+ getrand/1, random_perm2/4]).
 
 %! getrand(-RandomState)
 %

@@ -1,16 +1,14 @@
-:- module(file_systems,[
-	file_property/2,rename_file/2,file_member_of_directory/2,
-	file_must_exist/1,file_members_of_directory/1,directory_property/2,
-	directory_exists/2,file_member_of_directory/3,close_all_streams/0,
-	file_exists/2,file_must_exist/2,current_directory/1,
-	file_member_of_directory/4,directory_member_of_directory/2,file_exists/1,
-	directory_members_of_directory/2,file_members_of_directory/3,file_property/3,
-	delete_directory/2,directory_member_of_directory/3,directory_exists/1,
-	directory_members_of_directory/3,directory_property/3,file_members_of_directory/2,
-	directory_member_of_directory/4,make_directory/1,delete_directory/1,
-	directory_must_exist/1,rename_directory/2,delete_file/1,
-	directory_must_exist/2,directory_members_of_directory/1,current_directory/2
-]).
+:- module(file_systems,[directory_members_of_directory/3, file_members_of_directory/2, directory_member_of_directory/4,
+ file_member_of_directory/4, directory_property/2, directory_must_exist/1,
+ file_must_exist/2, directory_member_of_directory/2, directory_exists/1,
+ directory_members_of_directory/1, directory_member_of_directory/3, file_exists/1,
+ file_member_of_directory/3, file_member_of_directory/2, close_all_streams/0,
+ file_members_of_directory/1, file_must_exist/1, file_property/2,
+ delete_directory/2, file_members_of_directory/3, directory_property/3,
+ file_property/3, file_exists/2, make_directory/1,
+ rename_directory/2, rename_file/2, directory_exists/2,
+ current_directory/2, current_directory/1, delete_file/1,
+ directory_members_of_directory/2, delete_directory/1, directory_must_exist/2]).
  
 
 %! rename_file(+OldName, +NewName)
