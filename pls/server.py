@@ -269,12 +269,21 @@ class PLS(LanguageServer):
         chain = self.dg.get_files_to_analyse(document.uri)
         logging.error(f"Parse Chain of {document.filename}: {chain}")
         logging.error(f"{self.dg.dg}")
-        for file_name in chain:
-            next_document = self.document_from_workspace_or_fs(file_name)
+        for uri in chain:
+            
+            # Se o documento for o documento atual não fazer isto
+            next_document = self.document_from_workspace_or_fs(uri)
+            if uri == document.uri and document.source != next_document.source:
+                logging.error("\n\n\n\n DOCUMENTO Com conteudo diferente do esperado")
+
+            logging.error(f"Going to Parse {next_document.filename}")
+            logging.error(f"Before Clearing {self.diagnostics.get(next_document.uri,(0,[]))[1]}")
             self.clear_diagnostics(next_document)
+            logging.error(f"After Clearing {self.diagnostics.get(next_document.uri,(0,[]))[1]}")
             self.clear_code_actions(next_document)
 
             self.parse_assuming_dependencies_are_handled(next_document)
+            logging.error(f"Diagnostics of {next_document.filename} after Parsing {self.diagnostics.get(next_document.uri,(0,[]))[1]}")
 
         logging.error(f"{cp.diagnostics}")
         self.get_analyser_results(cp)
@@ -688,6 +697,7 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
 def did_change(ls: PLS, params: types.DidChangeTextDocumentParams):
     """Parse each document when it is changed"""
     doc = ls.get_document(params.text_document.uri)
+    logging.error(f"Did change {doc.filename}\n{params.content_changes}")
     logging.error(f"Did change {doc.filename}\n{doc.source}")
     ls.parse_with_dependencies(doc)
 
