@@ -178,11 +178,11 @@ class PLS(LanguageServer):
         document = None
         if type(d) is str:
             document = server.workspace.get_text_document(d)
-        elif type(d) is types.TextDocumentItem:
+        else:
+            assert type(d) is types.TextDocumentItem, f"Trying to get document with parameter :{type(d)} {d} "
             document = TextDocument(d.uri,d.text,d.version,d.language_id)
-        
         document.uri = from_fs_path(to_fs_path(document.uri))
-        logging.error(f"{d.source}")
+        # logging.error(f"{document.source}")
         return document
 
     def document_from_workspace_or_fs(self,uri):
@@ -676,7 +676,6 @@ def on_initialized(ls: PLS, params):
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is opened"""
     doc = ls.get_document(params.text_document)
-    TextDocument()
     # ls.parse(doc)
     ls.parse_with_dependencies(doc)
 
@@ -686,9 +685,10 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
-def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
+def did_change(ls: PLS, params: types.DidChangeTextDocumentParams):
     """Parse each document when it is changed"""
-    doc = ls.get_document(params.text_document)
+    doc = ls.get_document(params.text_document.uri)
+    logging.error(f"Did change {doc.filename}\n{doc.source}")
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
