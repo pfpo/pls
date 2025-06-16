@@ -319,7 +319,7 @@ class PLS(LanguageServer):
         logging.error("Finished Indexing")
         for uri in self.analysed_without_index_being_created:
             logging.error(f"Will have to reanalyse: {uri}")
-            doc = self.workspace.get_text_document(uri)
+            doc = self.get_document(uri)
             self.parse_with_dependencies(doc)
             version, diagnostics = self.diagnostics[uri]
             logging.error(f"{uri}-> {len(diagnostics)} \n {diagnostics}")
@@ -481,7 +481,8 @@ class PLS(LanguageServer):
             ),
         )
 
-    def document_links(self, uri: str):
+    def document_links(self, doc: TextDocument):
+        uri = doc.uri
         if uri not in self.tables:
             return []
 
@@ -664,7 +665,7 @@ def on_initialized(ls: PLS, params):
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is opened"""
-    doc = ls.workspace.get_text_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document.uri)
     # ls.parse(doc)
     ls.parse_with_dependencies(doc)
 
@@ -676,7 +677,7 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is changed"""
-    doc = ls.workspace.get_text_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document.uri)
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
@@ -686,7 +687,7 @@ def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
 @server.feature("textDocument/definition")
 def goto_definition(ls: PLS, params: types.DefinitionParams):
     """Jump to an object's definition."""
-    doc = ls.workspace.get_text_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document.uri)
     result = ls.go_to_definition(doc, params.position)
     return result
 
@@ -694,7 +695,7 @@ def goto_definition(ls: PLS, params: types.DefinitionParams):
 @server.feature(types.TEXT_DOCUMENT_REFERENCES)
 def find_references(ls: PLS, params: types.ReferenceParams):
     """Find references of an object."""
-    doc = ls.workspace.get_text_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document.uri)
     references = ls.find_references(doc, params.position)
     return references
 
@@ -708,14 +709,15 @@ def find_references(ls: PLS, params: types.ReferenceParams):
 )
 def semantic_tokens_full(ls: PLS, params: types.SemanticTokensParams):
     """Return the semantic tokens for the entire document"""
-    ver_sion, tokens = ls.tokens.get(params.text_document.uri, (0, []))
+    doc = ls.get_document(params.text_document.uri)
+    ver_sion, tokens = ls.tokens.get(doc.uri, (0, []))
     res = types.SemanticTokens(data=tokens)
     return res
 
 
 @server.feature(types.TEXT_DOCUMENT_HOVER)
 def hover(ls: PLS, params: types.HoverParams):
-    doc = ls.workspace.get_text_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document.uri)
     result = ls.hover(doc, params.position)
     return result
 
@@ -725,8 +727,8 @@ def hover(ls: PLS, params: types.HoverParams):
 )
 def document_links(ls: PLS, params: types.DocumentLinkParams):
     """Return a list of links contained in the document. Currently Consult Links"""
-    document_uri = params.text_document.uri
-    return ls.document_links(document_uri)
+    doc = ls.get_document(params.text_document.uri)
+    return ls.document_links(doc)
 
 
 @server.feature(
@@ -752,7 +754,7 @@ def signature_help(ls: PLS, params: types.SignatureHelpParams):
 @server.feature(types.TEXT_DOCUMENT_RENAME)
 def rename(ls: PLS, params: types.RenameParams):
     """Rename the symbol at the given position."""
-    doc = params.text_document
+    doc = ls.get_document(params.text_document.uri)
     position = params.position
     new_name = params.new_name
     return ls.rename_edits(doc, position, new_name)
@@ -762,7 +764,7 @@ def rename(ls: PLS, params: types.RenameParams):
 def prepare_rename(ls: PLS, params: types.PrepareRenameParams):
     """Called by the client to determine if renaming the symbol at the given location
     is a valid operation."""
-    doc = params.text_document
+    doc = ls.get_document(params.text_document.uri)
     position = params.position
     return ls.is_renameable(doc, position)
 
@@ -773,6 +775,6 @@ def prepare_rename(ls: PLS, params: types.PrepareRenameParams):
 )
 def code_actions(ls: PLS, params: types.CodeActionParams):
     logging.error("Code actions Request")
-    doc = ls.workspace.get_text_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document.uri)
     result = ls.get_code_actions(doc, params.range)
     return result
