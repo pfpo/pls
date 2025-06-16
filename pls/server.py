@@ -271,10 +271,13 @@ class PLS(LanguageServer):
         logging.error(f"{self.dg.dg}")
         for uri in chain:
             
-            # Se o documento for o documento atual não fazer isto
             next_document = self.document_from_workspace_or_fs(uri)
-            if uri == document.uri and document.source != next_document.source:
-                logging.error("\n\n\n\n DOCUMENTO Com conteudo diferente do esperado")
+            if uri == document.uri:
+                # Ir buscar o documento que Inicia a cadeia, trouxe uma versão diferente do doc
+                # No windows tem este problema
+                if document.source != next_document.source:
+                    logging.error("\n\n\n\n DOCUMENTO Com conteudo diferente do esperado")
+                next_document = document
 
             logging.error(f"Going to Parse {next_document.filename}")
             logging.error(f"Before Clearing {self.diagnostics.get(next_document.uri,(0,[]))[1]}")
