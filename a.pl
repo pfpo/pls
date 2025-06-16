@@ -6,6 +6,7 @@ cost([_], _, 0).
 cost([A, B|R], Costs, Cost) :-
     Idx #= (A-1)*4+B,
     element(Idx, Costs, C),
+	B in 10..30,
     C #> 0,
     cost([B|R], Costs, Rest),
     Cost #= Rest + C.

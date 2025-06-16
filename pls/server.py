@@ -57,7 +57,7 @@ class PLS(LanguageServer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.actions: FileVersionedDict[list[types.CodeAction]] = FileVersionedDict()
-        self.diagnostics: FileVersionedDict[list[types.CodeAction]] = (
+        self.diagnostics: FileVersionedDict[list[types.Diagnostic]] = (
             FileVersionedDict()
         )
         self.tokens = {}
@@ -316,8 +316,9 @@ class PLS(LanguageServer):
             logging.error(f"Will have to reanalyse: {uri}")
             doc = self.workspace.get_text_document(uri)
             self.parse_with_dependencies(doc)
-            self.publish_diagnostics(uri,self.diagnostics[uri][1])
-        pass
+            version, diagnostics = self.diagnostics[uri]
+            logging.error(f"{uri}-> {len(diagnostics)} \n {diagnostics}")
+            self.publish_diagnostics(uri,diagnostics,version)
     def parse_assuming_dependencies_are_handled(self, document: TextDocument):
         if not self.index_created:
             self.analysed_without_index_being_created.add(document.uri)
@@ -663,6 +664,7 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
+        logging.error(f"{uri}-> {len(diagnostics)} \n {diagnostics}")
         ls.publish_diagnostics(uri, diagnostics, version)
 
 
