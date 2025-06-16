@@ -174,9 +174,15 @@ class PLS(LanguageServer):
         self.tables[doc.uri] = deepcopy(symbol_table)
         return tree, symbol_table
 
-    def get_document(self, uri):
-        document = server.workspace.get_text_document(uri)
+    def get_document(self, d):
+        document = None
+        if type(d) is str:
+            document = server.workspace.get_text_document(d)
+        elif type(d) is types.TextDocumentItem:
+            document = TextDocument(d.uri,d.text,d.version,d.language_id)
+        
         document.uri = from_fs_path(to_fs_path(document.uri))
+        logging.error(f"{d.source}")
         return document
 
     def document_from_workspace_or_fs(self,uri):
@@ -669,7 +675,8 @@ def on_initialized(ls: PLS, params):
 @server.feature(types.TEXT_DOCUMENT_DID_OPEN)
 def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is opened"""
-    doc = ls.get_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document)
+    TextDocument()
     # ls.parse(doc)
     ls.parse_with_dependencies(doc)
 
@@ -681,7 +688,7 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
 def did_change(ls: PLS, params: types.DidOpenTextDocumentParams):
     """Parse each document when it is changed"""
-    doc = ls.get_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document)
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
