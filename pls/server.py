@@ -175,7 +175,7 @@ class PLS(LanguageServer):
         return tree, symbol_table
 
     def get_document(self, uri):
-        document = server.workspace.get_document(uri)
+        document = server.workspace.get_text_document(uri)
         document.uri = from_fs_path(to_fs_path(document.uri))
         return document
 
@@ -195,6 +195,10 @@ class PLS(LanguageServer):
             return True, f"{document.filename} not already parsed"
 
         current_version, _ = self.trees[uri]
+
+        if current_version is None or version is None:
+            return True, f"{document.filename} new version or current version is None"
+
 
         if current_version != version:
             return True, f"{document.filename} version changed"
