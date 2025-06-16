@@ -7,7 +7,7 @@ import uuid
 from pygls.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
-
+from pygls.uris import from_fs_path,to_fs_path
 from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
@@ -174,9 +174,14 @@ class PLS(LanguageServer):
         self.tables[doc.uri] = deepcopy(symbol_table)
         return tree, symbol_table
 
-    def document_from_workspace_or_fs(self, uri):
+    def get_document(self, uri):
+        document = server.workspace.get_document(uri)
+        document.uri = from_fs_path(to_fs_path(document.uri))
+        return document
+
+    def document_from_workspace_or_fs(self,uri):
         try:
-            document = server.workspace.get_document(uri)
+            document =self.get_document(uri)
             return document
         except Exception as e:
             logging.error(f"Could Not get file: {uri}\n{e}")
@@ -729,7 +734,7 @@ def document_links(ls: PLS, params: types.DocumentLinkParams):
     types.CompletionOptions(trigger_characters=[","]),
 )
 def completions(ls: PLS, params: types.CompletionParams):
-    document = server.workspace.get_document(params.text_document.uri)
+    document = ls.get_document(params.text_document.uri)
     r = ls.send_completions(document, params.position)
     return r
 
@@ -739,7 +744,7 @@ def completions(ls: PLS, params: types.CompletionParams):
     types.SignatureHelpOptions(trigger_characters=["(", ","]),
 )
 def signature_help(ls: PLS, params: types.SignatureHelpParams):
-    doc = ls.workspace.get_document(params.text_document.uri)
+    doc = ls.get_document(params.text_document.uri)
     r = ls.signature_help_proposals(doc, params.position)
     return r
 

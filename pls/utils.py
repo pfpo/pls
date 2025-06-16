@@ -1,6 +1,7 @@
 from tree_sitter import Node
 from lsprotocol import types
 from pathlib import Path
+from pygls.uris import to_fs_path, from_fs_path
 from urllib.request import pathname2url, url2pathname
 from urllib.parse import urlparse, unquote, urljoin
 from dataclasses import dataclass
@@ -66,12 +67,11 @@ def ranges_overlap(left: types.Range, right: types.Range):
 
 
 def file_uri_to_path(uri: str) -> Path:
-    parsed = urlparse(uri)
-    return Path(url2pathname(unquote(parsed.path)))
+    return Path(to_fs_path(uri))
 
 
 def path_to_file_uri(path: Path) -> str:
-    return urljoin("file:", pathname2url(str(path.resolve())))
+    return from_fs_path(str(path.resolve()))
 
 
 def add_paths(file_uri: str, module_relative_path: str) -> str:
