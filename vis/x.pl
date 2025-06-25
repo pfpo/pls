@@ -1,2 +1,1 @@
-
-post_constraint(P) :- P #=> 3 .
+post_constraint(P):- P #=> 3.

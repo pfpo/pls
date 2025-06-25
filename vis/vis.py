@@ -2,7 +2,7 @@ import os
 import graphviz
 from tree_sitter import Language, Parser
 from tree_sitter_prolog import prolog
-
+from tree_sitter_pldoc import language
 PROLOG = Language(prolog())
 
 parser = Parser(PROLOG)
@@ -76,7 +76,7 @@ def visualize_tree_sitter_ast(code: str, language_name: str, output_file_base: s
             if node_text and node.type != 'comment': # Avoid adding comment text to the node label unless desired
                 node_label = f"{node.type}\\n\"{node_text}\""
             elif node_text and node.type == 'comment':
-                node_label = f"{node.type}\\n(comment)" # Keep comment text separate if needed, or remove
+                node_label = f"{node.type}" # Keep comment text separate if needed, or remove
 
         if node.is_error:
             node_label = "Error\n " + node_label
@@ -84,6 +84,8 @@ def visualize_tree_sitter_ast(code: str, language_name: str, output_file_base: s
             node_label = "Missing\n " + node_label
     
         fill_color = {"good":"lightblue","error":"lightcoral","contains_error":"lightyellow"}
+        if node.parent and calculate_node_state(node.parent) == "error":
+            state = "error"
         print(state)
         dot.node(node_id, label=node_label,fillcolor=fill_color[state])
 
