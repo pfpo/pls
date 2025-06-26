@@ -2,7 +2,7 @@ import os
 import graphviz
 from tree_sitter import Language, Parser
 from tree_sitter_prolog import prolog
-from tree_sitter_pldoc import language
+# from tree_sitter_pldoc import language
 PROLOG = Language(prolog())
 
 parser = Parser(PROLOG)

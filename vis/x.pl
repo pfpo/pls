@@ -1,1 +1,3 @@
-post_constraint(P):- P #=> 3.
+
+bar([X1,X2|XS]).
+
