@@ -1,3 +1,4 @@
-
-bar([X1,X2|XS]).
+main :- 
+	get_char(A),
+	write(A).
 

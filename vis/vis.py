@@ -1,11 +1,39 @@
 import os
 import graphviz
-from tree_sitter import Language, Parser
+from tree_sitter import Language, Parser,Node
 from tree_sitter_prolog import prolog
 # from tree_sitter_pldoc import language
+from lsprotocol import types
 PROLOG = Language(prolog())
 
 parser = Parser(PROLOG)
+
+contained_set = set()
+colors = {}
+labels= {}
+result = None
+def node_at_position(node: Node, p: types.Position):
+    in_row_between = node.start_point.row < p.line and node.end_point.row > p.line
+    in_first_line = (
+        node.start_point.row == p.line and node.start_point.column <= p.character
+    )
+    in_last_line = node.end_point.row == p.line and node.end_point.column >= p.character
+    if (
+        node.start_point.row == node.end_point.row and node.start_point.row == p.line
+    ) and not (
+        node.start_point.column <= p.character and node.end_point.column >= p.character
+    ):
+        return None
+    contained = in_row_between or in_first_line or in_last_line
+    if not contained:
+        return None
+    current = node
+    contained_set.add(node.id)
+    for child in node.children:
+        possible = node_at_position(child, p)
+        if possible:
+            current = possible
+    return current
 
 def calculate_node_state(node):
     if node.is_error or node.is_missing or node.type == "MISSING":
@@ -54,7 +82,17 @@ def visualize_tree_sitter_ast(code: str, language_name: str, output_file_base: s
     tree = parser.parse(bytes(code, "utf8"))
     root_node = tree.root_node
     print(tree.root_node)
-
+    result = node_at_position(root_node,types.Position(2,3))
+    colors[result.parent.id] = "purple"
+    for child in result.parent.children:
+        if child.type == "arg_list":
+            labels[child.id]= f"        Calculated Arity = {len(child.children)}"
+            for neto in  child.children:
+                colors[neto.id] = "purple"
+        
+        colors[child.id] = "purple"
+    print(result)
+    print(contained_set)
     dot = graphviz.Digraph(comment=f'{language_name} AST')
     dot.attr(rankdir='TB') # Top-to-Bottom layout
     dot.attr('node', shape='box', style='rounded,filled', fillcolor='lightblue')
@@ -69,28 +107,57 @@ def visualize_tree_sitter_ast(code: str, language_name: str, output_file_base: s
         node_counter += 1
         node_map[node] = node_id
         state = calculate_node_state(node)
-        # Node label: type and potentially content for leaf nodes
+
+        # === Label (inside the box) ===
         node_label = f"{node.type}"
-        if not node.children: # Leaf node (terminal token)
-            node_text = node.text.decode('utf8').replace('"', '\\"') # Decode and escape quotes
-            if node_text and node.type != 'comment': # Avoid adding comment text to the node label unless desired
+        node_text = ""
+        if not node.children:
+            node_text = node.text.decode('utf8').replace('"', '\\"')
+            if node_text and node.type != 'comment':
                 node_label = f"{node.type}\\n\"{node_text}\""
             elif node_text and node.type == 'comment':
-                node_label = f"{node.type}" # Keep comment text separate if needed, or remove
+                node_label = f"{node.type}"
 
         if node.is_error:
-            node_label = "Error\n " + node_label
+            node_label = "Error\\n" + node_label
         if node.type == "MISSING" or node.is_missing:
-            node_label = "Missing\n " + node_label
-    
-        fill_color = {"good":"lightblue","error":"lightcoral","contains_error":"lightyellow"}
+            node_label = "Missing\\n" + node_label
+
+        # === Fill color ===
+        fill_color = {"good": "lightblue", "error": "lightcoral", "contains_error": "lightyellow"}
         if node.parent and calculate_node_state(node.parent) == "error":
             state = "error"
-        print(state)
-        dot.node(node_id, label=node_label,fillcolor=fill_color[state])
 
-        if parent_id:
-            dot.edge(parent_id, node_id)
+        if node.id in contained_set:
+           color = fill_color["contains_error"] 
+        else:
+            color = "lightblue"
+            
+        if node.id in colors:
+            color = colors[node.id]
+        if node.id == result.id: 
+            color = "green"
+
+        # === Range label (outside the box) ===
+        start = node.start_point  # (row, column)
+        end = node.end_point
+        range_label = f"{start[0]+1}:{start[1]+1} - {end[0]+1}:{end[1]+1}"  # 1-based
+        node_text = f"<BR/>\"{node_text}\"" if node_text else ""
+        node_label = f"<<B>{node.type}</B><BR/>{range_label}{node_text}>"
+
+        if node.type not in ("close","open","source_file"):
+            dot.node(
+                node_id,
+                label=node_label,
+                xlabel = labels[node.id] if node.id in labels  else "",
+                labeljust="r",   
+                labelloc="r",        # place the label at the top of the node
+
+                fillcolor=color
+            )
+
+            if parent_id:
+                dot.edge(parent_id, node_id)
 
         for child in node.children:
             add_nodes_and_edges(child, node_id)
@@ -99,7 +166,8 @@ def visualize_tree_sitter_ast(code: str, language_name: str, output_file_base: s
         
     
         
-    add_nodes_and_edges(root_node,None)
+    for child in root_node.children:
+        add_nodes_and_edges(child,None)
 
     # Render the DOT graph to PDF
     try:
