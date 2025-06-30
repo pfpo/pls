@@ -89,10 +89,18 @@ class PLS(LanguageServer):
         logging.error(f"{collected}")
         return list(collected)
 
-    async def start_up(self):
+    def handle_builtins(self):
         doc = MyDoc(self.builtin_uri)
         self.parse(doc)
+    def start_up_lib(self,path):
+        self.handle_builtins()
+        # self.root_path = path
+        # self.files = self.discover_files()
+        # self.index_sync(self.files)
 
+
+    async def start_up(self):
+        self.handle_builtins()
         self.root_path = self.workspace.root_path
         self.files = self.discover_files()
         await self.index_with_progress(self.files)
@@ -227,6 +235,27 @@ class PLS(LanguageServer):
         self.get_analyser_results(c)
         return c.available_paths
 
+    def build_dependency_graph_sync(self, uris: list[str] ):
+        visited = set()
+        received_uris = set(uris)
+        total_uris = set(uris)
+        queue = uris
+        while len(queue) > 0:
+            next = queue.pop(0)
+            if next in visited:
+                continue
+            visited.add(next)
+            next_document = self.document_from_workspace_or_fs(next)
+            consult_paths = self.shallow_parse(next_document)
+            to_graph_paths = []
+            to_graph_paths.extend(consult_paths)
+            to_graph_paths.extend(self.dg.get_file(next).is_included)
+
+            for uri in to_graph_paths:
+                if uri not in visited and uri not in received_uris:
+                    queue.append(uri)
+                    total_uris.add(uri)
+
     async def build_dependency_graph(self, uris: list[str], progress_report=None):
         visited = set()
         received_uris = set(uris)
@@ -262,7 +291,7 @@ class PLS(LanguageServer):
         # logging.error(
         #     f"Parse Chain triggered by: {document.filename}:v{document.version}"
         # )
-        self.build_dependency_graph([document.uri])
+        self.build_dependency_graph_sync([document.uri])
         cp = CyclicPaths()
         cp.analyse(self.get_analyseable(document.uri))
 

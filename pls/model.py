@@ -14,7 +14,7 @@ class Term:
         self.data = {}
 
     def key(self) -> str:
-        if not self.name[0].isalpha():
+        if len(self.name) > 0 and not self.name[0].isalpha():
             name = f"({self.name})"
         else:
             name = self.name
