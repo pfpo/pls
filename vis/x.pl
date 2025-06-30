@@ -1,4 +1,3 @@
-main :- 
-	get_char(A),
-	write(A).
-
+a :-
+    mino
+    .
