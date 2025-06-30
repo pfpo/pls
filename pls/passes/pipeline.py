@@ -3,7 +3,7 @@ from .predicate_definition import PredicateDefinition
 from .undefined_predicate import UndefinedPredicate
 from .analyser import Analyser, PrologAnalyseable
 from .syntax_error_visitor import SyntaxErrorVisitor
-
+from .operator_declaration import OperatorDeclarationAnalysis
 
 class Pipeline(Analyser):
     def __init__(self):
@@ -12,6 +12,7 @@ class Pipeline(Analyser):
     def passes(self) -> list[Analyser]:
         return [
             SyntaxErrorVisitor(),
+            OperatorDeclarationAnalysis(),
             UndefinedPredicate(),
             UnusedVariablePass(),
             PredicateDefinition(),
