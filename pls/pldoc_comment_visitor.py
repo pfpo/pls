@@ -57,6 +57,20 @@ class PlDocComment:
             r += f"- {t}\n"
         return r
 
+    def operator_representation(self):
+        op = None
+        for tag in self.tags:
+            if tag.type  == "op":
+                op = tag
+                break
+        if op is None:
+            return None
+        
+        if  op.name not in ["xf", "yf", "xfx", "xfy", "yfx", "fy", "fx"] and not op.value.isnumeric():
+            return None
+
+        return (op.name,int(op.value))
+
     def __str__(self) -> str:
         return self.to_str(self.tags)
 
@@ -238,6 +252,8 @@ class PlDocVisitor(TreeVisitor):
         desc = ""
         if n := node.child_by_field_name("description"):
             desc = self.visit(n)
+            if desc is None:
+                desc = self.get_text(n).strip()
 
         name = ""
         if n := node.child_by_field_name("name"):

@@ -79,6 +79,7 @@ class OperatorDeclaration:
 
 def handle_fixity(fixity : str):
    # ["xf", "yf", "xfx", "xfy", "yfx", "fy", "fx"]
+    _type = ""
     if fixity in ["xf", "yf"]:
         arity = 1
         _type = "postfix"

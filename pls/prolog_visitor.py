@@ -9,6 +9,7 @@ import tree_sitter_pldoc as pldoc
 from .model import (
     Operator,
     OperatorDeclaration,
+    OperatorRepresentation,
     Signature,
     Term,
     Functor,
@@ -499,8 +500,12 @@ class PrologVisitor(TreeVisitor):
                 for template in pldoc.templates:
                     predicate = self.get_predicate(template)
                     predicate.defined_by_comment = True
+                    op = pldoc.operator_representation()
                     if template._type:
                         predicate.operator =  operator_representation_from_type(predicate.name,template._type)
+                    elif op is not None:
+                        logging.error(f"Found operator definition for {template.name}")
+                        predicate.operator = OperatorRepresentation(predicate.name,op[0],op[1])
 
                     self.exportable_predicates.add(predicate.key())
                     predicate.comments.append(pldoc)
