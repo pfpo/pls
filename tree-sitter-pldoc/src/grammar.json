@@ -976,7 +976,7 @@
             },
             {
               "type": "FIELD",
-              "name": "fixity",
+              "name": "name",
               "content": {
                 "type": "SYMBOL",
                 "name": "tag_name"
@@ -984,7 +984,7 @@
             },
             {
               "type": "FIELD",
-              "name": "precedence",
+              "name": "description",
               "content": {
                 "type": "SYMBOL",
                 "name": "tag_name"
@@ -1357,7 +1357,7 @@
             },
             {
               "type": "FIELD",
-              "name": "fixity",
+              "name": "name",
               "content": {
                 "type": "SYMBOL",
                 "name": "tag_name"
@@ -1365,7 +1365,7 @@
             },
             {
               "type": "FIELD",
-              "name": "precedence",
+              "name": "description",
               "content": {
                 "type": "SYMBOL",
                 "name": "tag_name"

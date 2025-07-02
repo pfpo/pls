@@ -103,18 +103,12 @@
     "fields": {
       "description": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "pl_tag_text",
             "named": true
-          }
-        ]
-      },
-      "fixity": {
-        "multiple": false,
-        "required": false,
-        "types": [
+          },
           {
             "type": "tag_name",
             "named": true
@@ -122,16 +116,6 @@
         ]
       },
       "name": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "tag_name",
-            "named": true
-          }
-        ]
-      },
-      "precedence": {
         "multiple": false,
         "required": false,
         "types": [
