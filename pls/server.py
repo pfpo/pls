@@ -12,6 +12,7 @@ from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
 from pls.passes.analyser import Analyser
+from pls.pldoc_comment_visitor import PlDocComment
 
 from .utils import (
     node_at_position,
@@ -472,8 +473,13 @@ class PLS(LanguageServer):
 
         if type(element) is Variable and len(element.references) > 0:
             return element.references[0]
-        elif type(element) is Predicate and len(element.definitions) > 0:
-            return element.definitions[0]
+        elif type(element) is Predicate :
+            if len(element.definitions) > 0:
+                return element.definitions[0]
+            for comment in element.comments:
+                if type(comment) is PlDocComment:
+                    if comment.location:
+                        return comment.location
         elif element is None:
             return None
         return None
