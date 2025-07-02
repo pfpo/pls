@@ -79,7 +79,7 @@ class OperatorDeclarationAnalysis(Analyser):
     def analyse_name(self, decl: OperatorDeclaration, content: PrologAnalyseable):
         logging.error(f"{decl.name.name}")
         name = decl.other_name.strip()
-        if len(name) > 1 and name[0] == '(' and name[-1] == ')':
+        if len(name) > 1 and (name[0] == '(' and name[-1] == ')') or (name[0] =="'" and name[1] == "'"):
             name = name[1:-1]
         if isinstance(name, str):
             return name

@@ -130,8 +130,9 @@ class PrologVisitor(TreeVisitor):
                 )
 
     def visit_atom(self, node: Node, _opts: Opts) -> str:
-        assert node.type == "atom"
         t = Term(bytes.decode(node.text, "utf-8"))
+        if len(t.name) > 2 and t.name[0] == '\'' and t.name[-1] == '\'':
+            t.name =t.name[1:-1]
         self.notes[node] = t
         p = self.get_predicate(t)
         p.add_reference(self.uri, node)
@@ -250,7 +251,7 @@ class PrologVisitor(TreeVisitor):
                 # )
 
         if arity is not None:
-            t = Term(bytes.decode(operator_node.text, "utf-8"))
+            t = self.visit_atom(operator_node,None)
             t.arity = arity
             predicate = self.get_predicate(t)
             predicate.add_reference(self.uri, operator_node)

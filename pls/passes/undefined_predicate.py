@@ -1,5 +1,5 @@
 from tree_sitter import Node
-from pls.model import OperatorRepresentation, Predicate
+from pls.model import OperatorRepresentation, Predicate, Term
 from pls.utils import node_to_range
 from lsprotocol import types
 from .analyser import TreeAnalyser
@@ -50,9 +50,11 @@ class UndefinedPredicate(TreeAnalyser):
 
     def desambiguate(self, node: Node):
         may_be_old_predicate = self.table.notes[node]
+        if may_be_old_predicate is None:
+            return True,None
         predicate = self.table.predicate_index[may_be_old_predicate.key()]
         if predicate is None or type(predicate) is not Predicate:
-            return
+            return True, None
         undefined, new_predicate = self.is_undefined(predicate)
         # logging.debug("%s Is Undefined: %s",predicate.key(),undefined)
         if undefined:
@@ -74,7 +76,7 @@ class UndefinedPredicate(TreeAnalyser):
         if undefined or type(predicate) is not Predicate or predicate.operator is None:
             # Warning There is not operator definition for predicate.name
             self.add_file_diagnostic(types.Diagnostic(
-            message=f"No operator definition found for '{getattr(predicate, 'name', '?')}'.",
+            message=f"No operator definition found for '{getattr(predicate, 'name', '?')}' with type {_type}.",
             severity=types.DiagnosticSeverity.Warning,
             range=node_to_range(node)
             ))
