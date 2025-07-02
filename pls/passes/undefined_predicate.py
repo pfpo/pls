@@ -66,7 +66,11 @@ class UndefinedPredicate(TreeAnalyser):
             self.table.notes[node] = new_predicate
         return undefined,new_predicate
     def handle_annotated_node_op(self, node: Node):
-        _type = self.table.notes[node].type
+        note = self.table.notes[node]
+        if note is None:
+            # Maybe error here?
+            return
+        _type = note.type
         undefined, predicate = self.desambiguate(node)
         if undefined or type(predicate) is not Predicate or predicate.operator is None:
             # Warning There is not operator definition for predicate.name
