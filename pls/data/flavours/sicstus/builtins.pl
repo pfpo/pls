@@ -216,6 +216,7 @@
 %
 %     @param  :P   *callable*, must be nonvar
 %     @param  :Q   *callable*, must be nonvar
+%    @op xfy 1000
 
 %!    append(?List1,?List2,?List3)
 %
@@ -426,6 +427,7 @@
 %     part of a block condition
 %     '`?`'
 %     otherwise
+%    @op fx 1150
 
 %!    break
 %
@@ -802,6 +804,7 @@
 %     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
+%    @op fx 1150
 
 %!    display(+Term)
 %
@@ -816,6 +819,7 @@
 %
 %     @param  +Iterator   *iterator*, must be nonvar
 %     @param  :Body       *callable*, must be nonvar
+%    @op xfy 1100
 
 %!    :- dynamic +PredSpecs
 %
@@ -825,6 +829,7 @@
 %     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
+%    @op fx 1150
 
 %!    enable_breakpoints(+BIDs)
 %
@@ -849,6 +854,7 @@
 %
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
+%    @op xfx 700
 
 %!    erase(+Ref)
 %
@@ -884,6 +890,7 @@
 %
 %     @param  +X    *term*
 %     @param  :P   *callable*, must be nonvar
+%    @op xfy 200
 
 %!    expand_term(+Term1,-Term2)
 %
@@ -1133,6 +1140,7 @@
 %
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
+%    @op xfx 700
 
 %!    ground(+Term)
 %
@@ -1167,6 +1175,7 @@
 %
 %     @param  :P   *callable*, must be nonvar
 %     @param  :Q   *callable*, must be nonvar
+%    @op xfy 1050
 
 %!    :- include +Files
 %
@@ -1186,6 +1195,7 @@
 %     up.
 %
 %     @param  :Goal   *callable*, must be nonvar
+%    @op fx 1150
 
 %!    instance(+Ref,-Term)
 %
@@ -1213,6 +1223,7 @@
 %     * numbers
 %     * variables bound to numbers or arithmetic expressions
 %     @param  Term         *number*
+%    @op xfx 700
 
 %!    keysort(+Pairs,-Sorted)
 %
@@ -1249,6 +1260,7 @@
 %
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
+%    @op xfx 700
 
 %!    user:library_directory(+DirSpec)
 %
@@ -1415,12 +1427,14 @@
 %     '`-`'
 %     '`?`'
 %     ignored
+%    @op fx 1150
 
 %!    :- mode +Mode
 %
 %     Currently a dummy declaration.
 %
 %     @param  :Mode   *term*
+%    @op fx 1150
 
 %!    :- module(+ModuleName,+PublicPred)
 %!    :- module(+ModuleName,+PublicPred,+Options)
@@ -1448,6 +1462,7 @@
 %     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
+%    @op fx 1150
 
 %!    mutable(+Term)
 %
@@ -1512,6 +1527,7 @@
 %
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
+%    @op xfx 700
 
 %!    +Expr1 =< +Expr2
 %
@@ -1520,6 +1536,7 @@
 %
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
+%    @op xfx 700
 
 %!    +Expr1 >= +Expr2
 %
@@ -1528,6 +1545,7 @@
 %
 %     @param  Expr1   *expr*, must be ground
 %     @param  Expr2   *expr*, must be ground
+%    @op xfx 700
 
 %!    \+ +P
 %
@@ -1539,6 +1557,7 @@
 %     except that the use of `call/1` often can be avoided.
 %
 %     @param  :P   *callable*, must be nonvar
+%    @op fy 900
 
 %!    +Term1 \= +Term2
 %
@@ -1546,6 +1565,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    notrace
 %
@@ -1785,6 +1805,7 @@
 %     @param  :P   *callable*, must be nonvar
 %     @param  :Q   *callable*, must be nonvar
 %     @param  :R   *callable*, must be nonvar
+%    @op xfy 1100
 
 %!    otherwise
 %
@@ -2020,6 +2041,7 @@
 %     Currently a dummy declaration.
 %
 %     @param  :Term   *term*
+%    @op fx 1150
 
 %!    put_byte(+Byte)
 %!    put_byte(+Stream,+Byte)
@@ -2577,6 +2599,7 @@
 %     A predicate specification, or a list of such.
 %     @param  :Conditions   *term*, must be ground
 %     Spypoint conditions.
+%    @op fy 900
 
 %!    statistics
 %!    statistics(?Keyword,?List)
@@ -2750,6 +2773,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    user:term_expansion(+Term1,+Layout1,+Tokens1,-Term2,-Layout2,-Tokens2)
 %
@@ -2774,6 +2798,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    +Term1 @< +Term2
 %
@@ -2781,6 +2806,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    +Term1 \== +Term2
 %
@@ -2788,6 +2814,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    +Term1 @=< +Term2
 %
@@ -2795,6 +2822,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    +Term1 @>= +Term2
 %
@@ -2802,6 +2830,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    ?=(+Term1,+Term2)
 %
@@ -2844,6 +2873,7 @@
 %
 %     @param  Term1   *term*
 %     @param  Term2   *term*
+%    @op xfx 700
 
 %!    unify_with_occurs_check(+Term1,+Term2)
 %
@@ -2863,6 +2893,7 @@
 %     any term
 %     @param  List   *list of term*
 %     and not empty
+%    @op xfx 700
 
 %!    unknown(-OldAction,+NewAction)
 %
@@ -2945,6 +2976,7 @@
 %     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
+%    @op fx 1150
 
 %!    when(+Condition,+Goal)
 %
@@ -3075,12 +3107,14 @@
 % The value is X.
 %
 % @param X The arithmetic expression.
+%    @op fy 200
 
 %! - +X
 %
 % The value is the negative of X.
 %
 % @param X The arithmetic expression.
+%    @op fy 200
 
 %! +X + +Y
 %
@@ -3088,6 +3122,7 @@
 %
 % @param X The first arithmetic expression.
 % @param Y The second arithmetic expression.
+%    @op yfx 500
 
 %! +X - +Y
 %
@@ -3095,6 +3130,7 @@
 %
 % @param X The first arithmetic expression.
 % @param Y The second arithmetic expression.
+%    @op yfx 500
 
 %! +X * +Y
 %
@@ -3102,6 +3138,7 @@
 %
 % @param X The first arithmetic expression.
 % @param Y The second arithmetic expression.
+%    @op yfx 400
 
 %! +X / +Y
 %
@@ -3109,6 +3146,7 @@
 %
 % @param X The first arithmetic expression.
 % @param Y The second arithmetic expression.
+%    @op yfx 400
 
 %! +X // +Y
 %
@@ -3117,6 +3155,7 @@
 %
 % @param X The first integer arithmetic expression.
 % @param Y The second integer arithmetic expression.
+%    @op yfx 400
 
 %! +X div +Y
 %
@@ -3125,6 +3164,7 @@
 %
 % @param X The first integer arithmetic expression.
 % @param Y The second integer arithmetic expression.
+%    @op yfx 400
 
 %! +X rem +Y
 %
@@ -3133,6 +3173,7 @@
 %
 % @param X The first integer arithmetic expression (dividend).
 % @param Y The second integer arithmetic expression (divisor).
+%    @op yfx 400
 
 %! +X mod +Y
 %
@@ -3141,6 +3182,7 @@
 %
 % @param X The first integer arithmetic expression (dividend).
 % @param Y The second integer arithmetic expression (divisor).
+%    @op yfx 400
 
 %! integer(+X)
 %
@@ -3197,6 +3239,7 @@
 %
 % @param X The first integer.
 % @param Y The second integer.
+%    @op yfx 500
 
 %! \(+X)
 %
@@ -3211,6 +3254,7 @@
 %
 % @param X The integer to be shifted.
 % @param Y The number of places to shift.
+%    @op yfx 400
 
 %! +X >> +Y
 %
@@ -3219,6 +3263,7 @@
 %
 % @param X The integer to be shifted.
 % @param Y The number of places to shift.
+%    @op yfx 400
 
 
 % TODO:
@@ -3452,6 +3497,7 @@
 %
 % @param X The base arithmetic expression.
 % @param Y The exponent arithmetic expression.
+%    @op xfx 200
 
 %! exp(+X,+Y)
 %
@@ -3467,6 +3513,7 @@
 %
 % @param X The base arithmetic expression.
 % @param Y The exponent arithmetic expression.
+%    @op xfy 200
 
 %! pi
 %
@@ -3491,3 +3538,4 @@
 %
 % @param Head *callable* The head of the rule, representing the conclusion or fact.
 % @param Body *callable* The body of the rule, representing the conditions or premises for the head to be true.
+%    @op xfx 1200

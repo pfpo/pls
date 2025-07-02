@@ -1,6 +1,7 @@
 from pls.utils import add_paths
 from lsprotocol import types
 from pls.model import OperatorDeclaration, OperatorRepresentation, Term, Predicate,string_from_atom
+from pls.my_logging import logging
 
 from .analyser import Analyser, PrologAnalyseable
 
@@ -17,6 +18,7 @@ class OperatorDeclarationAnalysis(Analyser):
         # To enable _file api
         self.uri = content.uri
         table = content.tables[self.uri]
+        logging.error(f"Analysing Operator Declaration")
         for op_decl in table.operator_declarations:
             # print(op_decl)
             self.analyse_operator_decl(op_decl, content)
@@ -35,11 +37,12 @@ class OperatorDeclarationAnalysis(Analyser):
         precedence = self.analyse_precedence(decl, content)
         fixity = self.analyse_fixity(decl, content)
         name = self.analyse_name(decl, content)
+        logging.error(f"{name} {fixity} {precedence}")
 
         if precedence is not None and fixity is not None and name is not None:
             # Construct or register the operator here if needed
             # e.g., content.add_operator(name, fixity, precedence)
-            # print(f"Valid operator: {name} {fixity} {precedence}")
+            logging.error(f"Valid operator: {name} {fixity} {precedence}")
             op = OperatorRepresentation(name,fixity,precedence)
             table = content.tables[content.uri]
             predicate = self.get_predicate(table,op)
@@ -74,7 +77,10 @@ class OperatorDeclarationAnalysis(Analyser):
         return None
 
     def analyse_name(self, decl: OperatorDeclaration, content: PrologAnalyseable):
-        name = string_from_atom(decl.name.name)
+        logging.error(f"{decl.name.name}")
+        name = decl.other_name.strip()
+        if len(name) > 1 and name[0] == '(' and name[-1] == ')':
+            name = name[1:-1]
         if isinstance(name, str):
             return name
         self.add_file_diagnostic(types.Diagnostic(

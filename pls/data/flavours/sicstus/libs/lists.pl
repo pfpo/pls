@@ -835,7 +835,7 @@
 % @param Ys list
 % @param Zs list
 
-%! map_product(Pred, Xs, Ys, PredOfProduct)
+%! map_product(+Pred, +Xs, +Ys, +PredOfProduct)
 %
 % Just as `maplist(P, Xs, L)` is the analogue of Miranda's
 %

@@ -27,6 +27,7 @@ from .utils import (
     node_to_range,
     add_paths,
     library_path,
+    node_with_text,
 )
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
@@ -344,7 +345,11 @@ class PrologVisitor(TreeVisitor):
                 elif is_module(functor):
                     self.handle_module_declaration(child, functor)
                 elif is_operator_definition(functor):
-                    self.handle_operator_declaration(child, functor)
+                    op_name = ""
+                    if len(child.children) > 2 and len(child.children[2].children) > 3:
+                        op_name = bytes.decode(child.children[2].children[4].text)
+                
+                    self.handle_operator_declaration(child, functor,op_name)
             else:
                 self.visit(child, opts)
         self.notes[node] = self.current_scope
@@ -358,8 +363,9 @@ class PrologVisitor(TreeVisitor):
         path = add_paths(self.uri, consult_path)
         self.consult_paths[path].append(node_to_location(self.uri, node))
 
-    def handle_operator_declaration(self, node: Node, functor: Functor):
-        self.operator_declarations.append(OperatorDeclaration(functor,node_to_range(node)))
+    def handle_operator_declaration(self, node: Node, functor: Functor,op_name):
+        logging.error(node_with_text(node))
+        self.operator_declarations.append(OperatorDeclaration(functor,op_name,node_to_range(node)))
 
 
     def handle_use_module(self, node: Node, functor: Functor):

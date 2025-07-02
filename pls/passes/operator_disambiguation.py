@@ -14,12 +14,37 @@ class OperatorDisambiguationAnalysis(Analyser):
         self.table = None
         self.uri = None
 
+        self.changes = {}
+
+    def get_action(self):
+
+        return types.CodeAction(
+            title=f"Mark pldoc comment as an operator",
+            kind=types.CodeActionKind.QuickFix,
+            edit=types.WorkspaceEdit(
+                changes= self.changes
+            ),
+        )
+    def add_change(self,comment:PlDocComment,op_repr):
+
+        def just_after(r : types.Range)-> types.Range:
+            return types.Range(start = r.end, end= r.end)
+
+        changes = self.changes.get(comment.location.uri,[])
+        changes.append( types.TextEdit(
+                            range= just_after(comment.location.range),
+                            new_text= f"%    @op {op_repr.fixity} {op_repr.precedence}\n"
+                        ))
+
+        self.changes[comment.location.uri] = changes
+
     def analyse(self, content: PrologAnalyseable):
         # To enable _file api
         self.uri = content.uri
         self.table = content.tables[self.uri]
         for op_decl, op_repr in self.table.operators:
             self.analyse_operator(op_decl, op_repr, content)
+        self.add_file_action(RangedAction(self.get_action(), node_to_range(content.trees[self.uri][1].root_node)))
 
 
     def is_undefined(self, predicate: Predicate) -> tuple[bool, Predicate]:
@@ -54,26 +79,6 @@ class OperatorDisambiguationAnalysis(Analyser):
         return new_predicate
 
 
-    def pldoc_operator_decl_action(self,comment:PlDocComment,op_repr):
-        def just_after(r : types.Range)-> types.Range:
-            return types.Range(start = r.end, end= r.end)
-
-        action = types.CodeAction(
-            title=f"Mark {op_repr.key()}'s pldoc comment as an operator",
-            kind=types.CodeActionKind.QuickFix,
-            edit=types.WorkspaceEdit(
-                changes={
-                    comment.location.uri: [
-                        types.TextEdit(
-                            range= just_after(comment.location.range),
-                            new_text= f"%    @op {op_repr.fixity} {op_repr.precedence}\n"
-                        )
-                    ]
-                }
-            ),
-        )
-        logging.error(f"{action}")
-        return action
             
 
     def analyse_operator(self, decl: OperatorDeclaration, op_repr :OperatorRepresentation , content: PrologAnalyseable):
@@ -84,7 +89,6 @@ class OperatorDisambiguationAnalysis(Analyser):
         for comment in predicate.comments:
             if type(comment) is PlDocComment and comment.operator_representation() is None:
                 logging.error(f"Operator {op_repr.key()} pldoc's comment has no op decl")
-                action = self.pldoc_operator_decl_action(comment,op_repr)
-                logging.error(f"{decl.range}")
-                self.add_file_action(RangedAction(action, decl.range))
+                self.add_change(comment,op_repr)
+        
       

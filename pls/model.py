@@ -70,11 +70,12 @@ class RangedTerm:
     _range : types.Range
 
 class OperatorDeclaration:
-    def __init__(self,functor: Functor,_range : types.Range):
+    def __init__(self,functor: Functor,name,_range : types.Range):
         self.functor = functor
         self.precedence =functor.args[0]
         self.fixity = functor.args[1]
         self.name = functor.args[2]
+        self.other_name = name
         self.range = _range
 
 def handle_fixity(fixity : str):
