@@ -717,7 +717,7 @@
       "members": [
         {
           "type": "PREC",
-          "value": 3,
+          "value": 1004,
           "content": {
             "type": "SYMBOL",
             "name": "_built_in_operator_notation"
@@ -725,7 +725,7 @@
         },
         {
           "type": "PREC",
-          "value": 2,
+          "value": 1003,
           "content": {
             "type": "SEQ",
             "members": [
@@ -759,7 +759,7 @@
         },
         {
           "type": "PREC",
-          "value": 1,
+          "value": 1002,
           "content": {
             "type": "SEQ",
             "members": [
@@ -780,7 +780,7 @@
         },
         {
           "type": "PREC",
-          "value": 1,
+          "value": 1002,
           "content": {
             "type": "SEQ",
             "members": [
