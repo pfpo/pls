@@ -29,12 +29,14 @@ def debug():
     uri = "examples/b/l.pl"
     uri = "bad/clpfd._cannot_parse_pl"
     uri = "pls/data/flavours/sicstus/libs/clpfd.pl"
-
+    uri = "op.pl"
     uri = path_to_file_uri(Path(uri))
     doc = MyDoc(uri)
-    # server.start_up()
+    server.start_up_lib(".")
     server.parse_with_dependencies(doc)
 
+    for d in server.diagnostics[uri][1]:
+        print(d.message)
     # uri = "a.pl"
 
     # uri = path_to_file_uri(Path(uri))

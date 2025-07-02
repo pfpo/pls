@@ -418,12 +418,12 @@ module.exports = grammar({
     // 6.3.4.1 Operand
     // 6.3.4.2 Operators as functors
     operator_notation: $ => choice(
-      prec(3,$._built_in_operator_notation),
+      prec(1004,$._built_in_operator_notation),
       //prec(2, seq($._term, field(fields.operator, $.atom), $._term)), // infix
       // I don't know why but this fixes the issue where `a b c` is now parsed as `b(a,c)`  instead of `a(b(c))`
-      prec(2, seq(choice($._term,$.atom), field(fields.operator, $.atom), $._term)), // infix
-      prec(1, seq(field(fields.operator, $.atom), $._term)), // prefix
-      prec(1, seq($._term,field(fields.operator, $.atom))), // postfix
+      prec(1003, seq(choice($._term,$.atom), field(fields.operator, $.atom), $._term)), // infix
+      prec(1002, seq(field(fields.operator, $.atom), $._term)), // prefix
+      prec(1002, seq($._term,field(fields.operator, $.atom))), // postfix
       //prec(1, seq($._term,field(fields.operator, $.atom))), // postfix
     ),
     _built_in_operator_notation: $ =>

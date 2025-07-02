@@ -108,6 +108,10 @@
           {
             "type": "pl_tag_text",
             "named": true
+          },
+          {
+            "type": "tag_name",
+            "named": true
           }
         ]
       },
@@ -303,6 +307,10 @@
   },
   {
     "type": "@license",
+    "named": false
+  },
+  {
+    "type": "@op",
     "named": false
   },
   {

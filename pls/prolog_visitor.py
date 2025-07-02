@@ -7,12 +7,16 @@ from tree_sitter import Node, Parser, Language
 import tree_sitter_pldoc as pldoc
 
 from .model import (
+    Operator,
+    OperatorDeclaration,
+    OperatorRepresentation,
     Signature,
     Term,
     Functor,
     Predicate,
     Variable,
     Scope,
+    operator_representation_from_type,
     string_from_atom,
     ModuleDeclaration,
     UseModule,
@@ -23,6 +27,7 @@ from .utils import (
     node_to_range,
     add_paths,
     library_path,
+    node_with_text,
 )
 from .tree_visitor import TreeVisitor
 from .annotations import Annotations
@@ -61,6 +66,7 @@ class PrologVisitor(TreeVisitor):
         self.all_comments = []
         self.comments = []
 
+        self.operator_declarations = []
         self.exportable_predicates: set[str] = set()
 
     def set_current_scope(self, scope):
@@ -208,6 +214,7 @@ class PrologVisitor(TreeVisitor):
         children = self.filter_children(node)
         operator_node = node.child_by_field_name("operator")
         arity = None
+        _type = None
         to_return = None
         match children:
             case [open, operand, close] if (
@@ -215,6 +222,7 @@ class PrologVisitor(TreeVisitor):
             ):
                 to_return = self.visit(operand, opts)
             case [head, op, body]:
+                _type = "infix"
                 arity = 2
                 is_parameter_definition = self.is_parameter_start_point(opts, op)
                 if is_parameter_definition:
@@ -225,10 +233,12 @@ class PrologVisitor(TreeVisitor):
                 body = self.visit(body, opts)
                 to_return = head
             case [op, operand] if op == operator_node:
+                _type = "prefix"
                 operand = self.visit(operand, opts)
                 arity = 1
                 to_return = operand
             case [operand, op] if op == operator_node:
+                _type = "postfix"
                 operand = self.visit(operand, opts)
                 arity = 1
                 to_return = operand
@@ -242,9 +252,10 @@ class PrologVisitor(TreeVisitor):
         if arity is not None:
             t = Term(bytes.decode(operator_node.text, "utf-8"))
             t.arity = arity
-            operator = self.get_predicate(t)
-            operator.add_reference(self.uri, operator_node)
-            self.notes[operator_node] = operator
+            predicate = self.get_predicate(t)
+            predicate.add_reference(self.uri, operator_node)
+            self.notes[operator_node] = Operator(predicate,_type)
+            self.notes[node] = Operator(predicate,_type)
         return to_return
 
     def functor_is_parameter_start_point(self, opts: Opts):
@@ -318,6 +329,9 @@ class PrologVisitor(TreeVisitor):
 
         def is_module(functor: Functor) -> bool:
             return functor.name == "module"
+        
+        def is_operator_definition(functor: Functor) -> bool:
+            return functor.name == "op" and len(functor.args) == 3
 
         for child in node.children:
             if child.type == "functional_notation":
@@ -330,6 +344,12 @@ class PrologVisitor(TreeVisitor):
                     pass
                 elif is_module(functor):
                     self.handle_module_declaration(child, functor)
+                elif is_operator_definition(functor):
+                    op_name = ""
+                    if len(child.children) > 2 and len(child.children[2].children) > 3:
+                        op_name = bytes.decode(child.children[2].children[4].text)
+                
+                    self.handle_operator_declaration(child, functor,op_name)
             else:
                 self.visit(child, opts)
         self.notes[node] = self.current_scope
@@ -342,6 +362,11 @@ class PrologVisitor(TreeVisitor):
 
         path = add_paths(self.uri, consult_path)
         self.consult_paths[path].append(node_to_location(self.uri, node))
+
+    def handle_operator_declaration(self, node: Node, functor: Functor,op_name):
+        logging.error(node_with_text(node))
+        self.operator_declarations.append(OperatorDeclaration(functor,op_name,node_to_range(node)))
+
 
     def handle_use_module(self, node: Node, functor: Functor):
         name = ""
@@ -476,11 +501,19 @@ class PrologVisitor(TreeVisitor):
             v = PlDocVisitor()
             v.start(result.root_node)
             pldoc = v.get_comment()
+            pldoc.location = node_to_location(self.uri,node)
             if len(pldoc.templates) > 0:
                 added_pldoc_template = True
                 for template in pldoc.templates:
                     predicate = self.get_predicate(template)
                     predicate.defined_by_comment = True
+                    op = pldoc.operator_representation()
+                    if template._type:
+                        predicate.operator =  operator_representation_from_type(predicate.name,template._type)
+                    elif op is not None:
+                        logging.error(f"Found operator definition for {template.name}")
+                        predicate.operator = OperatorRepresentation(predicate.name,op[0],op[1])
+
                     self.exportable_predicates.add(predicate.key())
                     predicate.comments.append(pldoc)
                     name_range = template.name_range

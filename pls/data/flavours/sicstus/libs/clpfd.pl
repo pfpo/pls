@@ -44,6 +44,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
+%    @op xfx 700
 
 %! #\= (?IExpr, ?IExpr)
 %
@@ -51,6 +52,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
+%    @op xfx 700
 
 %! #< (?IExpr, ?IExpr)
 %
@@ -58,6 +60,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
+%    @op xfx 700
 
 %! #=< (?IExpr, ?IExpr)
 %
@@ -65,6 +68,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
+%    @op xfx 700
 
 %! #> (?IExpr, ?IExpr)
 %
@@ -72,6 +76,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
+%    @op xfx 700
 
 %! #>= (?IExpr, ?IExpr)
 %
@@ -79,6 +84,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
+%    @op xfx 700
 
 %! $= (?RExpr, ?RExpr)
 %
@@ -1400,6 +1406,7 @@
 %
 % @param X domain variable
 % @param Range range expression
+%    @op xfx 700
 
 %! in_set(?X, +FDSet)
 %
@@ -1409,12 +1416,14 @@
 %
 % @param X integer variable
 % @param FDSet FD set
+% @op xfx 700
 
 %! #\ :Q
 %
 %   True if the constraint Q is false.
 %
 % @param Q reifiable constraint
+% @op fy 710
 
 %! :P #/\ :Q
 %
@@ -1422,6 +1431,7 @@
 %
 % @param P reifiable constraint
 % @param Q reifiable constraint
+%    @op yfx 720
 
 %! :P #\ :Q
 %
@@ -1429,6 +1439,7 @@
 %
 % @param P reifiable constraint
 % @param Q reifiable constraint
+%    @op yfx 730
 
 %! :P #\/ :Q
 %
@@ -1440,6 +1451,7 @@
 %
 % @param P reifiable constraint
 % @param Q reifiable constraint
+% @op yfx 740
 
 %! :P #=> :Q
 %
@@ -1447,6 +1459,7 @@
 %
 % @param P reifiable constraint
 % @param Q reifiable constraint
+% @op xfy 750
 
 %! :Q #<= :P
 %
@@ -1454,6 +1467,7 @@
 %
 % @param Q reifiable constraint
 % @param P reifiable constraint
+%    @op yfx 750
 
 %! :P #<=> :Q
 %
@@ -1461,6 +1475,7 @@
 %
 % @param P reifiable constraint
 % @param Q reifiable constraint
+% @op yfx 760
 
 %! disjoint1(+Lines)
 %! disjoint1(+Lines,+Options)
@@ -2048,6 +2063,7 @@
 %
 % @param Lower  The lower IntConstant or RealConstant bound of the integer range.
 % @param Upper  The upper IntConstant or RealConstant bound of the integer range.
+%    @op xfx 550
 
 
 %! +Range1 \/ +Range2
@@ -2060,6 +2076,7 @@
 %
 % @param Range1  The first `IntegerRange` operand.
 % @param Range2  The second `IntegerRange` operand.
+%  @op yfx 500
 
 
 %! +Range1 /\ +Range2
@@ -2072,6 +2089,7 @@
 %
 % @param Range1  The first `IntegerRange` operand.
 % @param Range2  The second `IntegerRange` operand.
+%    @op yfx 500
 
 
 %! \ +Range
@@ -2083,6 +2101,7 @@
 % Example: `\ {1,2}` would represent all integers except 1 and 2 within the domain.
 %
 % @param Range The `IntegerRange` operand whose complement is to be taken.
+%    @op fy 500
 
 
 %! inf

@@ -31,6 +31,7 @@ const c_style_line_begin = /[^\S\n]*\*?[^\S\n]*/
 const tags = [
   (name,desc) => seq(token(prec(1, '@arg')), field("name",name), field("description",desc)),
   (name,desc) => seq(token(prec(1, '@param')), field("name",name), field("description",desc)),
+  (name,desc) => seq(token(prec(1, '@op')), field("name",name), field("description",name)),
   (name,desc) => seq(token(prec(1, '@error')), field("name",name), field("description",desc)),
   (name,desc) => seq(token(prec(1, '@author')), field("name",name), field("description",desc)),
   (name,desc) => seq(token(prec(1, '@version')), field("name",name), field("description",desc)),
