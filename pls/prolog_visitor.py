@@ -495,6 +495,7 @@ class PrologVisitor(TreeVisitor):
             v = PlDocVisitor()
             v.start(result.root_node)
             pldoc = v.get_comment()
+            pldoc.location = node_to_location(self.uri,node)
             if len(pldoc.templates) > 0:
                 added_pldoc_template = True
                 for template in pldoc.templates:

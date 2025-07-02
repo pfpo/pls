@@ -189,6 +189,7 @@ class SymbolTable:
     exportable_predicates: set[str]
 
     operator_declarations : list[OperatorDeclaration]
+    operators : list[tuple[OperatorDeclaration,OperatorRepresentation]]
 
     def find_predicate_not_in_builtins(self, key: str):
         p = self.predicate_index.get(key)

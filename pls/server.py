@@ -177,6 +177,7 @@ class PLS(LanguageServer):
             exportable_predicates=prolog_visitor.exportable_predicates,
             path=doc.uri,
             operator_declarations= prolog_visitor.operator_declarations,
+            operators=[],
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees
         self.original_tables[doc.uri] = symbol_table
@@ -495,11 +496,14 @@ class PLS(LanguageServer):
         if doc.uri not in self.actions:
             return result
         ranged_actions = self.actions[doc.uri][1]
+
         for ra in ranged_actions:
             a = ra.action
             r = ra.range
+            logging.error(f"{ra}")
             if ranges_overlap(r, requested_range):
                 result.append(a)
+        logging.error(f"{requested_range}")
 
         return result
 

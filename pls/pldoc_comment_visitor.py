@@ -38,9 +38,11 @@ class Template(Term):
 
 @dataclass
 class PlDocComment:
+    
     templates: list[Template]
     description: str
     tags: list[Tag]
+    location : types.Location = None
 
     def to_str(self, tags) -> str:
         r = ""

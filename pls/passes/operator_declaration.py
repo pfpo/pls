@@ -41,11 +41,13 @@ class OperatorDeclarationAnalysis(Analyser):
             # e.g., content.add_operator(name, fixity, precedence)
             # print(f"Valid operator: {name} {fixity} {precedence}")
             op = OperatorRepresentation(name,fixity,precedence)
-            predicate = self.get_predicate(content.tables[content.uri],op)
+            table = content.tables[content.uri]
+            predicate = self.get_predicate(table,op)
             if predicate.operator is not None: 
                 # TODO already declared predicate
                 pass
             predicate.operator = op
+            table.operators.append((decl,op))
             # print(content.tables[content.uri].predicate_index.keys())
                 
 

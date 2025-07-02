@@ -1,3 +1,4 @@
+from .operator_disambiguation import OperatorDisambiguationAnalysis
 from .unused_variable import UnusedVariablePass
 from .predicate_definition import PredicateDefinition
 from .undefined_predicate import UndefinedPredicate
@@ -16,6 +17,7 @@ class Pipeline(Analyser):
             UndefinedPredicate(),
             UnusedVariablePass(),
             PredicateDefinition(),
+            OperatorDisambiguationAnalysis(),
         ]
 
     def add_analysis_results(self, analyser: Analyser):

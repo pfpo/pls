@@ -59,7 +59,6 @@ class UndefinedPredicate(TreeAnalyser):
             return undefined, predicate
         else:
             if predicate is not new_predicate:
-                self.table.predicate_index
                 new_predicate.references.extend(predicate.references)
                 new_predicate.name_references.extend(predicate.name_references)
                 self.table.predicate_index[predicate.key()] = new_predicate
