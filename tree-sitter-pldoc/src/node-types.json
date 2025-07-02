@@ -103,7 +103,7 @@
     "fields": {
       "description": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "pl_tag_text",
@@ -111,7 +111,27 @@
           }
         ]
       },
+      "fixity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "tag_name",
+            "named": true
+          }
+        ]
+      },
       "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "tag_name",
+            "named": true
+          }
+        ]
+      },
+      "precedence": {
         "multiple": false,
         "required": false,
         "types": [
@@ -303,6 +323,10 @@
   },
   {
     "type": "@license",
+    "named": false
+  },
+  {
+    "type": "@op",
     "named": false
   },
   {
