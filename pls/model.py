@@ -94,6 +94,14 @@ def handle_fixity(fixity : str):
 
 
 
+def operator_representation_from_type(name:str,_type:str):
+    if _type == "postfix":
+        return OperatorRepresentation(name,"xf",100)
+    elif _type == "infix":
+        return OperatorRepresentation(name,"xfx",100)
+    
+    elif _type == "prefix":
+        return OperatorRepresentation(name,"fx",100)
 
 class OperatorRepresentation(Term):
     def __init__(self,name:str,fixity:str,precedence:int):

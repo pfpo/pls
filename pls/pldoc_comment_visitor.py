@@ -27,12 +27,13 @@ class Arg:
 
 
 class Template(Term):
-    def __init__(self, name, args: list[Arg], text, name_range: types.Range):
+    def __init__(self, name, args: list[Arg], text, name_range: types.Range, _type =None):
         super().__init__(name)
         self.args = args
         self.arity = len(args)
         self.text = text
         self.name_range: types.Range = name_range
+        self._type  : str | None= _type
 
 
 @dataclass
@@ -164,15 +165,39 @@ class PlDocVisitor(TreeVisitor):
         predicate_name = ""
         name_range = None
         args = []
-        for child in node.named_children:
-            if child.type == "functor":
-                predicate_name = self.get_text(child)
-                name_range = node_to_range(child)
-            elif child.type == "arg_spec":
-                args.append(self.visit(child))
+        arg_nodes = []
+        _type = None
+        op_node = None
+        match node.children:
+            case [left, op,right] if op.type == "functor":
+                _type = "infix"
+                op_node = op
+                arg_nodes.extend([left,right])
+            case [op,right] if op.type == "functor":
+                _type = "prefix"
+                op_node = op
+                arg_nodes.append(right)
+            case [left, op] if op.type== "functor":
+                _type = "postfix"
+                op_node = op
+                arg_nodes.append(left)
+
+            case _:
+                for child in node.named_children:
+                    if child.type == "functor":
+                        predicate_name = self.get_text(child)
+                        name_range = node_to_range(child)
+                    elif child.type == "arg_spec":
+                        args.append(self.visit(child))
+        if _type is not None:
+            predicate_name = self.get_text(op_node)
+            name_range = node_to_range(op_node)
+            for arg in arg_nodes:
+                args.append(self.visit(arg))
+
         self.templates.append(
             Template(
-                predicate_name, args, text=self.get_text(node), name_range=name_range
+                predicate_name, args, text=self.get_text(node), name_range=name_range,_type = _type
             )
         )
 

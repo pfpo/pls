@@ -15,6 +15,7 @@ from .model import (
     Predicate,
     Variable,
     Scope,
+    operator_representation_from_type,
     string_from_atom,
     ModuleDeclaration,
     UseModule,
@@ -498,6 +499,9 @@ class PrologVisitor(TreeVisitor):
                 for template in pldoc.templates:
                     predicate = self.get_predicate(template)
                     predicate.defined_by_comment = True
+                    if template._type:
+                        predicate.operator =  operator_representation_from_type(predicate.name,template._type)
+
                     self.exportable_predicates.add(predicate.key())
                     predicate.comments.append(pldoc)
                     name_range = template.name_range

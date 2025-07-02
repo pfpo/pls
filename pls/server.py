@@ -176,6 +176,7 @@ class PLS(LanguageServer):
             libs=prolog_visitor.libs,
             exportable_predicates=prolog_visitor.exportable_predicates,
             path=doc.uri,
+            operator_declarations= prolog_visitor.operator_declarations,
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees
         self.original_tables[doc.uri] = symbol_table

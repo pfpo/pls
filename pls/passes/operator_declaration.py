@@ -18,7 +18,7 @@ class OperatorDeclarationAnalysis(Analyser):
         self.uri = content.uri
         table = content.tables[self.uri]
         for op_decl in table.operator_declarations:
-            print(op_decl)
+            # print(op_decl)
             self.analyse_operator_decl(op_decl, content)
 
     def get_predicate(self, table ,t: Term) -> Predicate:
@@ -39,14 +39,14 @@ class OperatorDeclarationAnalysis(Analyser):
         if precedence is not None and fixity is not None and name is not None:
             # Construct or register the operator here if needed
             # e.g., content.add_operator(name, fixity, precedence)
-            print(f"Valid operator: {name} {fixity} {precedence}")
+            # print(f"Valid operator: {name} {fixity} {precedence}")
             op = OperatorRepresentation(name,fixity,precedence)
             predicate = self.get_predicate(content.tables[content.uri],op)
             if predicate.operator is not None: 
                 # TODO already declared predicate
                 pass
             predicate.operator = op
-            print(content.tables[content.uri].predicate_index.keys())
+            # print(content.tables[content.uri].predicate_index.keys())
                 
 
     def analyse_precedence(self, decl: OperatorDeclaration, content: PrologAnalyseable):

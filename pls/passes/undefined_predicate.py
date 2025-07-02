@@ -37,15 +37,7 @@ class UndefinedPredicate(TreeAnalyser):
     def visit_functional_notation(self, node: Node):
         if self.table is None:
             return
-        self.handle_annotated_node(node)
-
-    def handle_annotated_node(self, node: Node):
-        may_be_old_predicate = self.table.notes[node]
-        predicate = self.table.predicate_index[may_be_old_predicate.key()]
-        if predicate is None or type(predicate) is not Predicate:
-            return
-        undefined, new_predicate = self.is_undefined(predicate)
-        # logging.debug("%s Is Undefined: %s",predicate.key(),undefined)
+        undefined, predicate = self.desambiguate(node)
         if undefined:
             severity = types.DiagnosticSeverity.Warning
             message = "Undefined Predicate "
@@ -55,6 +47,16 @@ class UndefinedPredicate(TreeAnalyser):
                 range=node_to_range(node),
             )
             self.add_file_diagnostic(report)
+
+    def desambiguate(self, node: Node):
+        may_be_old_predicate = self.table.notes[node]
+        predicate = self.table.predicate_index[may_be_old_predicate.key()]
+        if predicate is None or type(predicate) is not Predicate:
+            return
+        undefined, new_predicate = self.is_undefined(predicate)
+        # logging.debug("%s Is Undefined: %s",predicate.key(),undefined)
+        if undefined:
+            return undefined, predicate
         else:
             if predicate is not new_predicate:
                 self.table.predicate_index
@@ -62,13 +64,11 @@ class UndefinedPredicate(TreeAnalyser):
                 new_predicate.name_references.extend(predicate.name_references)
                 self.table.predicate_index[predicate.key()] = new_predicate
             self.table.notes[node] = new_predicate
+        return undefined,new_predicate
     def handle_annotated_node_op(self, node: Node):
-        may_be_old_predicate = self.table.notes[node]
-
-        print(may_be_old_predicate)
-        predicate = self.table.predicate_index[may_be_old_predicate.key()]
-        op_rep : OperatorRepresentation = predicate.operator
-        if predicate is None or type(predicate) is not Predicate or predicate.operator is None:
+        _type = self.table.notes[node].type
+        undefined, predicate = self.desambiguate(node)
+        if undefined or type(predicate) is not Predicate or predicate.operator is None:
             # Warning There is not operator definition for predicate.name
             self.add_file_diagnostic(types.Diagnostic(
             message=f"No operator definition found for '{getattr(predicate, 'name', '?')}'.",
@@ -76,11 +76,12 @@ class UndefinedPredicate(TreeAnalyser):
             range=node_to_range(node)
             ))
             return
-        if op_rep.type != may_be_old_predicate.type:
+        op_rep : OperatorRepresentation = predicate.operator
+        if op_rep.type != _type:
             # Warning operator with op_rep.type is being used as maybe_old_predicate.type
             # print there is no operator with that fixity the operator available is
             available_fixity = op_rep.type
-            expected_fixity = may_be_old_predicate.type
+            expected_fixity = _type
             self.add_file_diagnostic(types.Diagnostic(
                 message=(
                     f"Operator fixity mismatch for {op_rep.key()} expected '{expected_fixity}' but got '{available_fixity}'. "
@@ -90,8 +91,6 @@ class UndefinedPredicate(TreeAnalyser):
                 range=node_to_range(node)
             ))
             return
-        undefined, new_predicate = self.is_undefined(predicate)
-        # logging.debug("%s Is Undefined: %s",predicate.key(),undefined)
         if undefined:
             severity = types.DiagnosticSeverity.Warning
             message = f"Undefined Operator: there is the respective op/3 definition but {op_rep.key()} not found"
@@ -101,13 +100,6 @@ class UndefinedPredicate(TreeAnalyser):
                 range=node_to_range(node),
             )
             self.add_file_diagnostic(report)
-        else:
-            if predicate is not new_predicate:
-                self.table.predicate_index
-                new_predicate.references.extend(predicate.references)
-                new_predicate.name_references.extend(predicate.name_references)
-                self.table.predicate_index[predicate.key()] = new_predicate
-            self.table.notes[node] = new_predicate
 
     def visit_operator_notation(self, node: Node):
         assert node.type == "operator_notation"
@@ -115,6 +107,6 @@ class UndefinedPredicate(TreeAnalyser):
         self.handle_annotated_node_op(node)
         for child in node.children:
             if child == operator:
-                self.handle_annotated_node(child)
+                self.desambiguate(child)
             else:
                 self.visit(child)
