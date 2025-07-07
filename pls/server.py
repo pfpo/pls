@@ -495,6 +495,25 @@ class PLS(LanguageServer):
             return None
         return None
 
+    def document_highlight(self, doc: TextDocument, position: types.Position)-> list[types.DocumentHighlight]:
+        uri = doc.uri
+        tree = self.trees.get(uri, (0, None))[1]
+        locations : types.Location = []
+        if tree is None:
+            return locations
+
+        element: Variable | Predicate | None = self.discover_node(tree, position, uri)
+        if element is None:
+            return locations
+        locations.extend(element.name_references)
+        result = []
+        for l in locations:
+            if l.uri == doc.uri:
+                h = types.DocumentHighlight(l.range)
+                result.append(h)
+
+        return result
+
     def find_references(self, doc: TextDocument, position: types.Position):
         uri = doc.uri
         tree = self.trees.get(uri, (0, None))[1]
@@ -899,5 +918,14 @@ def selection_range(ls: PLS, params: types.SelectionRangeParams):
 def folding_range(ls: PLS, params: types.FoldingRangeParams):
     doc = ls.get_document(params.text_document.uri)
     result = ls.folding_range(doc)
+    logging.error(f"{result}")
+    return result
+
+
+
+@server.feature(types.TEXT_DOCUMENT_DOCUMENT_HIGHLIGHT)
+def document_highlight(ls: PLS, params: types.DocumentHighlightParams):
+    doc = ls.get_document(params.text_document.uri)
+    result = ls.document_highlight(doc,params.position)
     logging.error(f"{result}")
     return result
