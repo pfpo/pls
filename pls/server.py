@@ -505,7 +505,10 @@ class PLS(LanguageServer):
         element: Variable | Predicate | None = self.discover_node(tree, position, uri)
         if element is None:
             return locations
-        locations.extend(element.name_references)
+        if type(element) is Predicate:
+            locations.extend(element.name_references)
+        else:
+            locations.extend(element.references)
         result = []
         for l in locations:
             if l.uri == doc.uri:
