@@ -43,7 +43,6 @@ def debug():
     # doc = MyDoc(uri)
     # server.parse_with_dependencies(doc)
 
-
     # for child in t.root_node.children:
     #     rec_print(child,0)
     # print(t.root_node)
@@ -65,7 +64,7 @@ def debug():
                 print(f"This module includes: {add_paths(uri, p)}")
 
     ts = server.semantic_tokens(doc)
-    #print(ts)
+    # print(ts)
     # print(
     #    f"Definition: {server.go_to_definition(t, types.Position(character=13, line=13),uri)}"
     # )

@@ -7,10 +7,11 @@ import uuid
 from pygls.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
-from pygls.uris import from_fs_path,to_fs_path
+from pygls.uris import from_fs_path, to_fs_path
 from tree_sitter import Language, Parser, Tree, Node
 from tree_sitter_prolog import prolog
 
+from pls.folding_range_visitor import FoldingRangeVisitor
 from pls.passes.analyser import Analyser
 from pls.pldoc_comment_visitor import PlDocComment
 
@@ -92,16 +93,15 @@ class PLS(LanguageServer):
         return []
         return list(collected)
 
-
     def handle_builtins(self):
         doc = MyDoc(self.builtin_uri)
         self.parse(doc)
-    def start_up_lib(self,path):
+
+    def start_up_lib(self, path):
         self.handle_builtins()
         # self.root_path = path
         # self.files = self.discover_files()
         # self.index_sync(self.files)
-
 
     async def start_up(self):
         self.handle_builtins()
@@ -180,7 +180,7 @@ class PLS(LanguageServer):
             libs=prolog_visitor.libs,
             exportable_predicates=prolog_visitor.exportable_predicates,
             path=doc.uri,
-            operator_declarations= prolog_visitor.operator_declarations,
+            operator_declarations=prolog_visitor.operator_declarations,
             operators=[],
         )
         self.comment_trees[doc.uri] = prolog_visitor.comment_trees
@@ -193,15 +193,17 @@ class PLS(LanguageServer):
         if type(d) is str:
             document = server.workspace.get_text_document(d)
         else:
-            assert type(d) is types.TextDocumentItem, f"Trying to get document with parameter :{type(d)} {d} "
-            document = TextDocument(d.uri,d.text,d.version,d.language_id)
+            assert type(d) is types.TextDocumentItem, (
+                f"Trying to get document with parameter :{type(d)} {d} "
+            )
+            document = TextDocument(d.uri, d.text, d.version, d.language_id)
         document.uri = from_fs_path(to_fs_path(document.uri))
         # logging.error(f"{document.source}")
         return document
 
-    def document_from_workspace_or_fs(self,uri):
+    def document_from_workspace_or_fs(self, uri):
         try:
-            document =self.get_document(uri)
+            document = self.get_document(uri)
             return document
         except Exception as e:
             logging.error(f"Could Not get file: {uri}\n{e}")
@@ -218,7 +220,6 @@ class PLS(LanguageServer):
 
         if current_version is None or version is None:
             return True, f"{document.filename} new version or current version is None"
-
 
         if current_version != version:
             return True, f"{document.filename} version changed"
@@ -241,7 +242,7 @@ class PLS(LanguageServer):
         self.get_analyser_results(c)
         return c.available_paths
 
-    def build_dependency_graph_sync(self, uris: list[str] ):
+    def build_dependency_graph_sync(self, uris: list[str]):
         visited = set()
         received_uris = set(uris)
         total_uris = set(uris)
@@ -286,11 +287,10 @@ class PLS(LanguageServer):
             if progress_report:
                 await progress_report(len(visited), len(received_uris))
 
-
     def clear_diagnostics(self, document: TextDocument):
         self.diagnostics[document.uri] = (document.version, [])
-    
-    def clear_code_actions(self,document: TextDocument):
+
+    def clear_code_actions(self, document: TextDocument):
         self.actions[document.uri] = (document.version, [])
 
     def start_parse_chain(self, document: TextDocument):
@@ -305,23 +305,30 @@ class PLS(LanguageServer):
         logging.error(f"Parse Chain of {document.filename}: {chain}")
         logging.error(f"{self.dg.dg}")
         for uri in chain:
-            
             next_document = self.document_from_workspace_or_fs(uri)
             if uri == document.uri:
                 # Ir buscar o documento que Inicia a cadeia, trouxe uma versão diferente do doc
                 # No windows tem este problema
                 if document.source != next_document.source:
-                    logging.error("\n\n\n\n DOCUMENTO Com conteudo diferente do esperado")
+                    logging.error(
+                        "\n\n\n\n DOCUMENTO Com conteudo diferente do esperado"
+                    )
                 next_document = document
 
             logging.error(f"Going to Parse {next_document.filename}")
-            logging.error(f"Before Clearing {self.diagnostics.get(next_document.uri,(0,[]))[1]}")
+            logging.error(
+                f"Before Clearing {self.diagnostics.get(next_document.uri, (0, []))[1]}"
+            )
             self.clear_diagnostics(next_document)
-            logging.error(f"After Clearing {self.diagnostics.get(next_document.uri,(0,[]))[1]}")
+            logging.error(
+                f"After Clearing {self.diagnostics.get(next_document.uri, (0, []))[1]}"
+            )
             self.clear_code_actions(next_document)
 
             self.parse_assuming_dependencies_are_handled(next_document)
-            logging.error(f"Diagnostics of {next_document.filename} after Parsing {self.diagnostics.get(next_document.uri,(0,[]))[1]}")
+            logging.error(
+                f"Diagnostics of {next_document.filename} after Parsing {self.diagnostics.get(next_document.uri, (0, []))[1]}"
+            )
 
         logging.error(f"{cp.diagnostics}")
         self.get_analyser_results(cp)
@@ -380,7 +387,8 @@ class PLS(LanguageServer):
             self.parse_with_dependencies(doc)
             version, diagnostics = self.diagnostics[uri]
             logging.error(f"{uri}-> {len(diagnostics)} \n {diagnostics}")
-            self.publish_diagnostics(uri,diagnostics,version)
+            self.publish_diagnostics(uri, diagnostics, version)
+
     def parse_assuming_dependencies_are_handled(self, document: TextDocument):
         if not self.index_created:
             self.analysed_without_index_being_created.add(document.uri)
@@ -476,7 +484,7 @@ class PLS(LanguageServer):
 
         if type(element) is Variable and len(element.references) > 0:
             return element.references[0]
-        elif type(element) is Predicate :
+        elif type(element) is Predicate:
             if len(element.definitions) > 0:
                 return element.definitions[0]
             for comment in element.comments:
@@ -499,9 +507,12 @@ class PLS(LanguageServer):
             return locations
         locations.extend(element.references)
         return locations
-    def selection_range_position(self, doc: TextDocument, position: types.Position)->types.SelectionRange:
+
+    def selection_range_position(
+        self, doc: TextDocument, position: types.Position
+    ) -> types.SelectionRange:
         tree = self.trees[doc.uri][1]
-        node = node_at_position(tree.root_node,position)
+        node = node_at_position(tree.root_node, position)
         if node is None:
             return None
         origin = None
@@ -521,10 +532,14 @@ class PLS(LanguageServer):
             node = node.parent
         return origin
 
-    def selection_range(self, doc: TextDocument, positions: list[types.Position])-> list[types.SelectionRange]:
-        return [self.selection_range_position(doc,p) for p in positions]
+    def selection_range(
+        self, doc: TextDocument, positions: list[types.Position]
+    ) -> list[types.SelectionRange]:
+        return [self.selection_range_position(doc, p) for p in positions]
 
-
+    def folding_range(self, doc: TextDocument) -> list[types.FoldingRange]:
+        tree = self.trees[doc.uri][1]
+        return FoldingRangeVisitor(tree.root_node).start()
 
     def get_code_actions(self, doc: TextDocument, requested_range: types.Range):
         result = []
@@ -871,11 +886,18 @@ def code_actions(ls: PLS, params: types.CodeActionParams):
     return result
 
 
-
-@server.feature( types.TEXT_DOCUMENT_SELECTION_RANGE)
+@server.feature(types.TEXT_DOCUMENT_SELECTION_RANGE)
 def selection_range(ls: PLS, params: types.SelectionRangeParams):
     logging.error("Selection Range Request")
     doc = ls.get_document(params.text_document.uri)
     result = ls.selection_range(doc, params.positions)
+    logging.error(f"{result}")
+    return result
+
+
+@server.feature(types.TEXT_DOCUMENT_FOLDING_RANGE)
+def folding_range(ls: PLS, params: types.FoldingRangeParams):
+    doc = ls.get_document(params.text_document.uri)
+    result = ls.folding_range(doc)
     logging.error(f"{result}")
     return result

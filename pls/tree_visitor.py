@@ -32,12 +32,14 @@ class TreeVisitor(ABC):
             f"There is no registered visitor for: {node.type}\n{node}:"
             + node_and_parent_with_text(node)
         )
-    
+
     def log_no_registered_visitor_for(self, node: Node, *args):
-        logging.error(TypeError(
-            f"There is no registered visitor for: {node.type}\n{node}:"
-            + node_and_parent_with_text(node)
-        ))
+        logging.error(
+            TypeError(
+                f"There is no registered visitor for: {node.type}\n{node}:"
+                + node_and_parent_with_text(node)
+            )
+        )
 
     def filter_children(self, node: Node):
         return [

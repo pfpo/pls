@@ -6,6 +6,7 @@ from .analyser import Analyser, PrologAnalyseable
 from .syntax_error_visitor import SyntaxErrorVisitor
 from .operator_declaration import OperatorDeclarationAnalysis
 
+
 class Pipeline(Analyser):
     def __init__(self):
         super().__init__()

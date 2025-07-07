@@ -2,8 +2,6 @@ from tree_sitter import Node
 from lsprotocol import types
 from pathlib import Path
 from pygls.uris import to_fs_path, from_fs_path
-from urllib.request import pathname2url, url2pathname
-from urllib.parse import urlparse, unquote, urljoin
 from dataclasses import dataclass
 from importlib.resources import files
 

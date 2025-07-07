@@ -2,7 +2,6 @@ from tree_sitter import Node
 from .model import Predicate, Variable
 from .pldoc_comment_visitor import PlDocComment
 from lsprotocol import types
-from .my_logging import logging
 
 
 class Markup:

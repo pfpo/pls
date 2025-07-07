@@ -1,14 +1,12 @@
 from pls.pldoc_comment_visitor import PlDocComment
-from pls.utils import RangedAction, add_paths, node_to_range
+from pls.utils import RangedAction, node_to_range
 from lsprotocol import types
-from pls.my_logging import logging
-from pls.model import OperatorDeclaration, OperatorRepresentation, Term, Predicate,string_from_atom
+from pls.model import OperatorDeclaration, OperatorRepresentation, Predicate
 
 from .analyser import Analyser, PrologAnalyseable
 
 
 class OperatorDisambiguationAnalysis(Analyser):
-
     def __init__(self):
         super().__init__()
         self.table = None
@@ -17,24 +15,23 @@ class OperatorDisambiguationAnalysis(Analyser):
         self.changes = {}
 
     def get_action(self):
-
         return types.CodeAction(
-            title=f"Mark pldoc comment as an operator",
+            title="Mark pldoc comment as an operator",
             kind=types.CodeActionKind.QuickFix,
-            edit=types.WorkspaceEdit(
-                changes= self.changes
-            ),
+            edit=types.WorkspaceEdit(changes=self.changes),
         )
-    def add_change(self,comment:PlDocComment,op_repr):
 
-        def just_after(r : types.Range)-> types.Range:
-            return types.Range(start = r.end, end= r.end)
+    def add_change(self, comment: PlDocComment, op_repr):
+        def just_after(r: types.Range) -> types.Range:
+            return types.Range(start=r.end, end=r.end)
 
-        changes = self.changes.get(comment.location.uri,[])
-        changes.append( types.TextEdit(
-                            range= just_after(comment.location.range),
-                            new_text= f"%    @op {op_repr.fixity} {op_repr.precedence}\n"
-                        ))
+        changes = self.changes.get(comment.location.uri, [])
+        changes.append(
+            types.TextEdit(
+                range=just_after(comment.location.range),
+                new_text=f"%    @op {op_repr.fixity} {op_repr.precedence}\n",
+            )
+        )
 
         self.changes[comment.location.uri] = changes
 
@@ -44,8 +41,11 @@ class OperatorDisambiguationAnalysis(Analyser):
         self.table = content.tables[self.uri]
         for op_decl, op_repr in self.table.operators:
             self.analyse_operator(op_decl, op_repr, content)
-        self.add_file_action(RangedAction(self.get_action(), node_to_range(content.trees[self.uri][1].root_node)))
-
+        self.add_file_action(
+            RangedAction(
+                self.get_action(), node_to_range(content.trees[self.uri][1].root_node)
+            )
+        )
 
     def is_undefined(self, predicate: Predicate) -> tuple[bool, Predicate]:
         if len(predicate.definitions) > 0:
@@ -63,8 +63,7 @@ class OperatorDisambiguationAnalysis(Analyser):
 
         return True, None
 
-
-    def desambiguate(self,predicate):
+    def desambiguate(self, predicate):
         if predicate is None or type(predicate) is not Predicate:
             return
         undefined, new_predicate = self.is_undefined(predicate)
@@ -78,17 +77,20 @@ class OperatorDisambiguationAnalysis(Analyser):
                 self.table.predicate_index[predicate.key()] = new_predicate
         return new_predicate
 
-
-            
-
-    def analyse_operator(self, decl: OperatorDeclaration, op_repr :OperatorRepresentation , content: PrologAnalyseable):
-        predicate  = self.table.predicate_index[op_repr.key()]
+    def analyse_operator(
+        self,
+        decl: OperatorDeclaration,
+        op_repr: OperatorRepresentation,
+        content: PrologAnalyseable,
+    ):
+        predicate = self.table.predicate_index[op_repr.key()]
         predicate = self.desambiguate(predicate)
         if predicate is None:
             return
         for comment in predicate.comments:
-            if type(comment) is PlDocComment and comment.operator_representation() is None:
+            if (
+                type(comment) is PlDocComment
+                and comment.operator_representation() is None
+            ):
                 # logging.error(f"Operator {op_repr.key()} pldoc's comment has no op decl")
-                self.add_change(comment,op_repr)
-        
-      
+                self.add_change(comment, op_repr)

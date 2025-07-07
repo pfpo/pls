@@ -1,5 +1,5 @@
 from tree_sitter import Node
-from pls.model import OperatorRepresentation, Predicate, Term
+from pls.model import OperatorRepresentation, Predicate
 from pls.utils import node_to_range
 from lsprotocol import types
 from .analyser import TreeAnalyser
@@ -51,7 +51,7 @@ class UndefinedPredicate(TreeAnalyser):
     def desambiguate(self, node: Node):
         may_be_old_predicate = self.table.notes[node]
         if may_be_old_predicate is None:
-            return True,None
+            return True, None
         predicate = self.table.predicate_index[may_be_old_predicate.key()]
         if predicate is None or type(predicate) is not Predicate:
             return True, None
@@ -65,7 +65,8 @@ class UndefinedPredicate(TreeAnalyser):
                 new_predicate.name_references.extend(predicate.name_references)
                 self.table.predicate_index[predicate.key()] = new_predicate
             self.table.notes[node] = new_predicate
-        return undefined,new_predicate
+        return undefined, new_predicate
+
     def handle_annotated_node_op(self, node: Node):
         note = self.table.notes[node]
         if note is None:
@@ -75,26 +76,30 @@ class UndefinedPredicate(TreeAnalyser):
         undefined, predicate = self.desambiguate(node)
         if undefined or type(predicate) is not Predicate or predicate.operator is None:
             # Warning There is not operator definition for predicate.name
-            self.add_file_diagnostic(types.Diagnostic(
-            message=f"No operator definition found for '{getattr(predicate, 'name', '?')}' with type {_type}.",
-            severity=types.DiagnosticSeverity.Warning,
-            range=node_to_range(node)
-            ))
+            self.add_file_diagnostic(
+                types.Diagnostic(
+                    message=f"No operator definition found for '{getattr(predicate, 'name', '?')}' with type {_type}.",
+                    severity=types.DiagnosticSeverity.Warning,
+                    range=node_to_range(node),
+                )
+            )
             return
-        op_rep : OperatorRepresentation = predicate.operator
+        op_rep: OperatorRepresentation = predicate.operator
         if op_rep.type != _type:
             # Warning operator with op_rep.type is being used as maybe_old_predicate.type
             # print there is no operator with that fixity the operator available is
             available_fixity = op_rep.type
             expected_fixity = _type
-            self.add_file_diagnostic(types.Diagnostic(
-                message=(
-                    f"Operator fixity mismatch for {op_rep.key()} expected '{expected_fixity}' but got '{available_fixity}'. "
-                    f"No operator declared with fixity '{expected_fixity}'; available is '{available_fixity}'."
-                ),
-                severity=types.DiagnosticSeverity.Warning,
-                range=node_to_range(node)
-            ))
+            self.add_file_diagnostic(
+                types.Diagnostic(
+                    message=(
+                        f"Operator fixity mismatch for {op_rep.key()} expected '{expected_fixity}' but got '{available_fixity}'. "
+                        f"No operator declared with fixity '{expected_fixity}'; available is '{available_fixity}'."
+                    ),
+                    severity=types.DiagnosticSeverity.Warning,
+                    range=node_to_range(node),
+                )
+            )
             return
         if undefined:
             severity = types.DiagnosticSeverity.Warning

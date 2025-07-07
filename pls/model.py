@@ -66,20 +66,22 @@ class Functor(Term):
 
 @dataclass
 class RangedTerm:
-    term : Term
-    _range : types.Range
+    term: Term
+    _range: types.Range
+
 
 class OperatorDeclaration:
-    def __init__(self,functor: Functor,name,_range : types.Range):
+    def __init__(self, functor: Functor, name, _range: types.Range):
         self.functor = functor
-        self.precedence =functor.args[0]
+        self.precedence = functor.args[0]
         self.fixity = functor.args[1]
         self.name = functor.args[2]
         self.other_name = name
         self.range = _range
 
-def handle_fixity(fixity : str):
-   # ["xf", "yf", "xfx", "xfy", "yfx", "fy", "fx"]
+
+def handle_fixity(fixity: str):
+    # ["xf", "yf", "xfx", "xfy", "yfx", "fy", "fx"]
     _type = ""
     if fixity in ["xf", "yf"]:
         arity = 1
@@ -87,34 +89,35 @@ def handle_fixity(fixity : str):
     elif fixity in ["xfx", "xfy", "yfx"]:
         arity = 2
         _type = "infix"
-    
+
     elif fixity in ["fy", "fx"]:
         arity = 1
         _type = "prefix"
-    
-    return _type, arity , "left"
+
+    return _type, arity, "left"
 
 
-
-def operator_representation_from_type(name:str,_type:str):
+def operator_representation_from_type(name: str, _type: str):
     if _type == "postfix":
-        return OperatorRepresentation(name,"xf",100)
+        return OperatorRepresentation(name, "xf", 100)
     elif _type == "infix":
-        return OperatorRepresentation(name,"xfx",100)
-    
+        return OperatorRepresentation(name, "xfx", 100)
+
     elif _type == "prefix":
-        return OperatorRepresentation(name,"fx",100)
+        return OperatorRepresentation(name, "fx", 100)
+
 
 class OperatorRepresentation(Term):
-    def __init__(self,name:str,fixity:str,precedence:int):
+    def __init__(self, name: str, fixity: str, precedence: int):
         super().__init__(name)
         self.name = name
         self.fixity = fixity
         self.precedence = precedence
-        self.type , self.arity, self.associativity = handle_fixity(fixity)
+        self.type, self.arity, self.associativity = handle_fixity(fixity)
+
 
 class Operator(Term):
-    def __init__(self, predicate: Predicate,_type:str):
+    def __init__(self, predicate: Predicate, _type: str):
         super().__init__(predicate.name)
         self.arity = predicate.arity
         self.predicate = predicate
@@ -189,8 +192,8 @@ class SymbolTable:
 
     exportable_predicates: set[str]
 
-    operator_declarations : list[OperatorDeclaration]
-    operators : list[tuple[OperatorDeclaration,OperatorRepresentation]]
+    operator_declarations: list[OperatorDeclaration]
+    operators: list[tuple[OperatorDeclaration, OperatorRepresentation]]
 
     def find_predicate_not_in_builtins(self, key: str):
         p = self.predicate_index.get(key)
