@@ -17,6 +17,7 @@ from pls.pldoc_comment_visitor import PlDocComment
 from .utils import (
     node_at_position,
     builtins_path,
+    node_to_range,
     path_to_file_uri,
     Path,
     MyDoc,
@@ -88,7 +89,9 @@ class PLS(LanguageServer):
                     uri = path_to_file_uri(Path(path))
                     collected.add(uri)
         logging.error(f"{collected}")
+        return []
         return list(collected)
+
 
     def handle_builtins(self):
         doc = MyDoc(self.builtin_uri)
@@ -496,6 +499,32 @@ class PLS(LanguageServer):
             return locations
         locations.extend(element.references)
         return locations
+    def selection_range_position(self, doc: TextDocument, position: types.Position)->types.SelectionRange:
+        tree = self.trees[doc.uri][1]
+        node = node_at_position(tree.root_node,position)
+        if node is None:
+            return None
+        origin = None
+        current = None
+        while True:
+            if current is None:
+                origin = types.SelectionRange(node_to_range(node))
+                current = origin
+                if node.parent is None:
+                    break
+                node = node.parent
+            if node.parent is None:
+                break
+            new_range = types.SelectionRange(node_to_range(node))
+            current.parent = new_range
+            current = new_range
+            node = node.parent
+        return origin
+
+    def selection_range(self, doc: TextDocument, positions: list[types.Position])-> list[types.SelectionRange]:
+        return [self.selection_range_position(doc,p) for p in positions]
+
+
 
     def get_code_actions(self, doc: TextDocument, requested_range: types.Range):
         result = []
@@ -506,10 +535,8 @@ class PLS(LanguageServer):
         for ra in ranged_actions:
             a = ra.action
             r = ra.range
-            logging.error(f"{ra}")
             if ranges_overlap(r, requested_range):
                 result.append(a)
-        logging.error(f"{requested_range}")
 
         return result
 
@@ -841,4 +868,14 @@ def code_actions(ls: PLS, params: types.CodeActionParams):
     logging.error("Code actions Request")
     doc = ls.get_document(params.text_document.uri)
     result = ls.get_code_actions(doc, params.range)
+    return result
+
+
+
+@server.feature( types.TEXT_DOCUMENT_SELECTION_RANGE)
+def selection_range(ls: PLS, params: types.SelectionRangeParams):
+    logging.error("Selection Range Request")
+    doc = ls.get_document(params.text_document.uri)
+    result = ls.selection_range(doc, params.positions)
+    logging.error(f"{result}")
     return result

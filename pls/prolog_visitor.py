@@ -365,7 +365,6 @@ class PrologVisitor(TreeVisitor):
         self.consult_paths[path].append(node_to_location(self.uri, node))
 
     def handle_operator_declaration(self, node: Node, functor: Functor,op_name):
-        logging.error(node_with_text(node))
         self.operator_declarations.append(OperatorDeclaration(functor,op_name,node_to_range(node)))
 
 
@@ -512,7 +511,7 @@ class PrologVisitor(TreeVisitor):
                     if template._type:
                         predicate.operator =  operator_representation_from_type(predicate.name,template._type)
                     elif op is not None:
-                        logging.error(f"Found operator definition for {template.name}")
+                        ##  logging.error(f"Found operator definition for {template.name}")
                         predicate.operator = OperatorRepresentation(predicate.name,op[0],op[1])
 
                     self.exportable_predicates.add(predicate.key())

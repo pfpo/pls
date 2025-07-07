@@ -88,7 +88,7 @@ class OperatorDisambiguationAnalysis(Analyser):
             return
         for comment in predicate.comments:
             if type(comment) is PlDocComment and comment.operator_representation() is None:
-                logging.error(f"Operator {op_repr.key()} pldoc's comment has no op decl")
+                # logging.error(f"Operator {op_repr.key()} pldoc's comment has no op decl")
                 self.add_change(comment,op_repr)
         
       
