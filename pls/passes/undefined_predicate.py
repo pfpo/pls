@@ -74,7 +74,8 @@ class UndefinedPredicate(TreeAnalyser):
             # Maybe error here?
             return
         if type(note) is not Operator:
-            logging.error(f"{node_with_text(node)} expected Operator Note but got: {type(note)}")
+            # TODO: Investigate why Some operators are not being annotated as Operators
+            # logging.error(f"{node_with_text(node)} expected Operator Note but got: {type(note)}")
             return
         _type = note.type
         undefined, predicate = self.desambiguate(node)

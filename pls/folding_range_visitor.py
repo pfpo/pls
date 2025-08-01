@@ -56,8 +56,6 @@ class FoldingRangeVisitor(TreeVisitor):
 
     def add_folding_range(self, node: Node, sub=False):
         r = node_to_range(node)
-        logging.error(f"{node_with_text(node)}")
-        logging.error(f"{r}")
 
         end_line = r.end.line
         if sub and end_line > r.start.line:
@@ -69,8 +67,6 @@ class FoldingRangeVisitor(TreeVisitor):
             r.end.character,
             collapsed_text="Lara",
         )
-        logging.error(f"{f}")
-
         self.result.append(f)
 
     def fold_node(self, node: Node):

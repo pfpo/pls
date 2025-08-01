@@ -3539,3 +3539,9 @@
 % @param Head *callable* The head of the rule, representing the conclusion or fact.
 % @param Body *callable* The body of the rule, representing the conditions or premises for the head to be true.
 %    @op xfx 1200
+
+
+
+%! library(+Name)
+%
+%   Represents a library to be used with `use_module`
