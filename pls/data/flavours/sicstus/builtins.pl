@@ -2976,7 +2976,7 @@
 %     @param  :PredSpecs   *pred\_spec\_forest*, must be ground
 %     A predicate specification, or a list of such,
 %     or a sequence of such separated by commas.
-%    @op fx 1150
+%     @op fx 1150
 
 %!    when(+Condition,+Goal)
 %

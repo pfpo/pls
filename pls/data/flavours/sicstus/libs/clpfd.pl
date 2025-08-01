@@ -44,7 +44,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
-%    @op xfx 700
+% @op xfx 700
 
 %! #\= (?IExpr, ?IExpr)
 %
@@ -52,7 +52,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
-%    @op xfx 700
+% @op xfx 700
 
 %! #< (?IExpr, ?IExpr)
 %
@@ -60,7 +60,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
-%    @op xfx 700
+% @op xfx 700
 
 %! #=< (?IExpr, ?IExpr)
 %
@@ -68,7 +68,7 @@
 %
 % @param IExpr *integer_expression*
 % @param IExpr *integer_expression*
-%    @op xfx 700
+% @op xfx 700
 
 %! #> (?IExpr, ?IExpr)
 %

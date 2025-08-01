@@ -17,7 +17,6 @@ list_at([X|_],0,X).
 list_at([_|XS],N,X):-
     N1 is N -1,
     list_at(XS,N1,X).
-
 % list_append(+XS,+Y,-XSY)
 list_append([],X,[X]).
 list_append([Y|YS],X,[Y|ZS]):- list_append(YS,X,ZS).
@@ -212,7 +211,8 @@ parse_at(List,Position,ParsingPredicate,Result):-
 % ===================================================
 
 % is_file(+FilName) true if the file exists
-is_fIle(FileName):-
+is_fIle(FileName)
+	:-
     absolute_file_name(FileName,_AbsFileName,[access(exists),fileerrors(fail)]).
 
 
@@ -521,5 +521,10 @@ parse_cmd_test_list([FileName,AbsPath|Rest],[FileName-AbsPath|Tests]):-
 %     @param Result        List of extracted elements.
 filter_indices([],_,[]).
 filter_indices([I|IS],List,[E|ES]):-
+	( A,
+	B,
+	C 
+	),
     list_at(List,I,E),
+
     filter_indices(IS,List,ES).
