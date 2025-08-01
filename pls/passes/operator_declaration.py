@@ -83,7 +83,7 @@ class OperatorDeclarationAnalysis(Analyser):
         self.add_file_diagnostic(
             types.Diagnostic(
                 message=f"Invalid operator fixity '{fixity}': must be one of {sorted(self.VALID_FIXITIES)}.",
-                severity=types.DiagnosticSeverity.Error,
+                severity=types.DiagnosticSeverity.Warning,
                 range=decl.range,
             )
         )

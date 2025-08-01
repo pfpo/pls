@@ -1,9 +1,9 @@
 from tree_sitter import Node
-from pls.model import OperatorRepresentation, Predicate
+from pls.model import Operator, OperatorRepresentation, Predicate
 from pls.utils import node_to_range
 from lsprotocol import types
 from .analyser import TreeAnalyser
-
+from pls.my_logging import logging
 
 class UndefinedPredicate(TreeAnalyser):
     def __init__(self):
@@ -74,15 +74,42 @@ class UndefinedPredicate(TreeAnalyser):
             return
         _type = note.type
         undefined, predicate = self.desambiguate(node)
-        if undefined or type(predicate) is not Predicate or predicate.operator is None:
+        has_operator_definition = predicate and predicate.operator
+
+        truly_undefined = not has_operator_definition and undefined
+    
+        
+        if truly_undefined :
             # Warning There is not operator definition for predicate.name
             self.add_file_diagnostic(
                 types.Diagnostic(
-                    message=f"No operator definition found for '{getattr(predicate, 'name', '?')}' with type {_type}.",
+                    message=f"Undefined Operator: No operator definition found for '{getattr(predicate, 'name', '?')}' with type {_type}.",
                     severity=types.DiagnosticSeverity.Warning,
                     range=node_to_range(node),
                 )
             )
+            return
+        if  not undefined and not has_operator_definition:
+            # Warning There is not operator definition for predicate.name
+            self.add_file_diagnostic(
+                types.Diagnostic(
+                    message=f"Undefined Operator: Predicate {predicate.key()} exists but there is no operator definition with type {_type}",
+                    severity=types.DiagnosticSeverity.Warning,
+                    range=node_to_range(node),
+                )
+            )
+            return
+        if has_operator_definition and undefined:
+            severity = types.DiagnosticSeverity.Warning
+            message = f"Undefined Operator: there is the respective op/3 definition but predicate {note.key()} not found"
+            report = types.Diagnostic(
+                message=message,
+                severity=severity,
+                range=node_to_range(node),
+            )
+            self.add_file_diagnostic(report)
+            return
+        if predicate is None or predicate.operator is None:
             return
         op_rep: OperatorRepresentation = predicate.operator
         if op_rep.type != _type:
@@ -101,15 +128,6 @@ class UndefinedPredicate(TreeAnalyser):
                 )
             )
             return
-        if undefined:
-            severity = types.DiagnosticSeverity.Warning
-            message = f"Undefined Operator: there is the respective op/3 definition but {op_rep.key()} not found"
-            report = types.Diagnostic(
-                message=message + " " + predicate.key(),
-                severity=severity,
-                range=node_to_range(node),
-            )
-            self.add_file_diagnostic(report)
 
     def visit_operator_notation(self, node: Node):
         assert node.type == "operator_notation"
