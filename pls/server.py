@@ -90,7 +90,6 @@ class PLS(LanguageServer):
                     uri = path_to_file_uri(Path(path))
                     collected.add(uri)
         logging.error(f"{collected}")
-        return []
         return list(collected)
 
     def handle_builtins(self):
@@ -118,7 +117,6 @@ class PLS(LanguageServer):
 
     def get_analyser_results(self, analyser: Analyser):
         for uri, diagnostics in analyser.diagnostics.items():
-            logging.error(f"{diagnostics}")
             self.diagnostics.add_by_uri(uri, diagnostics)
 
         for uri, actions in analyser.actions.items():
@@ -155,7 +153,6 @@ class PLS(LanguageServer):
             document.version,
             self.semantic_tokens(document),
         )
-        logging.info("%s", self.diagnostics)
 
     def _parse(self, doc: TextDocument):
         tree = parser.parse(bytes(doc.source, "utf-8"))
@@ -303,34 +300,24 @@ class PLS(LanguageServer):
 
         chain = self.dg.get_files_to_analyse(document.uri)
         logging.error(f"Parse Chain of {document.filename}: {chain}")
-        logging.error(f"{self.dg.dg}")
+        # logging.error(f"{self.dg.dg}")
         for uri in chain:
             next_document = self.document_from_workspace_or_fs(uri)
             if uri == document.uri:
                 # Ir buscar o documento que Inicia a cadeia, trouxe uma versão diferente do doc
                 # No windows tem este problema
-                if document.source != next_document.source:
-                    logging.error(
-                        "\n\n\n\n DOCUMENTO Com conteudo diferente do esperado"
-                    )
+                #if document.source != next_document.source:
+                #    logging.error(
+                #        "\n\n\n\n DOCUMENTO Com conteudo diferente do esperado"
+                #    )
                 next_document = document
 
             logging.error(f"Going to Parse {next_document.filename}")
-            logging.error(
-                f"Before Clearing {self.diagnostics.get(next_document.uri, (0, []))[1]}"
-            )
             self.clear_diagnostics(next_document)
-            logging.error(
-                f"After Clearing {self.diagnostics.get(next_document.uri, (0, []))[1]}"
-            )
             self.clear_code_actions(next_document)
-
             self.parse_assuming_dependencies_are_handled(next_document)
-            logging.error(
-                f"Diagnostics of {next_document.filename} after Parsing {self.diagnostics.get(next_document.uri, (0, []))[1]}"
-            )
 
-        logging.error(f"{cp.diagnostics}")
+        # logging.error(f"{cp.diagnostics}")
         self.get_analyser_results(cp)
 
     async def index_with_progress(self, files: list[str]):
@@ -386,7 +373,6 @@ class PLS(LanguageServer):
             doc = self.get_document(uri)
             self.parse_with_dependencies(doc)
             version, diagnostics = self.diagnostics[uri]
-            logging.error(f"{uri}-> {len(diagnostics)} \n {diagnostics}")
             self.publish_diagnostics(uri, diagnostics, version)
 
     def parse_assuming_dependencies_are_handled(self, document: TextDocument):
@@ -414,14 +400,9 @@ class PLS(LanguageServer):
 
         m = MooduleAnalyser(modules_to_include)
         m.analyse(self.get_analyseable(document.uri))
-        # logging.error(f"Exported Signatures: {symbol_table.exported_signatures}")
 
         self.run_analysis(document)
         self.get_analyser_results(m)
-        # logging.error(f"Finished Analysis of {document.filename}")
-        # logging.error(
-        #    f"{document.filename}:has {len(self.diagnostics[document.uri][1])} warnings"
-        # )
 
     def parse_with_dependencies(self, document: TextDocument):
         self.start_parse_chain(document)
@@ -796,7 +777,6 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        logging.error(f"{uri}-> {len(diagnostics)} \n {diagnostics}")
         ls.publish_diagnostics(uri, diagnostics, version)
 
 
@@ -804,8 +784,6 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
 def did_change(ls: PLS, params: types.DidChangeTextDocumentParams):
     """Parse each document when it is changed"""
     doc = ls.get_document(params.text_document.uri)
-    logging.error(f"Did change {doc.filename}\n{params.content_changes}")
-    logging.error(f"Did change {doc.filename}\n{doc.source}")
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
@@ -913,7 +891,6 @@ def selection_range(ls: PLS, params: types.SelectionRangeParams):
     logging.error("Selection Range Request")
     doc = ls.get_document(params.text_document.uri)
     result = ls.selection_range(doc, params.positions)
-    logging.error(f"{result}")
     return result
 
 
@@ -921,7 +898,6 @@ def selection_range(ls: PLS, params: types.SelectionRangeParams):
 def folding_range(ls: PLS, params: types.FoldingRangeParams):
     doc = ls.get_document(params.text_document.uri)
     result = ls.folding_range(doc)
-    logging.error(f"{result}")
     return result
 
 
@@ -930,5 +906,4 @@ def folding_range(ls: PLS, params: types.FoldingRangeParams):
 def document_highlight(ls: PLS, params: types.DocumentHighlightParams):
     doc = ls.get_document(params.text_document.uri)
     result = ls.document_highlight(doc,params.position)
-    logging.error(f"{result}")
     return result

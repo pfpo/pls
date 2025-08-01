@@ -1,6 +1,6 @@
 from tree_sitter import Node
 from pls.model import Operator, OperatorRepresentation, Predicate
-from pls.utils import node_to_range
+from pls.utils import node_to_range, node_with_text
 from lsprotocol import types
 from .analyser import TreeAnalyser
 from pls.my_logging import logging
@@ -47,6 +47,7 @@ class UndefinedPredicate(TreeAnalyser):
                 range=node_to_range(node),
             )
             self.add_file_diagnostic(report)
+        self.visit_all_children(node)
 
     def desambiguate(self, node: Node):
         may_be_old_predicate = self.table.notes[node]
@@ -71,6 +72,9 @@ class UndefinedPredicate(TreeAnalyser):
         note = self.table.notes[node]
         if note is None:
             # Maybe error here?
+            return
+        if type(note) is not Operator:
+            logging.error(f"{node_with_text(node)} expected Operator Note but got: {type(note)}")
             return
         _type = note.type
         undefined, predicate = self.desambiguate(node)
