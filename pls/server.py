@@ -4,7 +4,7 @@ from copy import deepcopy
 import asyncio
 import uuid
 
-from pygls.server import LanguageServer
+from pygls.lsp.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
 from pygls.uris import from_fs_path, to_fs_path
@@ -373,7 +373,11 @@ class PLS(LanguageServer):
             doc = self.get_document(uri)
             self.parse_with_dependencies(doc)
             version, diagnostics = self.diagnostics[uri]
-            self.publish_diagnostics(uri, diagnostics, version)
+            self.text_document_publish_diagnostics(types.PublishDiagnosticsParams(
+                uri=uri,
+                version=version,
+                diagnostics=diagnostics,
+            ))
 
     def parse_assuming_dependencies_are_handled(self, document: TextDocument):
         if not self.index_created:
@@ -777,7 +781,11 @@ def did_open(ls: PLS, params: types.DidOpenTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        ls.publish_diagnostics(uri, diagnostics, version)
+        ls.text_document_publish_diagnostics(types.PublishDiagnosticsParams(
+                uri=uri,
+                version=version,
+                diagnostics=diagnostics,
+            ))
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_CHANGE)
@@ -787,7 +795,11 @@ def did_change(ls: PLS, params: types.DidChangeTextDocumentParams):
     ls.parse_with_dependencies(doc)
 
     for uri, (version, diagnostics) in ls.diagnostics.items():
-        ls.publish_diagnostics(uri, diagnostics, version)
+        ls.text_document_publish_diagnostics(types.PublishDiagnosticsParams(
+                uri=uri,
+                version=version,
+                diagnostics=diagnostics,
+            ))
 
 
 @server.feature("textDocument/definition")
