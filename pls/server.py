@@ -48,7 +48,7 @@ from .dependency_graph import DependencyGraphManager
 from .my_logging import logging
 
 
-from .passes.pipeline import Pipeline
+from .passes.configurable_pipeline import ConfigurablePipeline
 
 
 PROLOG = Language(prolog())
@@ -76,6 +76,8 @@ class PLS(LanguageServer):
 
         self.analysed_without_index_being_created = set()
         self.index_created = False
+
+        self.settings = {}
 
     def get_analyseable(self, uri: str = "") -> PrologAnalyseable:
         return PrologAnalyseable(uri, self.tables, self.trees, self.dg)
@@ -111,7 +113,7 @@ class PLS(LanguageServer):
 
     def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
         content = self.get_analyseable(document.uri)
-        passes = Pipeline()
+        passes = ConfigurablePipeline(settings=self.settings)
         passes.analyse(content)
         self.get_analyser_results(passes)
 
@@ -919,3 +921,8 @@ def document_highlight(ls: PLS, params: types.DocumentHighlightParams):
     doc = ls.get_document(params.text_document.uri)
     result = ls.document_highlight(doc,params.position)
     return result
+
+@server.feature(types.WORKSPACE_DID_CHANGE_CONFIGURATION)
+def did_change_configuration(ls: PLS, params: types.DidChangeConfigurationParams):
+    logging.error(f"Configuration Changed: {params.settings}")
+    ls.settings = params.settings
