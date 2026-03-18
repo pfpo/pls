@@ -2,7 +2,7 @@ from lsprotocol import types
 
 from pls.dependency_graph import DependencyGraphManager
 from .utils import node_to_location
-from tree_sitter import Node, Tree
+from tree_sitter import Node, Query, Tree
 from dataclasses import dataclass
 from .annotations import Annotations
 
@@ -299,3 +299,4 @@ class PrologAnalyseable:
     tables: dict[str, SymbolTable]
     trees: dict[str, Tree]
     dg: DependencyGraphManager
+    queries: dict[str, Query]

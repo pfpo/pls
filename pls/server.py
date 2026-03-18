@@ -8,7 +8,7 @@ from pygls.lsp.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
 from pygls.uris import from_fs_path, to_fs_path
-from tree_sitter import Language, Parser, Tree, Node
+from tree_sitter import Language, Parser, Tree, Node, Query
 from tree_sitter_prolog import prolog
 
 from pls.folding_range_visitor import FoldingRangeVisitor
@@ -78,9 +78,34 @@ class PLS(LanguageServer):
         self.index_created = False
 
         self.settings = {}
+        self.queries = {}
+        init_test_query = Query(PROLOG, """
+(functional_notation
+  function: (atom) @func_name (#eq? @func_name "append")
+  (arg_list
+    (list_notation
+      (open_list)
+      [
+        (atom)
+        (integer)
+        (float_number)
+        (variable_term)
+      ] @element
+      .
+      (close_list)
+    ) @first_arg
+
+    (_) ; first comma
+    (_) @tail
+    (_) ; second comma
+    (_) @result
+  )
+) @append_call
+""")
+        self.queries["single_element_list_append"] = init_test_query
 
     def get_analyseable(self, uri: str = "") -> PrologAnalyseable:
-        return PrologAnalyseable(uri, self.tables, self.trees, self.dg)
+        return PrologAnalyseable(uri, self.tables, self.trees, self.dg, self.queries)
 
     def discover_files(self):
         collected = set()
