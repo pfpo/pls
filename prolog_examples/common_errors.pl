@@ -2,12 +2,21 @@
 
 % single element list on append
 list([2, 3, 4]).
+list_1([5, 6, 7]).
 
 
 % use of single element list with append. should be transformed to [ H | T ] format.
 test_append(X) :-
 	list(L),
 	append([1], L, X).
+
+test_append(X) :-
+	list(L),
+	append([1, 2], L, X).
+
+test_append(X, V) :-
+	list(L),
+	append([V], L, X).
 
 % test_append(X) :-
 % 	list(L),

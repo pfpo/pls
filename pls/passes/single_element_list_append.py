@@ -1,32 +1,27 @@
-from tree_sitter import Node
+from tree_sitter import Node, QueryCursor
 from lsprotocol import types
-from pls.utils import node_to_range
-from .analyser import TreeAnalyser, PrologAnalyseable
+from pls.utils import node_to_range, RangedAction
+from .analyser import Analyser, PrologAnalyseable
 
-class SingleElementListAppendAnalysis(TreeAnalyser):
+class SingleElementListAppendAnalysis(Analyser):
     def __init__(self):
         super().__init__()
         self.table = None
+        self.captures = None
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri
         self.table = content.tables[self.uri]
-        self.start(content.trees[self.uri][1].root_node)       
+        root_node = content.trees[self.uri][1].root_node
+        single_append_query = content.queries["single_element_list_append"]
+        query_cursor = QueryCursor(single_append_query)
+        self.captures = query_cursor.captures(root_node)
 
-    def build_visitors(self):
-        # self.add_visit("functional_notation", self.visit_functional_notation)
-        self.set_default_visitor(self.visit_all_children)
-
-    def visit_functional_notation(self, node: Node):
-        if node.children[0].text.decode("utf-8") == "append":
-            arg_list = node.children[2]
-            arg_list = [child for child in arg_list.children if child.type not in ("comment", "arg_list_separator")]
-            if len(arg_list.children) == 3:
-                first_arg = arg_list[0]
-                second_arg = arg_list[1]
-                third_arg = arg_list[2]
-                if first_arg.type == "list":
+        for capture_name, node_list in self.captures.items():
+            if capture_name == "append_call":
+                for num, node in enumerate(node_list):
                     self.add_single_element_list_append_warning(node)
+                    self.add_single_element_list_append_code_action(node, num)
 
     def add_single_element_list_append_warning(self, node: Node):
         range = node_to_range(node)
@@ -38,3 +33,23 @@ class SingleElementListAppendAnalysis(TreeAnalyser):
             range=range,
         )
         self.add_file_diagnostic(report)
+
+    def add_single_element_list_append_code_action(self, node: Node, index: int):
+        range = node_to_range(node)
+        title = "Refactor to use [Element|List] syntax"
+        new_text = self.suggest_refactor(index)
+        changes = {self.uri: [types.TextEdit(range=range, new_text=new_text)]}
+        code_action = types.CodeAction(
+            title=title,
+            kind=types.CodeActionKind.QuickFix,
+            edit=types.WorkspaceEdit(changes=changes),
+        )
+        self.add_file_action(RangedAction(code_action, range))
+
+    def suggest_refactor(self, index: int) -> str:
+        first_arg = self.captures["first_arg"][index].text.decode("utf-8")
+        element = first_arg.strip("[]")
+        tail = self.captures["tail"][index].text.decode("utf-8")
+        result = self.captures["result"][index].text.decode("utf-8")
+
+        return f"{result} = [{element} | {tail}]"

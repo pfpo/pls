@@ -79,30 +79,11 @@ class PLS(LanguageServer):
 
         self.settings = {}
         self.queries = {}
-        init_test_query = Query(PROLOG, """
-(functional_notation
-  function: (atom) @func_name (#eq? @func_name "append")
-  (arg_list
-    (list_notation
-      (open_list)
-      [
-        (atom)
-        (integer)
-        (float_number)
-        (variable_term)
-      ] @element
-      .
-      (close_list)
-    ) @first_arg
-
-    (_) ; first comma
-    (_) @tail
-    (_) ; second comma
-    (_) @result
-  )
-) @append_call
-""")
-        self.queries["single_element_list_append"] = init_test_query
+        queries_path = Path(__file__).parent / 'queries'
+        for scm_file in queries_path.glob('*.scm'):
+            name = scm_file.stem
+            content = scm_file.read_text()
+            self.queries[name] = Query(PROLOG, content)
 
     def get_analyseable(self, uri: str = "") -> PrologAnalyseable:
         return PrologAnalyseable(uri, self.tables, self.trees, self.dg, self.queries)
