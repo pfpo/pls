@@ -14,7 +14,7 @@
     ) @first_arg
 
     (_) ; first comma
-    (_) @tail
+    (_) @second_arg
     (_) ; second comma
     (_) @result
   )

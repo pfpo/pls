@@ -24,11 +24,28 @@ test_append(X, V) :-
 % test_append([1 | L]) :-
 % 	list(L).
 
+% use of empty lists on append. should be transformed to direct unification.
+test_empty_append(X) :-
+	list(L),
+	append([], L, X).
+
+test_empty_append(X) :-
+	list(L),
+	append(L, [], X).
+
+test_empty_append(X) :-
+	append([], [], X).
+
+% test_empty_append(X) :-
+% 	list(L),
+% 	X = L.
+
 
 % use of single element list with recursive list construction. should be transformed to [ H | T ] format.
 test_recursive(X) :-
 	list(L),
-	X = [1 | [2 | L]].
+	X = [1, 2, 3 | [ 4, 5 | L]].
+
 % test_recursive(X):-
 % 	list(L),
 % 	X = [1, 2 | L].

@@ -1,6 +1,8 @@
 from .pipeline import Pipeline
 from .naming_conventions import NamingConventionsAnalysis
 from .single_element_list_append import SingleElementListAppendAnalysis
+from .empy_list_append import EmptyListAppendAnalysis
+from .nested_list_constructs import NestedListConstructsAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -13,6 +15,8 @@ class ConfigurablePipeline(Pipeline):
         config_passes = [
             ("naming_conventions", NamingConventionsAnalysis),
             ("single_element_list_append", SingleElementListAppendAnalysis),
+            ("empty_list_append", EmptyListAppendAnalysis),
+            ("nested_list_constructs", NestedListConstructsAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:

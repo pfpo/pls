@@ -3,7 +3,7 @@ from lsprotocol import types
 from pls.utils import node_to_range, RangedAction
 from .analyser import Analyser, PrologAnalyseable
 
-class SingleElementListAppendAnalysis(Analyser):
+class EmptyListAppendAnalysis(Analyser):
     def __init__(self):
         super().__init__()
         self.table = None
@@ -13,30 +13,30 @@ class SingleElementListAppendAnalysis(Analyser):
         self.uri = content.uri
         self.table = content.tables[self.uri]
         root_node = content.trees[self.uri][1].root_node
-        single_append_query = content.queries["single_element_list_append"]
-        query_cursor = QueryCursor(single_append_query)
+        empty_append_query = content.queries["empty_list_append"]
+        query_cursor = QueryCursor(empty_append_query)
         self.captures = query_cursor.captures(root_node)
-
+        # raise Exception(self.captures)
         for capture_name, node_list in self.captures.items():
             if capture_name == "append_call":
                 for num, node in enumerate(node_list):
-                    self.add_single_element_list_append_warning(node)
-                    self.add_single_element_list_append_code_action(node, num)
-
-    def add_single_element_list_append_warning(self, node: Node):
+                    self.add_empty_list_append_warning(node)
+                    self.add_empty_list_append_code_action(node, num)
+    
+    def add_empty_list_append_warning(self, node: Node):
         range = node_to_range(node)
         severity = types.DiagnosticSeverity.Warning
-        message = "Appending a single element to a list can be more efficiently done using [Element|List] syntax."
+        message = "Appending an empty list to another list is redundant and can be removed."
         report = types.Diagnostic(
             message=message,
             severity=severity,
             range=range,
         )
         self.add_file_diagnostic(report)
-
-    def add_single_element_list_append_code_action(self, node: Node, index: int):
+    
+    def add_empty_list_append_code_action(self, node: Node, index: int):
         range = node_to_range(node)
-        title = "Refactor to use [Element|List] syntax"
+        title = "Remove redundant append with empty list"
         new_text = self.suggest_refactor(index)
         changes = {self.uri: [types.TextEdit(range=range, new_text=new_text)]}
         code_action = types.CodeAction(
@@ -48,10 +48,13 @@ class SingleElementListAppendAnalysis(Analyser):
 
     def suggest_refactor(self, index: int) -> str:
         first_arg = self.captures["first_arg"][index].text.decode("utf-8")
-        element = first_arg.strip("[]")
         second_arg = self.captures["second_arg"][index].text.decode("utf-8")
         result = self.captures["result"][index].text.decode("utf-8")
 
         # TODO this should be further refactored to do implicit unification
         # could be depended on configuration (allow explicit unification)
-        return f"{result} = [{element} | {second_arg}]" 
+        if self.captures["first_arg"][index].child_by_field_name("empty_list") is not None:
+            return f"{result} = {second_arg}"
+        else:
+            return f"{result} = {first_arg}"
+    
