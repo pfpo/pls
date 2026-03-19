@@ -7,7 +7,7 @@ class NestedListConstructsAnalysis(Analyser):
     def __init__(self):
         super().__init__()
         self.table = None
-        self.captures = None
+        self.matches = None
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri
@@ -15,14 +15,14 @@ class NestedListConstructsAnalysis(Analyser):
         root_node = content.trees[self.uri][1].root_node
         nested_list_query = content.queries["nested_list_constructs"]
         query_cursor = QueryCursor(nested_list_query)
-        self.captures = query_cursor.captures(root_node)
+        self.matches = query_cursor.matches(root_node)
 
-        for capture_name, node_list in self.captures.items():
-            if capture_name == "nested_list":
-                for num, node in enumerate(node_list):
-                    if not self.is_nested(node):
-                        self.add_nested_list_warning(node)
-                        self.add_nested_list_code_action(node, num)
+        for index, m in enumerate(self.matches):
+            (_, match) = m
+            nested_list = match["nested_list"][0]
+            if not self.is_nested(nested_list):
+                self.add_nested_list_warning(nested_list)
+                self.add_nested_list_code_action(nested_list, index)
 
     def add_nested_list_warning(self, node: Node):
         range = node_to_range(node)
@@ -48,11 +48,16 @@ class NestedListConstructsAnalysis(Analyser):
         self.add_file_action(RangedAction(code_action, range))
 
     def suggest_refactor(self, index: int) -> str:
-        head = self.captures["head"][index].text.decode("utf-8")
-        inner_head = self.captures["inner_head"][index].text.decode("utf-8")
-        inner_tail = self.captures["inner_tail"][index].text.decode("utf-8")
+        (_, match) = self.matches[index]
+        head = ""
+        for h in match["head"]:
+            head += h.text.decode("utf-8")
+        inner_head = ""
+        for ih in match["inner_head"]:
+            inner_head += ih.text.decode("utf-8")
+        inner_tail = match["inner_tail"][0].text.decode("utf-8")
 
-        return f"[{head}, {inner_head} | {inner_tail}]"
+        return f"[{head},{inner_head} | {inner_tail}]"
     
     def is_nested(self, node: Node) -> bool:
         parent = node.parent

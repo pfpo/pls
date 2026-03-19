@@ -42,9 +42,10 @@ test_empty_append(X) :-
 
 
 % use of single element list with recursive list construction. should be transformed to [ H | T ] format.
-test_recursive(X) :-
+test_recursive(X, Y) :-
 	list(L),
-	X = [1, 2, 3 | [ 4, 5 | L]].
+	X = [1,2,3 | [4, 47 | [5, 93 |L]]],
+	Y = [3, 3 ,2 , 4 | [5, 6 | L]].
 
 % test_recursive(X):-
 % 	list(L),
