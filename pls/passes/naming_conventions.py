@@ -81,7 +81,7 @@ class NamingConventionsAnalysis(TreeAnalyser):
             return re.sub(r'_{2,}', '_', name)
         elif "camelCase" in reason:
             components = name.split('_')
-            return components[0].lower() + ''.join(x.title() for x in components[1:])
+            return ''.join(x.title() for x in components[0:])
         else:
             return name
 

@@ -8,7 +8,7 @@ from pygls.lsp.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
 from pygls.uris import from_fs_path, to_fs_path
-from tree_sitter import Language, Parser, Tree, Node
+from tree_sitter import Language, Parser, Tree, Node, Query
 from tree_sitter_prolog import prolog
 
 from pls.folding_range_visitor import FoldingRangeVisitor
@@ -78,9 +78,15 @@ class PLS(LanguageServer):
         self.index_created = False
 
         self.settings = {}
+        self.queries = {}
+        queries_path = Path(__file__).parent / 'queries'
+        for scm_file in queries_path.glob('*.scm'):
+            name = scm_file.stem
+            content = scm_file.read_text()
+            self.queries[name] = Query(PROLOG, content)
 
     def get_analyseable(self, uri: str = "") -> PrologAnalyseable:
-        return PrologAnalyseable(uri, self.tables, self.trees, self.dg)
+        return PrologAnalyseable(uri, self.tables, self.trees, self.dg, self.queries)
 
     def discover_files(self):
         collected = set()
