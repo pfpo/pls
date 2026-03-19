@@ -159,3 +159,12 @@ def node_and_parent_with_text(node: Node):
     if node.parent:
         s += f"\nParent:{log_node(node.parent)}"
     return s
+
+def contained_range(outer: types.Range, inner: types.Range):
+    return (
+        (outer.start.line < inner.start.line or
+         (outer.start.line == inner.start.line and outer.start.character <= inner.start.character))
+        and
+        (outer.end.line > inner.end.line or 
+         (outer.end.line == inner.end.line and outer.end.character >= inner.end.character))
+    )
