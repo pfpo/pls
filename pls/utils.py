@@ -160,7 +160,8 @@ def node_and_parent_with_text(node: Node):
         s += f"\nParent:{log_node(node.parent)}"
     return s
 
-def contained_range(outer: types.Range, inner: types.Range):
+def contained_range(outer: types.Range, inner: types.Range) -> bool:
+    # Returns true if inner Range is contained in outer Range 
     return (
         (outer.start.line < inner.start.line or
          (outer.start.line == inner.start.line and outer.start.character <= inner.start.character))
@@ -168,3 +169,11 @@ def contained_range(outer: types.Range, inner: types.Range):
         (outer.end.line > inner.end.line or 
          (outer.end.line == inner.end.line and outer.end.character >= inner.end.character))
     )
+
+def join_ranges(range1: types.Range, range2: types.Range) -> types.Range:
+    start = range1.start if (range1.start.line < range2.start.line or 
+                       (range1.start.line == range2.start.line and range1.start.character < range2.start.character)) else range2.start
+    end = range1.end if (range1.end.line > range2.end.line or 
+                         (range1.end.line == range2.end.line and range1.end.character > range2.end.character)) else range2.end
+    
+    return types.Range(start, end)

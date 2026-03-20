@@ -1,4 +1,6 @@
 % explicit unification should be transformed into implicit unification in the clause head.
+test_unification(X) :-
+	X = 5.
 
 test_unification(X) :-
 	test(X),
@@ -29,3 +31,13 @@ test_unification(X, Y, Z) :-
 	'b' = Y,
 	Z = 'c'.
 % test_unification('a', 'b', 'c').
+
+test_or_unification(X, Y) :-
+	( X > 100, Y = 1
+	; X =< 100, Y = 2
+	).
+% of course this could be written as
+% test_or_unification(X, 1) :-
+% 	X > 100.
+% test_or_unification(X, 2) :-
+% 	X =< 100.
