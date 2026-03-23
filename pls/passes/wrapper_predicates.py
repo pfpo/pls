@@ -15,18 +15,19 @@ class WrapperPredicatesAppendsAnalysis(Analyser):
         root_node = content.trees[self.uri][1].root_node
         wrapper_predicate_query = content.queries["wrapper_predicate"]
         query_cursor = QueryCursor(wrapper_predicate_query)
-        self.matches = query_cursor
+        self.matches = query_cursor.matches(root_node)
+
 
         for index, m in enumerate(self.matches):
             (_, match) = m
             wrapper_predicate = match["wrapper"][0]
-            self.add_wrapper_predicate_warning(self, wrapper_predicate)
-            self.add_wrapper_predicate_code_action(self, wrapper_predicate, index)
+            self.add_wrapper_predicate_warning(wrapper_predicate)
+            self.add_wrapper_predicate_code_action(wrapper_predicate, index)
 
-    def add_wrapper_predicate_warning(self, node):
+    def add_wrapper_predicate_warning(self, node: Node):
         range = node_to_range(node)
         severity = types.DiagnosticSeverity.Warning
-        message = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        message = "Unecessary wrapper predicate."
         report = types.Diagnostic(
             message=message,
             severity=severity,
@@ -34,5 +35,11 @@ class WrapperPredicatesAppendsAnalysis(Analyser):
         )
         self.add_file_diagnostic(report)
 
-    def add_wrapper_predicate_code_action(self, wrapper_predicate, index):
+    def add_wrapper_predicate_code_action(self, node: Node, index: int):
+        range = node_to_range(node)
+        (_, match) = self.matches[index]
+
+        calling_arg = match["calling_arg"][0]
+        called_arg = match["called_arg"][0]
+
         return
