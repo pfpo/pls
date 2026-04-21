@@ -4,6 +4,14 @@ from lsprotocol import types
 
 from .analyser import Analyser, PrologAnalyseable
 
+ARITHMETIC_OPERATORS = {"+", "-", "*", "/", "//", "div", "rem", "mod", "/\\", " \\/", "\\", "<<", ">>", "**", "^"}
+ARITHMETIC_FUNCTIONS = {"integer", "float_integer_part", "float_fractional_part", "float", 
+                        "xor", "abs", "sign", "gdc", "min", "max", "msb", "round", "truncate",
+                        "floor", "ceiling", "sin", "cos", "tan", "cot",  "sinh", "cosh","tanh", "coth",  
+                        "asin", "acos", "atan", "atan2", "acot", "acot2", "asinh", "acosh", "atanh", "acoth",
+                        "sqrt", "log", "exp"}
+ARITHMETIC_CONSTANTS = {"pi"}
+
 class IsUseAnalysis(Analyser):
     def __init__(self):
         super().__init__()
@@ -42,21 +50,38 @@ class IsUseAnalysis(Analyser):
         if left.type != "variable_term":
             return False
 
-        if not self.is_arithmetic_expression(right):
+        if not self.is_arithmetic_expression(right, True):
             return False
         
         return True
 
-    def is_arithmetic_expression(self, node: Node) -> bool:
+    # first flag indicates if its first call
+    def is_arithmetic_expression(self, node: Node, first = False) -> bool:
         if node.type == "operator_notation":
             operator = node.child_by_field_name("operator")
             if operator is None:
-                return True
+                return self.is_arithmetic_expression(node.children[1], first)
             operator_text = operator.text.decode("utf-8")
-            return True
+            if operator_text not in ARITHMETIC_OPERATORS:
+                return False
+            left = node.children[0]
+            right = node.children[2]
+            return self.is_arithmetic_expression(left) and self.is_arithmetic_expression(right)
+            
 
         if node.type == "functional_notation":
             function = node.child_by_field_name("function")
+            function_text = function.text.decode("utf-8")
+            if function_text not in ARITHMETIC_FUNCTIONS:
+                return False
+            # could check arguments, but would fall on predicate type checks
             return True
         
+        if node.type == "atom":
+            atom_text = node.text.decode("utf-8")
+            if atom_text in ARITHMETIC_CONSTANTS:
+                return not first
+        
+        if node.type in {"integer", "float"} :
+            return not first
         return False
