@@ -5,6 +5,7 @@ from .empy_list_append import EmptyListAppendAnalysis
 from .nested_list_constructs import NestedListConstructsAnalysis
 from .explicit_unification import ExplicitUnificationAnalysis
 from .wrapper_predicates import WrapperPredicatesAppendsAnalysis
+from .line_length import LineLengthAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -20,7 +21,8 @@ class ConfigurablePipeline(Pipeline):
             ("empty_list_append", EmptyListAppendAnalysis),
             ("nested_list_constructs", NestedListConstructsAnalysis),
             ("explicit_unification", ExplicitUnificationAnalysis),
-            ("wrapper_predicates", WrapperPredicatesAppendsAnalysis)
+            ("wrapper_predicates", WrapperPredicatesAppendsAnalysis),
+            ("line_length", LineLengthAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:

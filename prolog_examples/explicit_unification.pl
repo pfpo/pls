@@ -1,6 +1,7 @@
-% explicit unification should be transformed into implicit unification in the clause head.
-test_unification(X) :-
+% explicit unification should be transformed into implicit unification in the cdkj
+test_unification(X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y,X, Y) :-
 	X = 5.
+
 
 test_unification(X) :-
 	test(X),
