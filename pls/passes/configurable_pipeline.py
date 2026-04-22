@@ -6,6 +6,7 @@ from .nested_list_constructs import NestedListConstructsAnalysis
 from .explicit_unification import ExplicitUnificationAnalysis
 from .wrapper_predicates import WrapperPredicatesAppendsAnalysis
 from .line_length import LineLengthAnalysis
+from .arg_list import ArgumentListAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -23,6 +24,7 @@ class ConfigurablePipeline(Pipeline):
             ("explicit_unification", ExplicitUnificationAnalysis),
             ("wrapper_predicates", WrapperPredicatesAppendsAnalysis),
             ("line_length", LineLengthAnalysis),
+            ("argument_list", ArgumentListAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:
