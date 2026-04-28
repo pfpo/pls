@@ -7,6 +7,7 @@ from .explicit_unification import ExplicitUnificationAnalysis
 from .wrapper_predicates import WrapperPredicatesAppendsAnalysis
 from .line_length import LineLengthAnalysis
 from .arg_list import ArgumentListAnalysis
+from .too_many_arguments import TooManyArgumentsAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -25,6 +26,7 @@ class ConfigurablePipeline(Pipeline):
             ("wrapper_predicates", WrapperPredicatesAppendsAnalysis),
             ("line_length", LineLengthAnalysis),
             ("argument_list", ArgumentListAnalysis),
+            ("too_many_arguments", TooManyArgumentsAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:
