@@ -8,6 +8,7 @@ class TooManyArgumentsAnalysis(Analyser):
         super().__init__()
         self.table = None
         self.matches = None
+        self.arg_limit = 8
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri
@@ -21,7 +22,7 @@ class TooManyArgumentsAnalysis(Analyser):
             (_, match) = m
             argument_list = match["arg_list"][0]
             arguments = [child for child in argument_list.children if child.type != "arg_list_separator"]
-            if len(arguments) > 8:
+            if len(arguments) > self.arg_limit:
                 self.add_too_many_arguments_warning(argument_list)
 
     def add_too_many_arguments_warning(self, node: Node):
