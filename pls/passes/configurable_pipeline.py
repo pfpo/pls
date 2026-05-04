@@ -6,6 +6,9 @@ from .nested_list_constructs import NestedListConstructsAnalysis
 from .explicit_unification import ExplicitUnificationAnalysis
 from .wrapper_predicates import WrapperPredicatesAppendsAnalysis
 from .is_use import IsUseAnalysis
+from .line_length import LineLengthAnalysis
+from .indentation import IndentationConsistencyAnalysis
+from .arg_list import ArgumentListAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -22,7 +25,10 @@ class ConfigurablePipeline(Pipeline):
             ("nested_list_constructs", NestedListConstructsAnalysis),
             ("explicit_unification", ExplicitUnificationAnalysis),
             ("wrapper_predicates", WrapperPredicatesAppendsAnalysis),
-            ("is_use", IsUseAnalysis)
+            ("is_use", IsUseAnalysis),
+            ("line_length", LineLengthAnalysis),
+            ("indentation_consistency", IndentationConsistencyAnalysis),
+            ("argument_list", ArgumentListAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:

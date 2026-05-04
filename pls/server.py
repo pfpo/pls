@@ -85,8 +85,8 @@ class PLS(LanguageServer):
             content = scm_file.read_text()
             self.queries[name] = Query(PROLOG, content)
 
-    def get_analyseable(self, uri: str = "") -> PrologAnalyseable:
-        return PrologAnalyseable(uri, self.tables, self.trees, self.dg, self.queries)
+    def get_analyseable(self, uri: str = "", source: str = "") -> PrologAnalyseable:
+        return PrologAnalyseable(uri, self.tables, self.trees, self.dg, self.queries, source)
 
     def discover_files(self):
         collected = set()
@@ -117,8 +117,18 @@ class PLS(LanguageServer):
         await self.index_with_progress(self.files)
         # logging.error(f"Files: {self.files}")
 
+    def get_source(self, document: TextDocument):
+        try:
+            source = document.source
+            return source if source is not None else ""
+        except Exception:
+            return ""
+
     def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
-        content = self.get_analyseable(document.uri)
+        if document is None or document.uri is None:
+            return
+        source = self.get_source(document)
+        content = self.get_analyseable(document.uri, source)
         passes = ConfigurablePipeline(settings=self.settings)
         passes.analyse(content)
         self.get_analyser_results(passes)

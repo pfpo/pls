@@ -300,3 +300,4 @@ class PrologAnalyseable:
     trees: dict[str, Tree]
     dg: DependencyGraphManager
     queries: dict[str, Query]
+    source: str
