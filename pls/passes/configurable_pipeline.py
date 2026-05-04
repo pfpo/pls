@@ -6,6 +6,7 @@ from .nested_list_constructs import NestedListConstructsAnalysis
 from .explicit_unification import ExplicitUnificationAnalysis
 from .wrapper_predicates import WrapperPredicatesAppendsAnalysis
 from .line_length import LineLengthAnalysis
+from .indentation import IndentationConsistencyAnalysis
 from .arg_list import ArgumentListAnalysis
 from .too_many_arguments import TooManyArgumentsAnalysis
 
@@ -25,6 +26,7 @@ class ConfigurablePipeline(Pipeline):
             ("explicit_unification", ExplicitUnificationAnalysis),
             ("wrapper_predicates", WrapperPredicatesAppendsAnalysis),
             ("line_length", LineLengthAnalysis),
+            ("indentation_consistency", IndentationConsistencyAnalysis),
             ("argument_list", ArgumentListAnalysis),
             ("too_many_arguments", TooManyArgumentsAnalysis),
         ]
