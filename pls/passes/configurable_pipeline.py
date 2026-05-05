@@ -9,6 +9,7 @@ from .line_length import LineLengthAnalysis
 from .indentation import IndentationConsistencyAnalysis
 from .arg_list import ArgumentListAnalysis
 from .too_many_arguments import TooManyArgumentsAnalysis
+from .clause_length import ClauseLengthAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -29,6 +30,7 @@ class ConfigurablePipeline(Pipeline):
             ("indentation_consistency", IndentationConsistencyAnalysis),
             ("argument_list", ArgumentListAnalysis),
             ("too_many_arguments", TooManyArgumentsAnalysis),
+            ("clause_length", ClauseLengthAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:
