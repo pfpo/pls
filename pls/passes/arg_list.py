@@ -8,6 +8,8 @@ class ArgumentListAnalysis(Analyser):
         super().__init__()
         self.table = None
         self.matches = None
+        self.indent_mode = "spaces" # "tabs"
+        self.indent = " " * 4
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri
@@ -25,8 +27,9 @@ class ArgumentListAnalysis(Analyser):
     
     def analyse_argument_list(self, node: Node):
         text = node.text.decode("utf-8")
-        refactored_text = self.refactor_argument_list(text)
-        if text != refactored_text:
+        flattened_text = self.flatten_argument_list(text)
+        refactored_text = self.refactor_argument_list(flattened_text)
+        if flattened_text != refactored_text:
             self.add_argument_list_warning(node)
             self.add_argument_list_code_action(node, refactored_text)
 
@@ -57,3 +60,8 @@ class ArgumentListAnalysis(Analyser):
         parts = text.split(",")
         stripped_parts = [part.strip() for part in parts]
         return ", ".join(stripped_parts)
+
+    def flatten_argument_list(self, text: str) -> str:
+        lines = text.splitlines()
+        flattened_lines = [line.strip() for line in lines if line.strip()]
+        return " ".join(flattened_lines)
