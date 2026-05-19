@@ -7,7 +7,7 @@
 is_even(X) :-
     0 is X mod 2.
 
-%!  is_even(+X, +Y)
+%!  is_even(+Z, +Y)
 % 
 % Fails if either X or Y is not even.
 %

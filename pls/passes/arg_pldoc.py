@@ -15,6 +15,7 @@ class ArgumentPlDocAnalysis(Analyser):
         self.uri = content.uri
         self.table = content.tables[self.uri]
         self.tree = content.trees[self.uri][1]
+        self.lines = content.source.splitlines()
 
         for key, predicate in self.table.predicate_index.items():
             for comment in predicate.comments:
@@ -34,12 +35,11 @@ class ArgumentPlDocAnalysis(Analyser):
         return
     
     def add_argument_mismatch_warning(self, predicate: Predicate, template: PlDocComment):
-        range = types.Range(
-            start=predicate.definitions[0].range.start,
-            end=predicate.definitions[0].range.end,
-        )
+        start_pos = predicate.definitions[0].range.start
+        end_pos = types.Position(line=start_pos.line, character=len(self.lines[start_pos.line]))
+        range = types.Range(start=start_pos, end=end_pos)
         severity = types.DiagnosticSeverity.Warning
-        message = f"The argument names in the PlDoc comment do not match the argument names in the predicate {predicate.name}"
+        message = f"The argument names in the PlDoc comment do not match the argument names in the predicate {predicate.name}."
         report = types.Diagnostic(
             message=message,
             severity=severity,

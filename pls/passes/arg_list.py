@@ -33,7 +33,7 @@ class ArgumentListAnalysis(Analyser):
     def add_argument_list_warning(self, node: Node):
         range = node_to_range(node)
         severity = types.DiagnosticSeverity.Warning
-        message = "Use a consistent formatting for argument lists. Ensure there is one space after a commas."
+        message = "Use a consistent formatting for argument lists. Ensure there is one space after a comma."
         report = types.Diagnostic(
             message=message,
             severity=severity,

@@ -1,6 +1,6 @@
 from tree_sitter import Node, QueryCursor
 from lsprotocol import types
-from pls.utils import node_to_range, RangedAction
+from pls.utils import node_to_range
 from .analyser import Analyser, PrologAnalyseable
 
 class TooManyArgumentsAnalysis(Analyser):
@@ -28,7 +28,7 @@ class TooManyArgumentsAnalysis(Analyser):
     def add_too_many_arguments_warning(self, node: Node):
         range = node_to_range(node)
         severity = types.DiagnosticSeverity.Warning
-        message = "This predicate has too many arguments. Consider refactoring to reduce the number of arguments."
+        message = f"This predicate has over {self.arg_limit} arguments. Consider refactoring to reduce the number of arguments."
         report = types.Diagnostic(
             message=message,
             severity=severity,
