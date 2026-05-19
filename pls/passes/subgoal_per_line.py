@@ -29,17 +29,21 @@ class SubgoalPerLineAnalysis(Analyser):
             return
 
         first_subgoal = node.children[0]
-        second_subgoal = node.children[2]
+        rest = node.children[2]
 
-        if first_subgoal.start_point[0] == second_subgoal.start_point[0]:
-            self.add_subgoal_per_line_warning(node)
+        second_subgoal = rest.children[0] if len(rest.children) > 1 and rest.children[1].type == "comma" else rest
+
+        if first_subgoal.start_point[0] == second_subgoal.start_point[0] and not self.is_write_or_nl(first_subgoal) and not self.is_write_or_nl(second_subgoal):
+            self.add_subgoal_per_line_warning(second_subgoal)
         
         else:
-            self.analyse_body(second_subgoal)
+            self.analyse_body(rest)
 
 
     def add_subgoal_per_line_warning(self, node: Node):
         range = node_to_range(node)
+        range.end.character = len(self.lines[range.start.line])
+        range.end.line = range.start.line
         severity = types.DiagnosticSeverity.Warning
         message = "Consider refactoring this clause to have one subgoal per line for better readability."
         report = types.Diagnostic(
@@ -48,3 +52,12 @@ class SubgoalPerLineAnalysis(Analyser):
             range=range,
         )
         self.add_file_diagnostic(report)
+    
+    def is_write_or_nl(self, node: Node) -> bool:
+        if node.type == "functional_notation":
+            name = node.children[0].text.decode("utf-8")
+            return name == "write"
+
+        if node.type == "atom":
+            name = node.text.decode("utf-8")
+            return name == "nl"
