@@ -9,6 +9,10 @@ from .is_use import IsUseAnalysis
 from .line_length import LineLengthAnalysis
 from .indentation import IndentationConsistencyAnalysis
 from .arg_list import ArgumentListAnalysis
+from .too_many_arguments import TooManyArgumentsAnalysis
+from .arg_pldoc import ArgumentPlDocAnalysis
+from .clause_length import ClauseLengthAnalysis
+from .subgoal_per_line import SubgoalPerLineAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -29,6 +33,10 @@ class ConfigurablePipeline(Pipeline):
             ("line_length", LineLengthAnalysis),
             ("indentation_consistency", IndentationConsistencyAnalysis),
             ("argument_list", ArgumentListAnalysis),
+            ("too_many_arguments", TooManyArgumentsAnalysis),
+            ("arg_pldoc", ArgumentPlDocAnalysis),
+            ("clause_length", ClauseLengthAnalysis),
+            ("subgoal_per_line", SubgoalPerLineAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:
