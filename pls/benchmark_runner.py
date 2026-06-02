@@ -22,7 +22,6 @@ from pls.passes.configurable_pipeline import ConfigurablePipeline
 from pls.dependency_graph import DependencyGraphManager
 from pls.utils import path_to_file_uri
 
-# Initialize tree-sitter
 PROLOG = Language(prolog())
 PARSER = Parser(PROLOG)
 
@@ -82,7 +81,6 @@ class BenchmarkAnalyzer:
         }
 
         try:
-            # Read file
             file_path_obj = Path(file_path)
             if not file_path_obj.exists():
                 result['exception'] = f"File not found: {file_path}"
@@ -90,15 +88,12 @@ class BenchmarkAnalyzer:
 
             source = file_path_obj.read_text(encoding='utf-8', errors='replace')
             
-            # Start timing and memory tracking
             start_time = time.perf_counter()
             start_memory = psutil.Process().memory_info().rss / (1024 * 1024)  # MB
 
-            # Parse Prolog file
             uri = path_to_file_uri(file_path_obj)
             tree = PARSER.parse(bytes(source, "utf-8"))
 
-            # Build symbol table
             prolog_visitor = PrologVisitor(uri)
             prolog_visitor.visit(tree.root_node, Opts())
             
@@ -123,7 +118,6 @@ class BenchmarkAnalyzer:
                 operators=[],
             )
 
-            # Create analyseable content
             tables = {uri: deepcopy(symbol_table)}
             trees = {uri: (None, tree)}
             dg = DependencyGraphManager()
@@ -137,16 +131,13 @@ class BenchmarkAnalyzer:
                 source=source,
             )
 
-            # Run analysis pipeline
-            pipeline = ConfigurablePipeline(settings={})  # Empty settings = all passes enabled
+            pipeline = ConfigurablePipeline(settings={})
             pipeline.analyse(analyseable)
 
-            # Collect results
             diagnostics_by_pass = self._group_diagnostics_by_pass(pipeline.diagnostics.get(uri, []))
             result['errors_by_pass'] = diagnostics_by_pass
             result['total_errors'] = sum(diagnostics_by_pass.values())
             
-            # Store detailed error info
             result['error_details'] = [
                 {
                     'line': d.range.start.line,
@@ -156,7 +147,6 @@ class BenchmarkAnalyzer:
                 for d in pipeline.diagnostics.get(uri, [])
             ]
 
-            # End timing and memory tracking
             end_time = time.perf_counter()
             end_memory = psutil.Process().memory_info().rss / (1024 * 1024)  # MB
 
@@ -200,7 +190,6 @@ class BenchmarkAnalyzer:
         
         Heuristic approach using diagnostic code and message keywords.
         """
-        # Map known error codes to pass names
         code_to_pass = {
             'syntax_error': 'syntax_error',
             'undefined_predicate': 'undefined_predicate',
@@ -228,7 +217,6 @@ class BenchmarkAnalyzer:
                 if code_key in code_lower:
                     return pass_name
         
-        # Heuristic: look for keywords in message
         message_lower = diagnostic.message.lower() if diagnostic.message else ""
         keywords = {
             'syntax': 'syntax_error',

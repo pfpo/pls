@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Prolog Language Server Benchmarking Suite
 
@@ -39,7 +38,6 @@ def run_benchmark(
 ) -> None:
     """Run benchmark on all Prolog files in input directory."""
     
-    # Discover files
     prolog_files = discover_prolog_files(input_dir)
     print(f"Found {len(prolog_files)} Prolog files", file=sys.stderr)
     
@@ -47,13 +45,10 @@ def run_benchmark(
         print("Warning: No .pl files found", file=sys.stderr)
         return
     
-    # Create output directory
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Initialize analyzer
     analyzer = BenchmarkAnalyzer()
     
-    # Run analysis on all files
     results = []
     errors_by_pass_aggregate = defaultdict(int)
     timing_data = []
@@ -70,13 +65,11 @@ def run_benchmark(
         result = analyzer.analyze_file(str(file_path))
         results.append(result)
         
-        # Aggregate metrics
         if result['exception'] is None:
             timing_data.append(result['time_ms'])
             memory_data.append(result['memory_mb'])
             file_errors.append((str(file_path.relative_to(input_dir)), result['total_errors']))
             
-            # Aggregate error counts
             for pass_name, count in result['errors_by_pass'].items():
                 errors_by_pass_aggregate[pass_name] += count
         
@@ -87,15 +80,12 @@ def run_benchmark(
                 print(f" {result['total_errors']} errors, {result['time_ms']:.2f}ms", 
                       file=sys.stderr)
     
-    # Generate reports
     print(f"Generating reports...", file=sys.stderr)
     
-    # 1. CSV report
     csv_path = output_dir / "benchmark_results.csv"
     _write_csv_report(csv_path, results)
     print(f"✓ CSV report: {csv_path}", file=sys.stderr)
     
-    # 2. JSON summary
     json_path = output_dir / "benchmark_summary.json"
     summary = _generate_summary(
         results,
@@ -107,7 +97,6 @@ def run_benchmark(
     _write_json_summary(json_path, summary)
     print(f"✓ JSON summary: {json_path}", file=sys.stderr)
     
-    # 3. Print summary to stdout
     print("\n" + "=" * 70, file=sys.stderr)
     print("BENCHMARK SUMMARY", file=sys.stderr)
     print("=" * 70, file=sys.stderr)
@@ -120,13 +109,11 @@ def _write_csv_report(csv_path: Path, results: List[Dict]) -> None:
     if not results:
         return
     
-    # Collect all pass names
     all_passes = set()
     for result in results:
         all_passes.update(result['errors_by_pass'].keys())
     all_passes = sorted(all_passes)
     
-    # CSV columns: file, time_ms, memory_mb, [per-pass errors], total_errors, exception
     columns = ['file', 'time_ms', 'memory_mb'] + all_passes + ['total_errors', 'exception']
     
     with open(csv_path, 'w', newline='') as f:
@@ -160,10 +147,8 @@ def _generate_summary(
     successful_runs = [r for r in results if r['exception'] is None]
     failed_runs = [r for r in results if r['exception'] is not None]
     
-    # Sort file_errors by error count (descending)
     top_error_files = sorted(file_errors, key=lambda x: x[1], reverse=True)[:10]
     
-    # Timing statistics
     timing_stats = {}
     if timing_data:
         timing_stats = {
@@ -175,7 +160,6 @@ def _generate_summary(
             'stddev_ms': statistics.stdev(timing_data) if len(timing_data) > 1 else 0,
         }
     
-    # Memory statistics
     memory_stats = {}
     if memory_data:
         memory_stats = {
