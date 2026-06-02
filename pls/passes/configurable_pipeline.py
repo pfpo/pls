@@ -12,6 +12,7 @@ from .too_many_arguments import TooManyArgumentsAnalysis
 from .arg_pldoc import ArgumentPlDocAnalysis
 from .clause_length import ClauseLengthAnalysis
 from .subgoal_per_line import SubgoalPerLineAnalysis
+from .clause_head_length import ClauseHeadLengthAnalysis
 
 class ConfigurablePipeline(Pipeline):
     def __init__(self, settings: dict = None):
@@ -35,6 +36,7 @@ class ConfigurablePipeline(Pipeline):
             ("arg_pldoc", ArgumentPlDocAnalysis),
             ("clause_length", ClauseLengthAnalysis),
             ("subgoal_per_line", SubgoalPerLineAnalysis),
+            ("clause_head_length", ClauseHeadLengthAnalysis),
         ]
 
         for setting_key, pass_class in config_passes:
