@@ -22,9 +22,12 @@ class ClauseLengthAnalysis(Analyser):
                     self.add_clause_length_warning(clause)
 
     def add_clause_length_warning(self, clause):
-        range = clause.range
+        start_pos = types.Position(line=clause.range.start.line + self.max_length, character=0)
+        end_pos = clause.range.end
+        range = types.Range(start=start_pos, end=end_pos)
+
         severity = types.DiagnosticSeverity.Warning
-        message = f"Consider refactoring this clause as it has more than {self.max_length} lines."
+        message = f"This clause has more than {self.max_length} lines. Consider refactoring it."
         report = types.Diagnostic(
             message=message,
             severity=severity,
