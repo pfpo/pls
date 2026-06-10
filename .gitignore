@@ -5,4 +5,5 @@ dist
 test/
 pygls.log
 student_answers_MT-recurso/
+respostas_*/
 benchmark*/

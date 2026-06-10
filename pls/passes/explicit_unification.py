@@ -56,6 +56,9 @@ class ExplicitUnificationAnalysis(Analyser):
             # singleton, cant refactor
             return
 
+        if changes is None:
+            return
+
         action = types.CodeAction(
             title=title,
             kind=types.CodeActionKind.QuickFix,
@@ -73,8 +76,10 @@ class ExplicitUnificationAnalysis(Analyser):
         variable = self.table.notes[variable_term]
 
         operator_notation = node.parent
-        # raise Exception(operator_notation, operator_notation.children)
         operator = operator_notation.child_by_field_name("operator")
+        # likely used in expressions like \+ (X = Y)
+        if operator is None:
+            return None
         operator_range = node_to_range(operator)
         new_range = join_ranges(range, operator_range)
 
@@ -96,7 +101,7 @@ class ExplicitUnificationAnalysis(Analyser):
         parent = node.parent
         while parent is not None:
             if parent.type == "operator_notation":
-                if parent.child_by_field_name("operator").text.decode("utf-8") == ";":
+                if parent.child_by_field_name("operator") and parent.child_by_field_name("operator").text.decode("utf-8") == ";":
                     return True
             parent = parent.parent
         return False
