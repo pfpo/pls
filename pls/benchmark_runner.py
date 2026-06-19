@@ -20,7 +20,7 @@ from pls.model import SymbolTable, PrologAnalyseable
 from pls.prolog_visitor import PrologVisitor, Opts
 from pls.passes.configurable_pipeline import ConfigurablePipeline
 from pls.dependency_graph import DependencyGraphManager
-from pls.utils import path_to_file_uri
+from pls.utils import path_to_file_uri, file_uri_to_path, builtins_path, MyDoc
 
 PROLOG = Language(prolog())
 PARSER = Parser(PROLOG)
@@ -34,12 +34,21 @@ class BenchmarkAnalyzer:
         Initialize analyzer.
         
         Args:
-            builtin_uri: URI of builtins file
-            builtin_table: Pre-parsed symbol table for builtins
+            builtin_uri: URI of builtins file (default: auto-detected)
+            builtin_table: Pre-parsed symbol table for builtins (will be loaded if not provided)
         """
-        self.builtin_uri = builtin_uri
-        self.builtin_table = builtin_table
         self.queries = self._load_queries()
+        
+        # Initialize builtins
+        if builtin_uri is None:
+            self.builtin_uri = builtins_path()
+        else:
+            self.builtin_uri = builtin_uri
+        
+        if builtin_table is None:
+            self.builtin_table = self._load_builtins()
+        else:
+            self.builtin_table = builtin_table
 
     def _load_queries(self) -> Dict[str, Query]:
         """Load tree-sitter queries from disk."""
@@ -53,6 +62,49 @@ class BenchmarkAnalyzer:
             except Exception as e:
                 print(f"Warning: Failed to load query {name}: {e}")
         return queries
+
+    def _load_builtins(self) -> Optional[SymbolTable]:
+        """Load and parse the builtins Prolog file."""
+        try:
+            builtin_doc = MyDoc(self.builtin_uri)
+            builtin_source = builtin_doc.source
+            
+            if not builtin_source:
+                print(f"Warning: Builtins file is empty: {self.builtin_uri}")
+                return None
+            
+            # Parse builtins file
+            tree = PARSER.parse(bytes(builtin_source, "utf-8"))
+            
+            # Build symbol table for builtins
+            visitor = PrologVisitor(self.builtin_uri)
+            visitor.visit(tree.root_node, Opts())
+            
+            builtin_table = SymbolTable(
+                scopes=visitor.scopes,
+                notes=visitor.notes,
+                predicate_index=visitor.predicate_index,
+                predicate_index_by_name=visitor.predicate_index_by_name,
+                builtins=None,  # Builtins don't need nested builtins
+                imports={},
+                imported_signatures={},
+                consults={},
+                consult_paths=visitor.consult_paths,
+                module_paths=visitor.module_paths,
+                module_declarations=visitor.module_declarations,
+                use_module_declarations=visitor.used_modules,
+                exported_signatures=set(),
+                libs=visitor.libs,
+                exportable_predicates=visitor.exportable_predicates,
+                path=self.builtin_uri,
+                operator_declarations=visitor.operator_declarations,
+                operators=[],
+            )
+            
+            return builtin_table
+        except Exception as e:
+            print(f"Warning: Failed to load builtins from {self.builtin_uri}: {e}")
+            return None
 
     def analyze_file(self, file_path: str) -> Dict:
         """
@@ -121,6 +173,8 @@ class BenchmarkAnalyzer:
             tables = {uri: deepcopy(symbol_table)}
             trees = {uri: (None, tree)}
             dg = DependencyGraphManager()
+
+            self._resolve_consulted_files(uri, symbol_table, tables, trees)
             
             analyseable = PrologAnalyseable(
                 uri=uri,
@@ -161,6 +215,70 @@ class BenchmarkAnalyzer:
             })
 
         return result
+
+    def _resolve_consulted_files(
+        self,
+        uri: str,
+        symbol_table: SymbolTable,
+        tables: Dict[str, SymbolTable],
+        trees: Dict[str, Tuple[Optional[int], object]],
+        visited: Optional[set] = None,
+    ) -> None:
+        """Recursively resolve consulted files and add their tables into the analysis context."""
+        if visited is None:
+            visited = set()
+
+        if uri in visited:
+            return
+        visited.add(uri)
+
+        for consult_uri in symbol_table.consult_paths:
+            if consult_uri in tables:
+                continue
+
+            try:
+                consult_path = file_uri_to_path(consult_uri)
+            except Exception:
+                continue
+
+            if not consult_path.exists():
+                continue
+
+            consult_source = consult_path.read_text(encoding='utf-8', errors='replace')
+            consult_tree = PARSER.parse(bytes(consult_source, "utf-8"))
+            consult_visitor = PrologVisitor(consult_uri)
+            consult_visitor.visit(consult_tree.root_node, Opts())
+
+            consult_table = SymbolTable(
+                scopes=consult_visitor.scopes,
+                notes=consult_visitor.notes,
+                predicate_index=consult_visitor.predicate_index,
+                predicate_index_by_name=consult_visitor.predicate_index_by_name,
+                builtins=self.builtin_table,
+                imports={},
+                imported_signatures={},
+                consults={},
+                consult_paths=consult_visitor.consult_paths,
+                module_paths=consult_visitor.module_paths,
+                module_declarations=consult_visitor.module_declarations,
+                use_module_declarations=consult_visitor.used_modules,
+                exported_signatures=set(),
+                libs=consult_visitor.libs,
+                exportable_predicates=consult_visitor.exportable_predicates,
+                path=consult_uri,
+                operator_declarations=consult_visitor.operator_declarations,
+                operators=[],
+            )
+
+            tables[consult_uri] = deepcopy(consult_table)
+            trees[consult_uri] = (None, consult_tree)
+
+            # add consult table to parent symbol table for lookup
+            symbol_table.consults[consult_uri] = consult_table
+
+            self._resolve_consulted_files(consult_uri, consult_table, tables, trees, visited)
+
+        return
 
     def _group_diagnostics_by_pass(self, diagnostics: List[types.Diagnostic]) -> Dict[str, int]:
         """
