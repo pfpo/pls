@@ -74,7 +74,7 @@ def path_to_file_uri(path: Path) -> str:
 
 def add_paths(file_uri: str, module_relative_path: str) -> str:
     file_path = file_uri_to_path(file_uri)
-    final_path = file_path / ("../" + module_relative_path)
+    final_path = file_path.parent / module_relative_path
     return path_to_file_uri(final_path)
 
 

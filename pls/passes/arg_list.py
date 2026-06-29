@@ -27,11 +27,14 @@ class ArgumentListAnalysis(Analyser):
     
     def analyse_argument_list(self, node: Node):
         text = node.text.decode("utf-8")
-        flattened_text = self.flatten_argument_list(text)
-        refactored_text = self.refactor_argument_list(flattened_text)
-        if flattened_text != refactored_text:
-            self.add_argument_list_warning(node)
-            self.add_argument_list_code_action(node, refactored_text)
+        list_separator = [node for node in node.children if node.type == "arg_list_separator"] 
+        list_separator_positions = [sep.start_byte - node.start_byte for sep in list_separator]
+
+        if len(list_separator_positions) > 0:
+            refactored_text = self.separate_argument_list(text, list_separator_positions)
+            if text != refactored_text:
+                self.add_argument_list_warning(node)
+                self.add_argument_list_code_action(node, refactored_text)
 
     def add_argument_list_warning(self, node: Node):
         range = node_to_range(node)
@@ -65,3 +68,12 @@ class ArgumentListAnalysis(Analyser):
         lines = text.splitlines()
         flattened_lines = [line.strip() for line in lines if line.strip()]
         return " ".join(flattened_lines)
+    
+    def separate_argument_list(self, text: str, positions: list) -> str:
+        parts = []
+        last_pos = 0
+        for pos in positions:
+            parts.append(text[last_pos:pos].strip())
+            last_pos = pos + 1
+        parts.append(text[last_pos:].strip())
+        return ", ".join(parts)

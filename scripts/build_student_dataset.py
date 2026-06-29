@@ -14,6 +14,12 @@ def build_shared_definitions() -> str:
         "    false.\n\n"
         "author(_, _, _, _) :-\n"
         "    false.\n\n"
+        "read_book(_, _) :-\n"
+        "    false.\n\n"
+        "gives_gift_to(_, _, _) :-\n"
+        "    false.\n\n"
+        "rule(_, _) :-\n"
+        "    false.\n\n"
     )
 
 
@@ -62,8 +68,8 @@ def build_dataset(source_dir: Path, target_dir: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description='Rebuild student dataset with a shared common.pl and consult directives.')
-    parser.add_argument('--source', type=Path, default=Path('student_answers_MT-recurso_old'), help='Source dataset directory')
-    parser.add_argument('--target', type=Path, default=Path('student_answers_MT-recurso'), help='Target fixed dataset directory')
+    parser.add_argument('--source', type=Path, default=Path('student_answers_MT2_2024_old'), help='Source dataset directory')
+    parser.add_argument('--target', type=Path, default=Path('student_answers_MT2_2024'), help='Target fixed dataset directory')
     args = parser.parse_args()
 
     build_dataset(args.source, args.target)
