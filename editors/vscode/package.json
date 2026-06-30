@@ -44,6 +44,106 @@
 					"type": "string",
 					"default": "",
 					"description": "Specifies an absolute path to the pls executable. If empty pls is expected to be in $PATH variable. (example: /home/user/pls/env/bin/pls)"
+				},
+				"pls.passes.naming_conventions": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable naming conventions analysis"
+				},
+				"pls.passes.single_element_list_append": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable single element list append analysis"
+				},
+				"pls.passes.empty_list_append": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable empty list append analysis"
+				},
+				"pls.passes.nested_list_constructs": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable nested list constructs analysis"
+				},
+				"pls.passes.explicit_unification": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable explicit unification analysis"
+				},
+				"pls.passes.wrapper_predicates": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable wrapper predicates analysis"
+				},
+				"pls.passes.is_use": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable is/2 usage analysis"
+				},
+				"pls.passes.line_length": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable line length analysis"
+				},
+				"pls.passes.indentation_consistency": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable indentation consistency analysis"
+				},
+				"pls.passes.argument_list": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable argument list formatting analysis"
+				},
+				"pls.passes.too_many_arguments": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable too many arguments analysis"
+				},
+				"pls.passes.arg_pldoc": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable argument pldoc comments analysis"
+				},
+				"pls.passes.clause_length": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable clause length analysis"
+				},
+				"pls.passes.subgoal_per_line": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable subgoal per line analysis"
+				},
+				"pls.passes.clause_head_length": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable clause head length analysis"
+				},
+				"pls.passes.indentation": {
+					"type": "string",
+					"default": "spaces",
+					"description": "Specifies the indentation style to be used. Can be either 'spaces' or 'tabs'."
+				},
+				"pls.passes.indentation_size": {
+					"type": "number",
+					"default": 4,
+					"description": "Specifies the number of spaces or tabs to be used for indentation."
+				},
+				"pls.passes.max_line_length": {
+					"type": "number",
+					"default": 80,
+					"description": "Specifies the maximum number of characters allowed per line."
+				},
+				"pls.passes.max_clause_length": {
+					"type": "number",
+					"default": 24,
+					"description": "Specifies the maximum number of lines allowed per clause."
+				},
+				"pls.passes.arg_limit": {
+					"type": "number",
+					"default": 8,
+					"description": "Specifies the maximum number of arguments allowed per predicate."
 				}
 			}
 		},

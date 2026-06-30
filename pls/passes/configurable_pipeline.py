@@ -43,6 +43,6 @@ class ConfigurablePipeline(Pipeline):
 
         for setting_key, pass_class in config_passes:
             if self.settings.get(setting_key, True):
-                passes.append(pass_class())
+                passes.append(pass_class(settings=self.settings))
         
         return passes

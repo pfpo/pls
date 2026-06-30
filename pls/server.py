@@ -124,6 +124,9 @@ class PLS(LanguageServer):
         except Exception:
             return ""
 
+    def set_settings(self, settings: dict):
+        self.settings = settings
+
     def run_passes(self, document: TextDocument) -> list[types.Diagnostic]:
         if document is None or document.uri is None:
             return
@@ -941,4 +944,6 @@ def document_highlight(ls: PLS, params: types.DocumentHighlightParams):
 @server.feature(types.WORKSPACE_DID_CHANGE_CONFIGURATION)
 def did_change_configuration(ls: PLS, params: types.DidChangeConfigurationParams):
     logging.error(f"Configuration Changed: {params.settings}")
-    ls.settings = params.settings
+    settings = params.settings.get("pls", {})
+    passes = settings.get("passes", {})
+    ls.set_settings(passes)

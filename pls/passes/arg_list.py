@@ -4,12 +4,12 @@ from pls.utils import node_to_range, RangedAction
 from .analyser import Analyser, PrologAnalyseable
 
 class ArgumentListAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
         self.matches = None
-        self.indent_mode = "spaces" # "tabs"
-        self.indent = " " * 4
+        self.indent_mode = settings.get("indentation", "spaces")
+        self.indent = " " * settings.get("indentation_size", 4)
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri
@@ -27,6 +27,11 @@ class ArgumentListAnalysis(Analyser):
     
     def analyse_argument_list(self, node: Node):
         text = node.text.decode("utf-8")
+
+        # multiline -> intentional for readability
+        if "\n" in text:
+            return
+
         list_separator = [node for node in node.children if node.type == "arg_list_separator"] 
         list_separator_positions = [sep.start_byte - node.start_byte for sep in list_separator]
 

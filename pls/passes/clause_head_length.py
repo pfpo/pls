@@ -4,13 +4,13 @@ from pls.utils import node_to_range, RangedAction
 from .analyser import Analyser, PrologAnalyseable
 
 class ClauseHeadLengthAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
         self.matches = None
-        self.max_length = 80
-        self.indent_mode = "spaces" # "tabs"
-        self.indent = " " * 4
+        self.max_length = settings.get("max_line_length", 80)
+        self.indent_mode = settings.get("indentation", "spaces")
+        self.indent = " " * settings.get("indentation_size", 4)
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri

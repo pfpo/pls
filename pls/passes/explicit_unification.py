@@ -5,7 +5,7 @@ from lsprotocol import types
 from .analyser import Analyser, PrologAnalyseable
 
 class ExplicitUnificationAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
         self.matches = None
