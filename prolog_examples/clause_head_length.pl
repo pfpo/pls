@@ -1,8 +1,8 @@
-long_predicate(long_arg_1, long_arg_2, long_arg_3, long_arg_4, long_arg_5, long_arg_6) :-
+long_predicate(LongArg1, LongArg2, LongArg3, LongArg4, LongArg5, LongArg6) :-
     true.
 
 long_predicate(
-    long_arg_1, long_arg_2, long_arg_3, long_arg_4, 
-    long_arg_5, long_arg_6
+    LongArg1, LongArg2, LongArg3, LongArg4, 
+    LongArg5, LongArg6
 ) :-
     true.

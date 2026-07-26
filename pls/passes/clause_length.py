@@ -3,10 +3,10 @@ from lsprotocol import types
 from .analyser import Analyser, PrologAnalyseable
 
 class ClauseLengthAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
-        self.max_length = 24
+        self.max_length = settings.get("max_clause_length", 24)
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri

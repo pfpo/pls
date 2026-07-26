@@ -13,7 +13,7 @@ ARITHMETIC_FUNCTIONS = {"integer", "float_integer_part", "float_fractional_part"
 ARITHMETIC_CONSTANTS = {"pi"}
 
 class IsUseAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
         self.matches = None

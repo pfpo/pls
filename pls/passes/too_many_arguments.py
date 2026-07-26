@@ -4,11 +4,11 @@ from pls.utils import node_to_range
 from .analyser import Analyser, PrologAnalyseable
 
 class TooManyArgumentsAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
         self.matches = None
-        self.arg_limit = 8
+        self.arg_limit = settings.get("arg_limit", 8)
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri

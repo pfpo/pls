@@ -58,6 +58,10 @@ async function restartLanguageClient(): Promise<void> {
   // Register the server for prolog files
   let clientOptions: LanguageClientOptions = {
     documentSelector: [{ scheme: "file", language: "prolog" }],
+    synchronize: {
+      configurationSection: "pls",
+    },
+    initializationOptions: workspace.getConfiguration("pls"),
   };
 
   // Create the language client and start the client

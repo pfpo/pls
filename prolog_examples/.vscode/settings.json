@@ -1,0 +1,4 @@
+{
+    "pls.passes.indentation_consistency": false,
+    "pls.passes.max_line_length": 80 
+}
