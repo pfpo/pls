@@ -4,5 +4,5 @@ __pycache__
 dist
 test/
 pygls.log
-student_answers_MT-recurso/
+student_answers*/
 benchmark*/

@@ -4,7 +4,7 @@ from pls.utils import node_to_range, RangedAction
 from .analyser import Analyser, PrologAnalyseable
 
 class NestedListConstructsAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
         self.matches = None

@@ -65,6 +65,12 @@ def run_benchmark(
         result = analyzer.analyze_file(str(file_path))
         results.append(result)
         
+        # Skip common.pl files from stats aggregation
+        if result['is_common_file']:
+            if verbose:
+                print(f" (skipped: common.pl)", file=sys.stderr)
+            continue
+        
         if result['exception'] is None:
             timing_data.append(result['time_ms'])
             memory_data.append(result['memory_mb'])
@@ -87,12 +93,14 @@ def run_benchmark(
     print(f"✓ CSV report: {csv_path}", file=sys.stderr)
     
     json_path = output_dir / "benchmark_summary.json"
+    common_files_count = sum(1 for r in results if r.get('is_common_file', False))
     summary = _generate_summary(
         results,
         timing_data,
         memory_data,
         file_errors,
         errors_by_pass_aggregate,
+        common_files_count,
     )
     _write_json_summary(json_path, summary)
     print(f"✓ JSON summary: {json_path}", file=sys.stderr)
@@ -106,6 +114,9 @@ def run_benchmark(
 
 def _write_csv_report(csv_path: Path, results: List[Dict]) -> None:
     """Write detailed results to CSV file."""
+    # Filter out common.pl files
+    results = [r for r in results if not r.get('is_common_file', False)]
+    
     if not results:
         return
     
@@ -141,11 +152,12 @@ def _generate_summary(
     memory_data: List[float],
     file_errors: List[tuple],
     errors_by_pass_aggregate: Dict[str, int],
+    common_files_count: int = 0,
 ) -> Dict:
     """Generate comprehensive summary statistics."""
     
-    successful_runs = [r for r in results if r['exception'] is None]
-    failed_runs = [r for r in results if r['exception'] is not None]
+    successful_runs = [r for r in results if r['exception'] is None and not r.get('is_common_file', False)]
+    failed_runs = [r for r in results if r['exception'] is not None and not r.get('is_common_file', False)]
     
     top_error_files = sorted(file_errors, key=lambda x: x[1], reverse=True)[:10]
     
@@ -173,6 +185,8 @@ def _generate_summary(
     
     summary = {
         'total_files': len(results),
+        'analyzed_files': len(successful_runs) + len(failed_runs),
+        'common_files_excluded': common_files_count,
         'successful_runs': len(successful_runs),
         'failed_runs': len(failed_runs),
         'timing': timing_stats,
@@ -201,6 +215,8 @@ def _write_json_summary(json_path: Path, summary: Dict) -> None:
 def _print_summary_to_stdout(summary: Dict) -> None:
     """Print summary statistics to stdout."""
     print(f"\nTotal Files:       {summary['total_files']}", file=sys.stderr)
+    print(f"Common Files:      {summary.get('common_files_excluded', 0)}", file=sys.stderr)
+    print(f"Analyzed Files:    {summary.get('analyzed_files', summary['total_files'])}", file=sys.stderr)
     print(f"Successful Runs:   {summary['successful_runs']}", file=sys.stderr)
     print(f"Failed Runs:       {summary['failed_runs']}", file=sys.stderr)
     

@@ -22,9 +22,20 @@ class Pipeline(Analyser):
             OperatorDisambiguationAnalysis(),
         ]
 
-    def add_analysis_results(self, analyser: Analyser):
+    def add_analysis_results(self, analyser: Analyser, pass_name: str = None):
+        if pass_name is None:
+            pass_name = analyser.__class__.__name__
+        
+        # Track diagnostics by pass name
+        if pass_name not in self.diagnostics_by_pass:
+            self.diagnostics_by_pass[pass_name] = {}
+        
         for key, diagnostics in analyser.diagnostics.items():
             self.diagnostics[key].extend(diagnostics)
+            
+            if key not in self.diagnostics_by_pass[pass_name]:
+                self.diagnostics_by_pass[pass_name][key] = []
+            self.diagnostics_by_pass[pass_name][key].extend(diagnostics)
 
         for key, actions in analyser.actions.items():
             self.actions[key].extend(actions)

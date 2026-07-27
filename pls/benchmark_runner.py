@@ -20,7 +20,7 @@ from pls.model import SymbolTable, PrologAnalyseable
 from pls.prolog_visitor import PrologVisitor, Opts
 from pls.passes.configurable_pipeline import ConfigurablePipeline
 from pls.dependency_graph import DependencyGraphManager
-from pls.utils import path_to_file_uri
+from pls.utils import path_to_file_uri, file_uri_to_path, builtins_path, MyDoc
 
 PROLOG = Language(prolog())
 PARSER = Parser(PROLOG)
@@ -29,17 +29,37 @@ PARSER = Parser(PROLOG)
 class BenchmarkAnalyzer:
     """Analyzes a single Prolog file in isolation and collects metrics."""
 
+    _builtin_cache: Dict[str, Optional[SymbolTable]] = {}
+    _library_cache: Dict[str, SymbolTable] = {}
+
     def __init__(self, builtin_uri: Optional[str] = None, builtin_table: Optional[SymbolTable] = None):
         """
         Initialize analyzer.
         
         Args:
-            builtin_uri: URI of builtins file
-            builtin_table: Pre-parsed symbol table for builtins
+            builtin_uri: URI of builtins file (default: auto-detected)
+            builtin_table: Pre-parsed symbol table for builtins (will be loaded if not provided)
         """
-        self.builtin_uri = builtin_uri
-        self.builtin_table = builtin_table
         self.queries = self._load_queries()
+        
+        # Initialize builtins
+        if builtin_uri is None:
+            self.builtin_uri = builtins_path()
+        else:
+            self.builtin_uri = builtin_uri
+        
+        if builtin_table is None:
+            cache_key = self.builtin_uri
+            cached_builtin = self.__class__._builtin_cache.get(cache_key)
+            if cached_builtin is None:
+                cached_builtin = self._load_builtins()
+                self.__class__._builtin_cache[cache_key] = cached_builtin
+            self.builtin_table = cached_builtin
+        else:
+            self.builtin_table = builtin_table
+        
+        # Load libraries that should be available to all files
+        self.library_tables = self._load_libraries()
 
     def _load_queries(self) -> Dict[str, Query]:
         """Load tree-sitter queries from disk."""
@@ -53,6 +73,102 @@ class BenchmarkAnalyzer:
             except Exception as e:
                 print(f"Warning: Failed to load query {name}: {e}")
         return queries
+
+    def _load_builtins(self) -> Optional[SymbolTable]:
+        """Load and parse the builtins Prolog file."""
+        try:
+            builtin_doc = MyDoc(self.builtin_uri)
+            builtin_source = builtin_doc.source
+            
+            if not builtin_source:
+                print(f"Warning: Builtins file is empty: {self.builtin_uri}")
+                return None
+            
+            # Parse builtins file
+            tree = PARSER.parse(bytes(builtin_source, "utf-8"))
+            
+            # Build symbol table for builtins
+            visitor = PrologVisitor(self.builtin_uri)
+            visitor.visit(tree.root_node, Opts())
+            
+            builtin_table = SymbolTable(
+                scopes=visitor.scopes,
+                notes=visitor.notes,
+                predicate_index=visitor.predicate_index,
+                predicate_index_by_name=visitor.predicate_index_by_name,
+                builtins=None,  # Builtins don't need nested builtins
+                imports={},
+                imported_signatures={},
+                consults={},
+                consult_paths=visitor.consult_paths,
+                module_paths=visitor.module_paths,
+                module_declarations=visitor.module_declarations,
+                use_module_declarations=visitor.used_modules,
+                exported_signatures=set(),
+                libs=visitor.libs,
+                exportable_predicates=visitor.exportable_predicates,
+                path=self.builtin_uri,
+                operator_declarations=visitor.operator_declarations,
+                operators=[],
+            )
+            
+            return builtin_table
+        except Exception as e:
+            print(f"Warning: Failed to load builtins from {self.builtin_uri}: {e}")
+            return None
+
+    def _load_libraries(self) -> Dict[str, SymbolTable]:
+        """Load standard libraries (lists, between) that should be available to all files."""
+        libraries = {}
+        
+        libs_dir = Path(__file__).parent / 'data' / 'flavours' / 'sicstus' / 'libs'
+        lib_files = ['lists.pl', 'between.pl']
+        
+        for lib_name in lib_files:
+            lib_path = libs_dir / lib_name
+            if not lib_path.exists():
+                continue
+            
+            try:
+                lib_uri = path_to_file_uri(lib_path)
+                cached_library = self.__class__._library_cache.get(lib_uri)
+                if cached_library is not None:
+                    libraries[lib_uri] = cached_library
+                    continue
+
+                lib_source = lib_path.read_text(encoding='utf-8', errors='replace')
+                lib_tree = PARSER.parse(bytes(lib_source, "utf-8"))
+                
+                lib_visitor = PrologVisitor(lib_uri)
+                lib_visitor.visit(lib_tree.root_node, Opts())
+                
+                lib_table = SymbolTable(
+                    scopes=lib_visitor.scopes,
+                    notes=lib_visitor.notes,
+                    predicate_index=lib_visitor.predicate_index,
+                    predicate_index_by_name=lib_visitor.predicate_index_by_name,
+                    builtins=self.builtin_table,
+                    imports={},
+                    imported_signatures={},
+                    consults={},
+                    consult_paths=lib_visitor.consult_paths,
+                    module_paths=lib_visitor.module_paths,
+                    module_declarations=lib_visitor.module_declarations,
+                    use_module_declarations=lib_visitor.used_modules,
+                    exported_signatures=set(),
+                    libs=lib_visitor.libs,
+                    exportable_predicates=lib_visitor.exportable_predicates,
+                    path=lib_uri,
+                    operator_declarations=lib_visitor.operator_declarations,
+                    operators=[],
+                )
+                
+                self.__class__._library_cache[lib_uri] = lib_table
+                libraries[lib_uri] = lib_table
+            except Exception as e:
+                print(f"Warning: Failed to load library {lib_name}: {e}")
+        
+        return libraries
 
     def analyze_file(self, file_path: str) -> Dict:
         """
@@ -69,6 +185,7 @@ class BenchmarkAnalyzer:
                 - errors_by_pass: dict (error counts per pass class name)
                 - total_errors: int (total error count)
                 - error_details: list (detailed diagnostic info)
+                - is_common_file: bool (True if file should not be included in final stats)
         """
         result = {
             'file': file_path,
@@ -78,6 +195,7 @@ class BenchmarkAnalyzer:
             'total_errors': 0,
             'error_details': [],
             'exception': None,
+            'is_common_file': False,
         }
 
         try:
@@ -85,6 +203,10 @@ class BenchmarkAnalyzer:
             if not file_path_obj.exists():
                 result['exception'] = f"File not found: {file_path}"
                 return result
+
+            # Mark common.pl files as excluded from final stats
+            if file_path_obj.name == "common.pl":
+                result['is_common_file'] = True
 
             source = file_path_obj.read_text(encoding='utf-8', errors='replace')
             
@@ -119,8 +241,17 @@ class BenchmarkAnalyzer:
             )
 
             tables = {uri: deepcopy(symbol_table)}
+            root_symbol_table = tables[uri]
             trees = {uri: (None, tree)}
             dg = DependencyGraphManager()
+
+            self._resolve_consulted_files(uri, root_symbol_table, tables, trees)
+            
+            # Add standard libraries to the analysis context
+            for lib_uri, lib_table in self.library_tables.items():
+                lib_table_copy = deepcopy(lib_table)
+                tables[lib_uri] = lib_table_copy
+                root_symbol_table.consults[lib_uri] = lib_table_copy
             
             analyseable = PrologAnalyseable(
                 uri=uri,
@@ -134,7 +265,7 @@ class BenchmarkAnalyzer:
             pipeline = ConfigurablePipeline(settings={})
             pipeline.analyse(analyseable)
 
-            diagnostics_by_pass = self._group_diagnostics_by_pass(pipeline.diagnostics.get(uri, []))
+            diagnostics_by_pass = self._group_diagnostics_by_pass_from_pipeline(pipeline, uri)
             result['errors_by_pass'] = diagnostics_by_pass
             result['total_errors'] = sum(diagnostics_by_pass.values())
             
@@ -162,80 +293,85 @@ class BenchmarkAnalyzer:
 
         return result
 
-    def _group_diagnostics_by_pass(self, diagnostics: List[types.Diagnostic]) -> Dict[str, int]:
+    def _resolve_consulted_files(
+        self,
+        uri: str,
+        symbol_table: SymbolTable,
+        tables: Dict[str, SymbolTable],
+        trees: Dict[str, Tuple[Optional[int], object]],
+        visited: Optional[set] = None,
+    ) -> None:
+        """Recursively resolve consulted files and add their tables into the analysis context."""
+        if visited is None:
+            visited = set()
+
+        if uri in visited:
+            return
+        visited.add(uri)
+
+        for consult_uri in symbol_table.consult_paths:
+            if consult_uri in tables:
+                continue
+
+            try:
+                consult_path = file_uri_to_path(consult_uri)
+            except Exception:
+                continue
+
+            if not consult_path.exists():
+                continue
+
+            consult_source = consult_path.read_text(encoding='utf-8', errors='replace')
+            consult_tree = PARSER.parse(bytes(consult_source, "utf-8"))
+            consult_visitor = PrologVisitor(consult_uri)
+            consult_visitor.visit(consult_tree.root_node, Opts())
+
+            consult_table = SymbolTable(
+                scopes=consult_visitor.scopes,
+                notes=consult_visitor.notes,
+                predicate_index=consult_visitor.predicate_index,
+                predicate_index_by_name=consult_visitor.predicate_index_by_name,
+                builtins=self.builtin_table,
+                imports={},
+                imported_signatures={},
+                consults={},
+                consult_paths=consult_visitor.consult_paths,
+                module_paths=consult_visitor.module_paths,
+                module_declarations=consult_visitor.module_declarations,
+                use_module_declarations=consult_visitor.used_modules,
+                exported_signatures=set(),
+                libs=consult_visitor.libs,
+                exportable_predicates=consult_visitor.exportable_predicates,
+                path=consult_uri,
+                operator_declarations=consult_visitor.operator_declarations,
+                operators=[],
+            )
+
+            tables[consult_uri] = deepcopy(consult_table)
+            trees[consult_uri] = (None, consult_tree)
+
+            # add consult table to parent symbol table for lookup
+            symbol_table.consults[consult_uri] = consult_table
+
+            self._resolve_consulted_files(consult_uri, consult_table, tables, trees, visited)
+
+        return
+
+    def _group_diagnostics_by_pass_from_pipeline(self, pipeline, uri: str) -> Dict[str, int]:
         """
-        Group diagnostics by their source pass.
-        
-        This is a heuristic approach: we extract the pass name from the error message
-        or use the diagnostic code if available.
+        Get diagnostics grouped by pass from the pipeline's tracking.
         
         Args:
-            diagnostics: List of LSP Diagnostic objects
+            pipeline: The ConfigurablePipeline that tracks diagnostics by pass
+            uri: The file URI
             
         Returns:
             Dictionary mapping pass name to error count
         """
         by_pass = {}
         
-        for diagnostic in diagnostics:
-            # Try to extract pass name from code or message
-            pass_name = self._extract_pass_name(diagnostic)
-            by_pass[pass_name] = by_pass.get(pass_name, 0) + 1
+        for pass_name, uris_dict in pipeline.diagnostics_by_pass.items():
+            if uri in uris_dict:
+                by_pass[pass_name] = len(uris_dict[uri])
         
         return by_pass
-
-    def _extract_pass_name(self, diagnostic: types.Diagnostic) -> str:
-        """
-        Extract the pass name from a diagnostic.
-        
-        Heuristic approach using diagnostic code and message keywords.
-        """
-        code_to_pass = {
-            'syntax_error': 'syntax_error',
-            'undefined_predicate': 'undefined_predicate',
-            'unused_variable': 'unused_variable',
-            'operator_declaration': 'operator_declaration',
-            'operator_disambiguation': 'operator_disambiguation',
-            'naming_conventions': 'naming_conventions',
-            'single_element_list_append': 'single_element_list_append',
-            'empty_list_append': 'empty_list_append',
-            'nested_list_constructs': 'nested_list_constructs',
-            'explicit_unification': 'explicit_unification',
-            'wrapper_predicates': 'wrapper_predicates',
-            'line_length': 'line_length',
-            'indentation_consistency': 'indentation_consistency',
-            'argument_list': 'argument_list',
-            'too_many_arguments': 'too_many_arguments',
-            'arg_pldoc': 'arg_pldoc',
-            'clause_length': 'clause_length',
-            'subgoal_per_line': 'subgoal_per_line',
-        }
-        
-        if diagnostic.code:
-            code_lower = str(diagnostic.code).lower()
-            for code_key, pass_name in code_to_pass.items():
-                if code_key in code_lower:
-                    return pass_name
-        
-        message_lower = diagnostic.message.lower() if diagnostic.message else ""
-        keywords = {
-            'syntax': 'syntax_error',
-            'undefined': 'undefined_predicate',
-            'unused': 'unused_variable',
-            'operator': 'operator_declaration',
-            'naming': 'naming_conventions',
-            'list': 'list_operations',
-            'unification': 'explicit_unification',
-            'line length': 'line_length',
-            'indentation': 'indentation_consistency',
-            'argument': 'argument_list',
-            'too many': 'too_many_arguments',
-            'clause': 'clause_length',
-            'subgoal': 'subgoal_per_line',
-        }
-        
-        for keyword, pass_name in keywords.items():
-            if keyword in message_lower:
-                return pass_name
-        
-        return 'unknown'

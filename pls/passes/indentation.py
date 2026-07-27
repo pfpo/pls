@@ -3,11 +3,11 @@ from lsprotocol import types
 from .analyser import Analyser, PrologAnalyseable
 
 class IndentationConsistencyAnalysis(Analyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
-        self.mode = "spaces"  # "tabs"
-        self.spaces = 4
+        self.mode = settings.get("indentation", "spaces")
+        self.spaces = settings.get("indentation_size", 4)
 
     def analyse(self, content: PrologAnalyseable):
         self.uri = content.uri

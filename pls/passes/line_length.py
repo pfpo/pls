@@ -4,10 +4,9 @@ from .analyser import Analyser, PrologAnalyseable
 
 
 class LineLengthAnalysis(Analyser):
-    def __init__(self, settings: dict = None):
+    def __init__(self, settings: dict = {}):
         super().__init__()
-        self.settings = settings or {}
-        self.max_length = self.settings.get("max_line_length", 80)
+        self.max_length = settings.get("max_line_length", 80)
 
     def analyse(self, content : PrologAnalyseable):
         self.uri = content.uri

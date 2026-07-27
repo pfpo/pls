@@ -8,7 +8,7 @@ from .analyser import TreeAnalyser, PrologAnalyseable
 
 
 class NamingConventionsAnalysis(TreeAnalyser):
-    def __init__(self):
+    def __init__(self, settings: dict = {}):
         super().__init__()
         self.table = None
 
