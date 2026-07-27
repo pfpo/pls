@@ -5,6 +5,7 @@ Prolog Language Server
 - [Installing the Language Server](#installing-the-language-server)
 - [Installing VS Code Extension](#installing-vs-code-extension)
 - [Customizing pls Startup Command](#customizing-pls-startup-command)
+- [Configuring Diagnostics and Rules](#configuring-diagnostics-and-rules)
 - [Restarting the Server](#restarting-the-server)
 - [PlDoc Support](#pldoc)
 - [Feature Overview](#feature-overview)
@@ -88,6 +89,21 @@ Here is an example of a startup script with a custom python environment
 ```bash
 pls-instalation-path/.venv/bin/python3  -m  pls.main
 ```
+
+### Configuring Diagnostics and Rules
+
+You can configure PLS per project using a workspace settings file at `.vscode/settings.json`.
+
+Example:
+
+```json
+{
+  "pls.passes.indentation_consistency": false,
+  "pls.passes.max_line_length": 80
+}
+```
+
+Use this file to enable/disable individual analysis passes and tune thresholds such as line length, clause length, indentation style, and argument limits.
 
 ### Restarting The Server 
 
@@ -205,6 +221,23 @@ Provides real-time feedback on common Prolog issues:
 - **Cyclic Consults**
 - **Singleton Variable Warnings**
 - **Imported Module Does Not Export Predicate**
+- **Naming Convention Violations**
+  - Predicate names should be in `snake_case`
+  - Variable names should use `CamelCase` / `_CamelCase`
+- **Single Element `append/3` Usage**
+- **Empty List `append/3` Usage**
+- **Nested List Constructs**
+- **Explicit Unification Style**
+- **Unnecessary Wrapper Predicates**
+- **Invalid `is/2` Usage** (non-arithmetic use)
+- **Line Length Limit**
+- **Indentation Consistency**
+- **Argument List Formatting**
+- **Too Many Predicate Arguments**
+- **PlDoc Argument Mismatch**
+- **Clause Length Limit**
+- **Multiple Subgoals on the Same Line**
+- **Clause Head Length**
 
 ---
 
@@ -221,6 +254,28 @@ Quick fixes and refactorings directly from the editor:
 
 - **Generate PlDoc Template**
   - Insert a structured documentation comment for a predicate
+
+- **Rename to Follow Naming Convention**
+  - Renames predicate/variable references to suggested style
+
+- **Refactor Single Element `append/3`**
+  - Rewrites to `[Element|List]` style
+
+- **Remove Redundant Empty List `append/3`**
+
+- **Refactor Nested List Construct**
+
+- **Refactor Explicit Unification**
+
+- **Remove Wrapper Predicate and Replace Calls**
+
+- **Convert Indentation**
+  - Tabs to spaces
+  - Spaces to tabs
+
+- **Refactor Argument List Formatting**
+
+- **Refactor Clause Head to Reduce Length**
 
 
 --- 
