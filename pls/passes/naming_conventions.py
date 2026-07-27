@@ -39,7 +39,7 @@ class NamingConventionsAnalysis(TreeAnalyser):
 
     def add_naming_convention_warning(self, name: str, node: Node, reason: str, range: types.Range = None):
         range = range if range else node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Information
         message = f"Naming convention violation: '{name}' - {reason}"
         report = types.Diagnostic(
             message=message,

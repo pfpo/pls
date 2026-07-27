@@ -25,7 +25,7 @@ class EmptyListAppendAnalysis(Analyser):
     
     def add_empty_list_append_warning(self, node: Node):
         range = node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Hint
         message = "Appending an empty list to another list is redundant and can be removed."
         report = types.Diagnostic(
             message=message,

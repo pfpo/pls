@@ -21,12 +21,11 @@ class ExplicitUnificationAnalysis(Analyser):
             (_, match) = m
             unify = match["unify"][0]
             if not self.is_inside_or(unify):
-                self.add_unification_warning(unify)
                 self.add_unification_code_action(unify, index)
 
     def add_unification_warning(self, node: Node):
         range = node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Hint
         message = "Explicit unification can be simplified to an implicit unification."
         report = types.Diagnostic(
             message=message,
@@ -45,6 +44,7 @@ class ExplicitUnificationAnalysis(Analyser):
 
         changes = None
         if len(variable.references) == 2:
+            self.add_unification_warning(node)
             changes = self.refactor_replace_all_references(node, index)
         elif len(variable.references) > 2:
             # if both are vars replace all refs

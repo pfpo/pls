@@ -60,7 +60,7 @@ class ClauseHeadLengthAnalysis(Analyser):
 
     def add_clause_head_length_warning(self, node: Node):
         range = node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Hint
         message = "This clause has arguments that are too long. Consider refactoring to reduce the length of the clause head."
         report = types.Diagnostic(
             message=message,

@@ -82,22 +82,22 @@
 				},
 				"pls.passes.line_length": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Enable line length analysis"
 				},
 				"pls.passes.indentation_consistency": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Enable indentation consistency analysis"
 				},
 				"pls.passes.argument_list": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Enable argument list formatting analysis"
 				},
 				"pls.passes.too_many_arguments": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Enable too many arguments analysis"
 				},
 				"pls.passes.arg_pldoc": {
@@ -107,7 +107,7 @@
 				},
 				"pls.passes.clause_length": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Enable clause length analysis"
 				},
 				"pls.passes.subgoal_per_line": {
@@ -117,7 +117,7 @@
 				},
 				"pls.passes.clause_head_length": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Enable clause head length analysis"
 				},
 				"pls.passes.indentation": {
