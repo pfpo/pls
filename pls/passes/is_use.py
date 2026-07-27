@@ -33,7 +33,7 @@ class IsUseAnalysis(Analyser):
 
     def add_is_use_warning(self, node: Node):
         range = node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Error
         message = "The 'is' operator should only be used for arithmetic evaluation."
         report = types.Diagnostic(
             message=message,

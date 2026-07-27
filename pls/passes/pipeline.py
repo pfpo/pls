@@ -10,6 +10,7 @@ from .operator_declaration import OperatorDeclarationAnalysis
 class Pipeline(Analyser):
     def __init__(self):
         super().__init__()
+        self.diagnostics_by_pass = {}
 
     def passes(self) -> list[Analyser]:
         return [

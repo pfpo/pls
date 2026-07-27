@@ -86,7 +86,7 @@ class NamingConventionsAnalysis(TreeAnalyser):
             return name
 
     def is_snake_case(self, name: str) -> bool:
-        return re.match(r'^[a-z0-9]+(_[a-z0-9]+)*$', name) is not None
+        return re.match(r'^[a-z]+(_[a-z0-9]+)*$', name) is not None
 
     def is_camel_case(self, name: str) -> bool:
         if name == "_":
