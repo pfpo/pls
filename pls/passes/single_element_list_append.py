@@ -25,7 +25,7 @@ class SingleElementListAppendAnalysis(Analyser):
 
     def add_single_element_list_append_warning(self, node: Node):
         range = node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Hint
         message = "Appending a single element to a list can be more efficiently done using [Element|List] syntax."
         report = types.Diagnostic(
             message=message,

@@ -27,7 +27,7 @@ class WrapperPredicatesAppendsAnalysis(Analyser):
 
     def add_wrapper_predicate_warning(self, node: Node):
         range = node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Hint
         message = "Unecessary wrapper predicate."
         report = types.Diagnostic(
             message=message,

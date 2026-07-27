@@ -44,7 +44,7 @@ class SubgoalPerLineAnalysis(Analyser):
         range = node_to_range(node)
         range.end.character = len(self.lines[range.start.line])
         range.end.line = range.start.line
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Hint
         message = "Consider refactoring this clause to have one subgoal per line for better readability."
         report = types.Diagnostic(
             message=message,

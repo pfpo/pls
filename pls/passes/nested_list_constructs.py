@@ -26,7 +26,7 @@ class NestedListConstructsAnalysis(Analyser):
 
     def add_nested_list_warning(self, node: Node):
         range = node_to_range(node)
-        severity = types.DiagnosticSeverity.Warning
+        severity = types.DiagnosticSeverity.Hint
         message = "Nested list constructs can be simplified to a single list construct."
         report = types.Diagnostic(
             message=message,
