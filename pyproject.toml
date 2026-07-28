@@ -7,9 +7,10 @@ allow-direct-references = true
 
 [project]
 name = "pls"
-version = "0.0.1"
+version = "0.2.0"
 authors = [
   { name="Martim Videira", email="mitram790@gmail.com" },
+  { name="Pedro Oliveira", email="pedro.oliveriag@gmail.com"}
 ]
 description = "pls: Prolog Language Server"
 readme = "README.md"
@@ -21,11 +22,11 @@ classifiers = [
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
-  "tree-sitter",
-  "pygls",
-   "tree-sitter-prolog @ {root:uri}/tree-sitter-prolog",  
-   "tree-sitter-pldoc @ {root:uri}/tree-sitter-pldoc",
-   "platformdirs",
+  "tree-sitter==0.24.0",
+  "pygls==2.1.1",
+  "tree-sitter-prolog @ {root:uri}/tree-sitter-prolog",
+  "tree-sitter-pldoc @ {root:uri}/tree-sitter-pldoc",
+  "platformdirs==4.11.0",
 ]
 
 [project.urls]
