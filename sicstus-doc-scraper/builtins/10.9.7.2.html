@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 6.7, http://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Membership Constraints (SICStus Prolog)</title>
+
+<meta name="description" content="Membership Constraints (SICStus Prolog)">
+<meta name="keywords" content="Membership Constraints (SICStus Prolog)">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<link href="index.html" rel="start" title="Top">
+<link href="Predicate-Index.html" rel="index" title="Predicate Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Available-Constraints.html" rel="up" title="Available Constraints">
+<link href="Propositional-Constraints.html" rel="next" title="Propositional Constraints">
+<link href="Arithmetic-Constraints.html" rel="prev" title="Arithmetic Constraints">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+kbd {font-style: oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+<link href="texinfo.css" rel="stylesheet" type="text/css">
+</head>
+
+<body lang="en">
+<span id="Membership-Constraints"></span><div class="header">
+<p>
+Next: <a href="Propositional-Constraints.html" accesskey="n" rel="next">Propositional Constraints</a>, Previous: <a href="Arithmetic-Constraints.html" accesskey="p" rel="prev">Arithmetic Constraints</a>, Up: <a href="Available-Constraints.html" accesskey="u" rel="up">Available Constraints</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Predicate-Index.html" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<span id="Membership-Constraints-1"></span><h4 class="subsubsection">10.9.7.2 Membership Constraints</h4>
+
+<dl compact="compact">
+<dt><code>domain(<var>+Variables</var>, <var>+Range</var>) &nbsp;<!-- /@w --> <i>polymorphic</i>,<i>since release 4.10.0</i></code></dt>
+<dd>
+<span id="index-domain_002f2-_0028clpfd_0029-1"></span>
+<span id="index-domain_002f2-_0028clpfd_0029"></span>
+
+<p>where <var>Variables</var> is a list of variables. True if the variables
+all are elements of <var>Range</var>.
+</p>
+<p><code>domain/2</code> can be used for integer variables as well as for real
+variables.
+For integer variables, <var>Range</var> should be an <var>IntegerRange</var>;
+For real variables, <var>Range</var> should be a <var>RealRange</var>.
+See <a href="Syntax-of-Range-Expressions.html">Syntax of Range Expressions</a>.
+</p> 
+</dd>
+<dt><code>domain(<var>+Variables</var>, <var>+Min</var>, <var>+Max</var>) &nbsp;<!-- /@w --> <i>polymorphic</i></code></dt>
+<dd>
+<span id="index-domain_002f3-_0028clpfd_0029-1"></span>
+<span id="index-domain_002f3-_0028clpfd_0029"></span>
+
+<p>where <var>Variables</var> is a list of variables. True if the variables
+all are elements of the range <code><var>Min</var>..<var>Max</var></code>.
+<code>domain/3</code> can be used for integer variables as well as for real
+variables.  For integer variables, <var>Min</var> is an integer or the atom
+<code>inf</code> (minus infinity), and <var>Max</var> is an integer or the atom
+<code>sup</code> (plus infinity).  For real variables, <var>Min</var> is a real
+or the atom <code>finf</code> (minus infinity), and <var>Max</var> is a real or
+the atom <code>fsup</code> (plus infinity).
+</p>
+</dd>
+<dt><code><var>?X</var> in <var>+Range</var> &nbsp;<!-- /@w --> <i>reifiable</i>,<i>polymorphic</i></code></dt>
+<dd>
+<span id="index-in_002f2-_0028clpfd_0029-1"></span>
+<span id="index-in_002f2-_0028clpfd_0029"></span>
+
+<p>where <var>X</var> is a domain variable.
+<code>in/2</code> can be used for integer variables as well as for real
+variables.
+True if <var>X</var> is an element of the range.
+For integer variables, <var>Range</var> should be an <var>IntegerRange</var>;
+For real variables, <var>Range</var> should be a <var>RealRange</var>.
+See <a href="Syntax-of-Range-Expressions.html">Syntax of Range Expressions</a>.
+</p>
+</dd>
+<dt><code><var>?X</var> in_set <var>+FDSet</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dd>
+<span id="index-in_005fset_002f2-_0028clpfd_0029-1"></span>
+<span id="index-in_005fset_002f2-_0028clpfd_0029"></span>
+
+<p>where <var>X</var> is an integer variable and
+<var>FDSet</var> is an FD set (see <a href="FD-Set-Operations.html">FD Set Operations</a>).  True if <var>X</var>
+is an element of the FD set.
+</p></dd>
+</dl>
+
+<p><code>in/2</code> and <code>in_set/2</code> constraints maintain domain consistency
+and their reified versions detect domain entailment and  disentailment.
+</p>
+<hr>
+
+
+
+<div class="logo">
+<a href="https://sicstus.sics.se/">
+<table><tr><td>&nbsp;</td></tr></table>
+</a>
+</div>
+<div class="node">
+<ul class="node">
+<li><a href="index.html#Top">User's Manual</a>
+<hr>
+<li><a href="index.html#TOC">Table of Contents</a>
+<li><a href="Propositional-Constraints.html" accesskey="n" rel="next">Next</a>
+<li><a href="Arithmetic-Constraints.html" accesskey="p" rel="prev">Previous</a>
+<li><a href="Available-Constraints.html" accesskey="u" rel="up">Up</a>
+</ul>
+</div>
+<hr>
+<a HREF="mailto:sicstus-support@ri.se?subject=Documentation%20feedback%20on%20html/sicstus/Membership-Constraints.html&amp;body=Feedback%20on%20documentation%20node%20html/sicstus/Membership-Constraints.html%20in%20User's%20Manual.">Send feedback on this subject.</a>
+</body>
+</html>

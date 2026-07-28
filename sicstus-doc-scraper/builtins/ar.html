@@ -1,0 +1,410 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 6.7, http://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Arithmetic Constraints (SICStus Prolog)</title>
+
+<meta name="description" content="Arithmetic Constraints (SICStus Prolog)">
+<meta name="keywords" content="Arithmetic Constraints (SICStus Prolog)">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<link href="index.html" rel="start" title="Top">
+<link href="Predicate-Index.html" rel="index" title="Predicate Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Available-Constraints.html" rel="up" title="Available Constraints">
+<link href="Membership-Constraints.html" rel="next" title="Membership Constraints">
+<link href="Available-Constraints.html" rel="prev" title="Available Constraints">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+kbd {font-style: oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+<link href="texinfo.css" rel="stylesheet" type="text/css">
+</head>
+
+<body lang="en">
+<span id="Arithmetic-Constraints"></span><div class="header">
+<p>
+Next: <a href="Membership-Constraints.html" accesskey="n" rel="next">Membership Constraints</a>, Up: <a href="Available-Constraints.html" accesskey="u" rel="up">Available Constraints</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Predicate-Index.html" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<span id="Arithmetic-Constraints-1"></span><h4 class="subsubsection">10.9.7.1 Arithmetic Constraints</h4>
+
+<span id="Arithmetic-Relations"></span><h4 class="subsubheading">Arithmetic Relations</h4>
+
+<dl compact="compact">
+<dt><code><var>?IExpr</var> #= <var>?IExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?IExpr</var> #\= <var>?IExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?IExpr</var> #&lt; <var>?IExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?IExpr</var> #=&lt; <var>?IExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?IExpr</var> #&gt; <var>?IExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?IExpr</var> #&gt;= <var>?IExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?RExpr</var> $= <var>?RExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?RExpr</var> $=&lt; <var>?RExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code><var>?RExpr</var> $&gt;= <var>?RExpr</var> &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dd>
+<span id="index-_0023_003d-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0023_003d-_002f2-_0028clpfd_0029"></span>
+
+
+<span id="index-_0024_003d-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0024_003d-_002f2-_0028clpfd_0029"></span>
+
+
+<span id="index-_0023_003c-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0023_003c-_002f2-_0028clpfd_0029"></span>
+
+
+<span id="index-_0023_003e-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0023_003e-_002f2-_0028clpfd_0029"></span>
+
+
+
+<span id="index-_0023_005c_003d-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0023_005c_003d-_002f2-_0028clpfd_0029"></span>
+
+
+
+<span id="index-_0023_003d_003c-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0023_003d_003c-_002f2-_0028clpfd_0029"></span>
+
+
+<span id="index-_0024_003d_003c-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0024_003d_003c-_002f2-_0028clpfd_0029"></span>
+
+
+<span id="index-_0023_003e_003d-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0023_003e_003d-_002f2-_0028clpfd_0029"></span>
+
+
+<span id="index-_0024_003e_003d-_002f2-_0028clpfd_0029-1"></span>
+<span id="index-_0024_003e_003d-_002f2-_0028clpfd_0029"></span>
+
+<p>defines an arithmetic relation.  The syntax for <var>IExpr</var> and
+<var>RExpr</var> is defined by a grammar (see <a href="Syntax-of-Integer-Expressions.html">Syntax of Integer Expressions</a>; see <a href="Syntax-of-Real-Expressions.html">Syntax of Real Expressions</a>).  Note that the
+expressions are not restricted to being linear.  Constraints over
+nonlinear expressions, however, will usually yield less constraint
+propagation than constraints over linear expressions.
+</p>
+<p>Several examples of arithmetic relations over reals can be found at <a href="Equation-Solving.html">Equation Solving</a>.
+</p>
+<p>Arithmetic relations can be reified as e.g.:
+</p>
+<div class="example">
+<pre class="example">| ?- <kbd>X in 1..2, Y in 3..5, X#=&lt;Y #&lt;=&gt; B.</kbd>
+B = 1,
+X in 1..2,
+Y in 3..5
+
+| ?- <kbd>X in 1.0..2.0, Y in 3.0..5.0, X$=&lt;Y #&lt;=&gt; B.</kbd>
+B = 1,
+X in 1.0..2.0,
+Y in 3.0..5.0
+
+| ?- <kbd>X in 1.0..3.0, X $&gt;= 2.0 #&lt;=&gt; B, indomain(B).</kbd>
+B = 0,
+X in 1.0..2.0 ? <kbd>;</kbd>
+B = 1,
+X in 2.0..3.0 ? <kbd>;</kbd>
+no
+</pre></div>
+</dd>
+</dl>
+
+<p>Linear integer relations, except equalities, maintain bounds
+consistency. All other relations endeavor to maintain bounds
+consistency.
+</p>
+<span id="Partiality-and-Undefined-Values"></span><h4 class="subsubheading">Partiality and Undefined Values</h4>
+
+<p>Some arithmetic functions are partial, i.e., they do not have a
+defined value for all combinations of arguments.  The partial integer
+functions are:
+</p>
+<dl compact="compact">
+<dt><code>X / Y</code></dt>
+<dt><code>X // Y</code></dt>
+<dt><code>X div Y</code></dt>
+<dt><code>X mod Y</code></dt>
+<dt><code>X rem Y</code></dt>
+<dd><p>for <code>Y #= 0</code>
+</p></dd>
+<dt><code>X ^ Y</code></dt>
+<dd><p>for <code>Y #&lt; 0</code> if <code>abs(X) #\= 1</code>.  Note that this differs from
+the MiniZinc semantics.  In MiniZinc, <code>X ^ Y</code> = <code>1 div (X ^
+-Y)</code> if <code>Y &lt; 0</code>.  In SICStus, the CLPFD value is equal to the
+Prolog value if the latter is defined and integer.
+</p></dd>
+<dt><code>if_then_else(X,Y,Z)</code></dt>
+<dd><p>for <code>X</code> not in <code>0..1</code>
+</p></dd>
+</dl>
+
+<p>The partial real functions are:
+</p>
+<dl compact="compact">
+<dt><code>X^Y</code></dt>
+<dd><p>for <code>X $=&lt; 0.0</code> if <code>Y</code> is not integral.
+</p>
+</dd>
+<dt><code>if_then_else(X,Y,Z)</code></dt>
+<dd><p>for <code>X</code> not in <code>0..1</code>.
+</p>
+</dd>
+<dt><code>sqrt(X)</code></dt>
+<dt><code>log(X)</code></dt>
+<dd><p>for <code>X $=&lt; 0.0</code>.
+</p>
+</dd>
+<dt><code>asin(X)</code></dt>
+<dt><code>acos(X)</code></dt>
+<dt><code>atanh(X)</code></dt>
+<dd><p>for <code>X</code> not in <code>-1.0 .. 1.0</code>.
+</p>
+</dd>
+<dt><code>acosh(X)</code></dt>
+<dd><p>for <code>X $=&lt; 1.0</code>.
+</p>
+</dd>
+<dt><code>acoth(X)</code></dt>
+<dd><p>for <code>X</code> in <code>-1.0 .. 1.0</code>.
+</p></dd>
+</dl>
+
+<p>Like MiniZinc, SICStus implements the <em>relational semantics</em> of
+partial functions. Quoting [MiniZincHandbook], &ldquo;any undefinedness
+bubbles up to the closest Boolean context and becomes <code>false</code>
+there&rdquo;.  Here, a Boolean context is simply an arithmetic relation.  A
+few examples illustrate how this works:
+</p>
+<div class="example">
+<pre class="example">| ?- Y in -1 .. 1, 10 div Y #= Z, indomain(Y).
+Y = -1, Z = -10 ? ;
+Y = 1, Z = 10 ? ;
+</pre></div>
+
+<p>Here, the division by zero silently made the <code>#=</code> constraint fail.
+</p>
+<div class="example">
+<pre class="example">| ?- Y in 0..1, 10 div Y #= 10 #&lt;=&gt; B, indomain(Y).
+Y = 0, B = 0 ? ;
+Y = 1, B = 1 ? ;
+</pre></div>
+
+<p>Here, the division by zero again made the <code>#=</code> constraint fail,
+reflected in the answer <code>B = 0</code>.
+</p>
+<div class="example">
+<pre class="example">| ?- Y in -1 .. 1, Z #= if_then_else(1, 2, 10 div Y), indomain(Y).
+Y = -1, Z = 2 ? ;
+Y = 1, Z = 2 ? ;
+</pre></div>
+
+<p>Here, the division by zero &ldquo;bubbled up&rdquo; through the if-then-else
+expression, making <code>#=</code> fail for <code>Y = 0</code>, even though
+<code>if_then_else/3</code> actually did not use its third argument.
+</p>
+<div class="example">
+<pre class="example">| ?- X in 1..2, Y in -1 .. 1, X ^ Y #= Z, indomain(X), indomain(Y).
+X = 1, Y = -1, Z = 1 ? ;
+X = 1, Y = 0, Z = 1 ? ;
+X = 1, Y = 1, Z = 1 ? ;
+X = 2, Y = 0, Z = 1 ? ;
+X = 2, Y = 1, Z = 2 ? ;
+</pre></div>
+
+<p>Here, <code>2 ^ -1 #= Z</code> failed, because <code>2 ^ -1</code> is undefined.
+</p>
+<span id="Other-Arithmetic-Constraints"></span><h4 class="subsubheading">Other Arithmetic Constraints</h4>
+
+<p>The following constraints are among the library constraints that general
+arithmetic constraints compile to.  They express a relation between a
+sum or a scalar product and a value, using a dedicated algorithm, which
+avoids creating any temporary variables holding intermediate values.  If
+you are computing a sum or a scalar product, then it can be much more
+efficient to compute lists of coefficients and variables and post a
+single sum or scalar product constraint than to post a sequence of
+elementary constraints.
+</p>
+<dl compact="compact">
+<dt><code>sum(<var>+Xs</var>, <var>+IRelOp</var>, <var>?Value</var>)</code></dt>
+<dd>
+<span id="index-sum_002f3-_0028clpfd_0029-1"></span>
+<span id="index-sum_002f3-_0028clpfd_0029"></span>
+
+<p>where <var>Xs</var> is a list of integer arguments, <var>IRelOp</var> is a
+relational symbol as above, and <var>Value</var> is an integer argument.
+True if <code>sum(<var>Xs</var>) <var>IRelOp</var> <var>Value</var></code>.  Corresponds
+roughly to <code>sumlist/2</code> in <code>library(lists)</code>.
+</p>
+</dd>
+<dt><code>scalar_product(<var>+Coeffs</var>, <var>+Xs</var>, <var>+IRelOp</var>, <var>?Value</var>) &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dt><code>scalar_product(<var>+Coeffs</var>, <var>+Xs</var>, <var>+IRelOp</var>, <var>?Value</var>, <var>+Options</var>) &nbsp;<!-- /@w --> <i>reifiable</i></code></dt>
+<dd>
+<span id="index-scalar_005fproduct_002f_005b4_002c5_005d-_0028clpfd_0029-1"></span>
+<span id="index-scalar_005fproduct_002f_005b4_002c5_005d-_0028clpfd_0029"></span>
+
+<p>where <var>Coeffs</var> is a list of length <var>n</var> of integers, <var>Xs</var> is
+a list of length <var>n</var> of integer arguments, <var>IRelOp</var> is
+a relational symbol as above, and <var>Value</var> is an integer argument.
+True if <code>sum(<var>Coeffs*Xs</var>) <var>IRelOp</var> <var>Value</var></code>.
+</p>
+<p><var>Options</var> is a list that may include the following options:
+</p>
+<dl compact="compact">
+<dt><code>among(<var>Least</var>,<var>Most</var>,<var>Range</var>) &nbsp;<!-- /@w --> <i>obsolescent</i></code></dt>
+<dd><span id="index-among_002f3-_0028scalar_005fproduct_002f5-option_0029"></span>
+<p>If given, then <var>Least</var> and <var>Most</var> should be integers and <var>Range</var>
+should be an <var>IntegerRange</var> (see <a href="Syntax-of-Range-Expressions.html">Syntax of Range Expressions</a>).  This
+option imposes the additional constraint on <var>Xs</var> that at least
+<var>Least</var> and at most <var>Most</var> elements belong to <var>Range</var>.
+</p>
+</dd>
+<dt><code>consistency(<var>Cons</var>)</code></dt>
+<dd><span id="index-consistency_002f1-_0028scalar_005fproduct_002f5-option_0029"></span>
+<p>This can be used to control the level of consistency used by the constraint.
+The value is one of the following:
+</p><dl compact="compact">
+<dt><code>domain</code></dt>
+<dd><span id="index-domain-_0028scalar_005fproduct_002f5-consistency_002f1-value_0029"></span>
+<p>The constraint maintains domain consistency.
+<strong>Please note</strong>: This option is only meaningful if <var>IRelOp</var> is
+<code>#=</code>, and requires that all integer arguments have finite bounds.
+</p></dd>
+<dt><code>bounds</code></dt>
+<dt><code>value</code></dt>
+<dd><span id="index-bounds-_0028scalar_005fproduct_002f5-consistency_002f1-value_0029"></span>
+<span id="index-value-_0028scalar_005fproduct_002f5-consistency_002f1-value_0029"></span>
+<p>The constraint tries to maintain bounds consistency (the default).
+Note that the same algorithm is used also if <code><var>Cons</var> = value</code>.
+</p></dd>
+</dl>
+</dd>
+</dl>
+
+</dd>
+<dt><code>scalar_product_reif(<var>+Coeffs</var>, <var>+Xs</var>, <var>+IRelOp</var>, <var>?Value</var>, <var>?Reif</var>) &nbsp;<!-- /@w --> <i>since release 4.5</i></code></dt>
+<dt><code>scalar_product_reif(<var>+Coeffs</var>, <var>+Xs</var>, <var>+IRelOp</var>, <var>?Value</var>, <var>?Reif</var>, <var>+Options</var>)</code></dt>
+<dd>
+<span id="index-scalar_005fproduct_005freif_002f_005b5_002c6_005d-_0028clpfd_0029-1"></span>
+<span id="index-scalar_005fproduct_005freif_002f_005b5_002c6_005d-_0028clpfd_0029"></span>
+
+<p>is the reified version of <code>scalar_product/[4,5]</code>, i.e.,
+<var>Reif</var> is 1 if <code>scalar_product/[4,5]</code> with the same arguments
+holds; otherwise, <var>Reif</var> is 0.
+</p></dd>
+</dl>
+
+<p>The following constraints constrain a numeric argument to be the
+minimum (maximum) value of a given list.
+</p>
+<dl compact="compact">
+<dt><code>minimum(<var>?Value</var>, <var>+Xs</var>) &nbsp;<!-- /@w --> <i>polymorphic</i></code></dt>
+<dd>
+<span id="index-minimum_002f2-_0028clpfd_0029-1"></span>
+<span id="index-minimum_002f2-_0028clpfd_0029"></span>
+
+<p>where <var>Xs</var> is a list of numeric arguments, and <var>Value</var> is a numeric argument.
+True if <var>Value</var> is the minimum of <var>Xs</var>.  Corresponds to
+<code>min_member/2</code> in <code>library(lists)</code> and to <code>minimum</code> in
+MiniZinc<!-- /@w -->.
+</p>
+</dd>
+<dt><code>maximum(<var>?Value</var>, <var>+Xs</var>) &nbsp;<!-- /@w --> <i>polymorphic</i></code></dt>
+<dd>
+<span id="index-maximum_002f2-_0028clpfd_0029-1"></span>
+<span id="index-maximum_002f2-_0028clpfd_0029"></span>
+
+<p>where <var>Xs</var> is a list of numeric arguments, and <var>Value</var> is a numeric argument.
+True if <var>Value</var> is the maximum of <var>Xs</var>.  Corresponds to
+<code>max_member/2</code> in <code>library(lists)</code> and to <code>maximum</code> in
+MiniZinc<!-- /@w -->.
+</p></dd>
+</dl>
+
+<p>The following constraints constrain an integer argument to be the
+index of the minimum (maximum) value of a given list.  They maintain
+domain consistency.
+</p>
+<dl compact="compact">
+<dt><code>minimum_arg(<var>+Xs</var>, <var>?Index</var>) &nbsp;<!-- /@w --> <i>since release 4.6</i></code></dt>
+<dd>
+<span id="index-minimum_005farg_002f2-_0028clpfd_0029-1"></span>
+<span id="index-minimum_005farg_002f2-_0028clpfd_0029"></span>
+
+<p>where <var>Xs</var> is a list of integer arguments, and <var>Index</var> is an
+integer argument.  True if <var>Index</var> is the index of the minimum
+value of <var>Xs</var>, counting from 1.  If that value occurs more than
+once, <var>Index</var> is the index of the first occurrence.  Corresponds
+to <code>arg_min</code> and <code>minimum_arg</code> in MiniZinc<!-- /@w -->.
+</p>
+</dd>
+<dt><code>maximum_arg(<var>+Xs</var>, <var>?Index</var>) &nbsp;<!-- /@w --> <i>since release 4.6</i></code></dt>
+<dd>
+<span id="index-maximum_005farg_002f2-_0028clpfd_0029-1"></span>
+<span id="index-maximum_005farg_002f2-_0028clpfd_0029"></span>
+
+<p>where <var>Xs</var> is a list of integer arguments, and <var>Index</var> is an
+integer argument.  True if <var>Index</var> is the index of the maximum
+value of <var>Xs</var>, counting from 1.  If that value occurs more than
+once, <var>Index</var> is the index of the first occurrence.  Corresponds
+to <code>arg_max</code> and <code>maximum_arg</code> in MiniZinc<!-- /@w -->.
+</p></dd>
+</dl>
+
+<p>The following constrain restricts a numeric argument to take the value of
+either of two other numeric arguments, depending on a Boolean argument.  It
+maintains domain consistency.
+</p>
+<dl compact="compact">
+<dt><code>if_then_else(<var>If</var>, <var>Then</var>, <var>Else</var>, <var>Value</var>) &nbsp;<!-- /@w --> <i>polymorphic</i>,<i>since release 4.8.0</i></code></dt>
+<dd>
+<span id="index-if_005fthen_005felse_002f4-_0028clpfd_0029-1"></span>
+<span id="index-if_005fthen_005felse_002f4-_0028clpfd_0029"></span>
+
+<p>True if <var>If=1</var> and <var>Value=Then</var>, or <var>If=0</var> and <var>Value=Else</var>.
+<var>If</var> should be an integer argument with domain contained in <code>0..1</code>.
+<var>Then</var>, <var>Else</var>, and <var>Value</var> should be numeric arguments, either both integer or both real.
+Corresponds to if-then-else expressions in most programming and modeling languages.
+</p></dd>
+</dl>
+
+<hr>
+
+
+
+<div class="logo">
+<a href="https://sicstus.sics.se/">
+<table><tr><td>&nbsp;</td></tr></table>
+</a>
+</div>
+<div class="node">
+<ul class="node">
+<li><a href="index.html#Top">User's Manual</a>
+<hr>
+<li><a href="index.html#TOC">Table of Contents</a>
+<li><a href="Membership-Constraints.html" accesskey="n" rel="next">Next</a>
+<li><a href="Available-Constraints.html" accesskey="u" rel="up">Up</a>
+</ul>
+</div>
+<hr>
+<a HREF="mailto:sicstus-support@ri.se?subject=Documentation%20feedback%20on%20html/sicstus/Arithmetic-Constraints.html&amp;body=Feedback%20on%20documentation%20node%20html/sicstus/Arithmetic-Constraints.html%20in%20User's%20Manual.">Send feedback on this subject.</a>
+</body>
+</html>
