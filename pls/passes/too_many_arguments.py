@@ -1,7 +1,8 @@
-from tree_sitter import Node, QueryCursor
+from tree_sitter import Node
 from lsprotocol import types
 from pls.utils import node_to_range
 from .analyser import Analyser, PrologAnalyseable
+from pls.ts_query_compat import QueryCursor
 
 class TooManyArgumentsAnalysis(Analyser):
     def __init__(self, settings: dict = {}):

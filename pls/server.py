@@ -3,13 +3,13 @@ from copy import deepcopy
 
 import asyncio
 import uuid
+import traceback
 
 from pygls.lsp.server import LanguageServer
 from lsprotocol import types
 from pygls.workspace import TextDocument
 from pygls.uris import from_fs_path, to_fs_path
-from tree_sitter import Language, Parser, Tree, Node, Query
-from tree_sitter_prolog import prolog
+from tree_sitter import Parser, Tree, Node, Query
 
 from pls.folding_range_visitor import FoldingRangeVisitor
 from pls.passes.analyser import Analyser
@@ -49,9 +49,10 @@ from .my_logging import logging
 
 
 from .passes.configurable_pipeline import ConfigurablePipeline
+from .tree_sitter_compat import get_prolog_language
 
 
-PROLOG = Language(prolog())
+PROLOG = get_prolog_language()
 
 parser = Parser(PROLOG)
 
@@ -69,6 +70,7 @@ class PLS(LanguageServer):
         self.comment_trees: dict[str, Annotations] = {}
         self.dg = DependencyGraphManager()
         self.trees: dict[str, Tree] = {}
+        self.sources: dict[str, bytes] = {}
         self.files = []
         self.builtin_uri = builtins_path()
         self.builtin_table: SymbolTable = None
@@ -133,8 +135,12 @@ class PLS(LanguageServer):
         source = self.get_source(document)
         content = self.get_analyseable(document.uri, source)
         passes = ConfigurablePipeline(settings=self.settings)
-        passes.analyse(content)
-        self.get_analyser_results(passes)
+        try:
+            passes.analyse(content)
+            self.get_analyser_results(passes)
+        except Exception as e:
+            logging.error(f"Pass pipeline failed for {document.uri}: {e}")
+            logging.error(traceback.format_exc())
 
     def get_analyser_results(self, analyser: Analyser):
         for uri, diagnostics in analyser.diagnostics.items():
@@ -168,6 +174,11 @@ class PLS(LanguageServer):
         ):
             table.builtins = self.tables[self.builtin_uri]
 
+        # Builtins are indexed to provide symbols but do not need diagnostics or tokens.
+        # Skipping passes avoids unstable node range access on some Windows setups.
+        if document.uri == self.builtin_uri:
+            return
+
         self.run_passes(document)
 
         self.tokens[document.uri] = (
@@ -176,7 +187,9 @@ class PLS(LanguageServer):
         )
 
     def _parse(self, doc: TextDocument):
-        tree = parser.parse(bytes(doc.source, "utf-8"))
+        source_bytes = doc.source.encode("utf-8")
+        self.sources[doc.uri] = source_bytes
+        tree = parser.parse(source_bytes)
         self.trees[doc.uri] = (doc.version, tree)
 
         prolog_visitor = PrologVisitor(doc.uri)

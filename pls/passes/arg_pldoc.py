@@ -25,12 +25,25 @@ class ArgumentPlDocAnalysis(Analyser):
 
     # checks if the arguments of the predicate match in name and order with the arguments in the pldoc comment, if not, a warning is added
     def analyse_pldoc_comment(self, predicate: Predicate, comment: PlDocComment):
+        if len(predicate.heads) == 0 or predicate.heads[0] is None:
+            return
+
+        head_args = getattr(predicate.heads[0], "args", [])
         for template in comment.templates:
             if template.arity == predicate.arity:
                 for i in range(template.arity):
-                    if len(predicate.heads) == 0:
+                    if i >= len(head_args):
                         return
-                    if template.args[i].name != predicate.heads[0].args[i].name:
+
+                    template_arg = template.args[i]
+                    head_arg = head_args[i]
+                    template_name = getattr(template_arg, "name", None)
+                    head_name = getattr(head_arg, "name", None)
+
+                    if template_name is None or head_name is None:
+                        continue
+
+                    if template_name != head_name:
                         self.add_argument_mismatch_warning(predicate, template)
         return
     

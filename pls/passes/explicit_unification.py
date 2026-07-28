@@ -1,6 +1,7 @@
-from tree_sitter import Node, QueryCursor
+from tree_sitter import Node
 from pls.utils import node_to_range, RangedAction, contained_range, join_ranges
 from lsprotocol import types
+from pls.ts_query_compat import QueryCursor
 
 from .analyser import Analyser, PrologAnalyseable
 
