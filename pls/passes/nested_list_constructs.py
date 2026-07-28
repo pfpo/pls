@@ -1,6 +1,7 @@
-from tree_sitter import Node, QueryCursor
+from tree_sitter import Node
 from lsprotocol import types
 from pls.utils import node_to_range, RangedAction
+from pls.ts_query_compat import QueryCursor
 from .analyser import Analyser, PrologAnalyseable
 
 class NestedListConstructsAnalysis(Analyser):

@@ -516,7 +516,9 @@ class PrologVisitor(TreeVisitor):
             v = PlDocVisitor()
             v.start(result.root_node)
             pldoc = v.get_comment()
-            pldoc.location = node_to_location(self.uri, node)
+            # NOTE: Accessing comment node coordinates may crash on some Windows
+            # tree-sitter builds. Keep location unset to preserve server stability.
+            pldoc.location = None
             if len(pldoc.templates) > 0:
                 added_pldoc_template = True
                 for template in pldoc.templates:
@@ -536,8 +538,6 @@ class PrologVisitor(TreeVisitor):
                     self.exportable_predicates.add(predicate.key())
                     predicate.comments.append(pldoc)
                     name_range = template.name_range
-                    name_range.start.line += node.start_point.row
-                    name_range.end.line += node.start_point.row
                     predicate.name_references.append(
                         types.Location(uri=self.uri, range=name_range),
                     )

@@ -2,4 +2,8 @@
 
 from ._binding import prolog, problog
 
-__all__ = ["prolog", "problog"]
+
+def language():
+    return prolog()
+
+__all__ = ["language", "prolog", "problog"]

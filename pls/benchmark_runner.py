@@ -11,18 +11,17 @@ from copy import deepcopy
 from typing import Dict, List, Tuple, Optional
 
 import psutil
-from tree_sitter import Language, Parser, Query
+from tree_sitter import Parser, Query
 from lsprotocol import types
-
-from tree_sitter_prolog import prolog
 
 from pls.model import SymbolTable, PrologAnalyseable
 from pls.prolog_visitor import PrologVisitor, Opts
 from pls.passes.configurable_pipeline import ConfigurablePipeline
 from pls.dependency_graph import DependencyGraphManager
+from pls.tree_sitter_compat import get_prolog_language
 from pls.utils import path_to_file_uri, file_uri_to_path, builtins_path, MyDoc
 
-PROLOG = Language(prolog())
+PROLOG = get_prolog_language()
 PARSER = Parser(PROLOG)
 
 
