@@ -1,36 +1,37 @@
 # pls
 
-Prolog Language Server
+Prolog Language Server integrated with source code analysis and coding guidelines enforcement.
 
-- [Installing the Language Server](#installing-the-language-server)
-- [Installing VS Code Extension](#installing-vs-code-extension)
-- [Customizing pls Startup Command](#customizing-pls-startup-command)
-- [Configuring Diagnostics and Rules](#configuring-diagnostics-and-rules)
-- [Restarting the Server](#restarting-the-server)
-- [PlDoc Support](#pldoc)
-- [Feature Overview](#feature-overview)
-- [Full Feature List](#full-feature-list)
+## Installation
 
+### Install the Language Server
 
-## Installing the Language Server
+- Clone or download this repository.
+- Ensure Python and pip are installed.
 
-- Clone, or download this repository
-- Ensure you have python and pip installed
+#### Build Prerequisites
+
+PLS depends on local `tree-sitter-prolog` and `tree-sitter-pldoc` packages, which are compiled during installation.
+
+- Linux: a C toolchain (`gcc` or `clang`) is required.
+- macOS: Xcode Command Line Tools are required.
+- Windows: **Microsoft Visual C++ 14.0 or greater** is required.
+- Recommended on Windows: install **Visual Studio Build Tools** with the **Desktop development with C++** workload.
 
 ```bash
-cd pls
+cd pls-0.2.0
 pip install .
-``` 
-
-- pls  is now installed, and you may need to add the following line to your `bashrc` in order to make pip installables visible from your `$PATH`
-
-```bash
-echo 'PATH=#$HOME/.local/bin/:$PATH' >> ~/.bashrc
 ```
 
-## Installing VS Code Extension
+If needed, add your local pip binary path to your shell profile:
 
-- Download the extension (`.vsix`) from the github release.
+```bash
+echo 'PATH=$HOME/.local/bin/:$PATH' >> ~/.bashrc
+```
+
+### VS Code Extension
+
+- Download the extension (`.vsix`) from the GitHub release.
 
 From the Extensions view in VS Code:
 - Go to the Extensions view.
@@ -39,15 +40,15 @@ From the Extensions view in VS Code:
 
 Or from the command line:
 
-```bash 
+```bash
 # if you use VS Code
 code --install-extension pls-vscode-extension.vsix
 
 # if you use VS Code Insiders
 code-insiders --install-extension pls-vscode-extension.vsix
-``` 
+```
 
-## Neovim installation
+### Neovim Installation
 
 ```lua
 local configs = require('lspconfig.configs')
@@ -73,214 +74,51 @@ configs.pls = {
 lspconfig.pls.setup({})
 ```
 
-### Customizing pls startup Command
+### Customizing pls Startup Command
 
-1. Open command pallet  **CTRL+Shift+P** and search for user settings
+1. Open the Command Palette (**CTRL+Shift+P**) and search for user settings.
 
 ![](./imgs/command_pallete.png)
 
-2. Provide the path to the script that calls pls
+2. Provide the path to the executable or script that starts `pls`.
 
 ![](./imgs/pls_executable_path.png)
 
+The screenshot above shows a Linux-style path. The executable location depends on your OS and setup.
 
-Here is an example of a startup script with a custom python environment
+Common executable locations:
+
+- Linux or macOS (global install):
+  - `~/.local/bin/pls`
+  - `/usr/local/bin/pls`
+- Linux or macOS (virtual environment):
+  - `path/to/project/.venv/bin/pls`
+- Windows (global install):
+  - `C:\Users\<you>\AppData\Local\Python\<python-version>\Scripts\pls.exe`
+  - `C:\Python3x\Scripts\pls.exe`
+- Windows (virtual environment):
+  - `path\\to\\project\\.venv\\Scripts\\pls.exe`
+
+Tip: when you run `pip install .`, the output will often indicate where scripts were installed. You can use that reported location as the path for `pls`.
+
+Example startup script with a custom Python environment:
 
 ```bash
-pls-instalation-path/.venv/bin/python3  -m  pls.main
+# Linux or macOS
+pls-installation-path/.venv/bin/python3 -m pls.main
+
+# Windows (PowerShell or cmd)
+pls-installation-path\.venv\Scripts\python.exe -m pls.main
 ```
 
-### Configuring Diagnostics and Rules
+## Documentation
 
-You can configure PLS per project using a workspace settings file at `.vscode/settings.json`.
+- [Configuration and Troubleshooting](./docs/configuration.md)
+- [Known Problems](./docs/configuration.md#known-problems)
+- [PlDoc Support](./docs/pldoc.md)
+- [Features (overview, full list, and examples)](./docs/features.md)
+- [Language Server Architecture](./docs/language-server-architecture.md)
 
-Example:
+## Issues
 
-```json
-{
-  "pls.passes.indentation_consistency": false,
-  "pls.passes.max_line_length": 80
-}
-```
-
-Use this file to enable/disable individual analysis passes and tune thresholds such as line length, clause length, indentation style, and argument limits.
-
-### Restarting The Server 
-
-If something isn't looking quite or there is some unexpected error or weird behaviour from the server it can be easily restarted from the command pallete search for `Restart pls` and hit enter.
-
-![](./imgs/restart_pls.png)
-
-If there is a persisting bug or any missing features please [open an issue](https://github.com/MartimVideira/pls/issues)
-
-
-### pldoc
-
-
-
-[pldoc](https://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pldoc.html%27)) is the standard way to document Prolog code.
-The Prolog Language Server (pls) can parse pldoc comments to provide features like signature help, hover documentation, and more.
-The more thoroughly you document your code using pldoc, the more useful and context-aware assistance pls can offer.
-
-Here is an example of a pldoc comment of the builtin `setof` predicate. 
-
-![](./imgs/pldoc.png)
-
-pls supports these forms of pldoc comments:
-
-With Multiple predicate templates
-
-![](./imgs/pldoc_multiple_templates.png)
-
-With just the predicate description
-
-![](./imgs/pldoc_just_description.png)
-
-With just the predicate parameters
-
-![](./imgs/pldoc_just_params.png)
-
-With just the predicate template
-
-![](./imgs/pldoc_just_template.png)
-
-
-(`%! `) starts a pldoc comment and an empty comment line with (`%`) starts the body of the pldoc.
-
-## Feature Overview 
-### Multifile Support with consult, Hover and undefined predicate warnings
-
-![consult](./imgs/gifs/consult.gif)       
-
-
-### Multifile Support with Modules and Export all predicates action 
-
-![export_predicate_action_module_working](./imgs/gifs/export_predicate_action_module_working.gif)  
-
-
-### Module Does not Export Predicate Warning
-
-![module_does_not_export_predicate](./imgs/gifs/module_does_not_export_predicate.gif)        
-
-### Generate Pldoc Template Action
-
-![pldoc_template](./imgs/gifs/pldoc_template.gif)  
-
-### Autocomplete
-![autocomplete](./imgs/gifs/autocomplete.gif)  
-
-### Signature Help
-
-![signature_help](./imgs/gifs/signature_help.gif)
-
-
-
-### Rename predicate, predicate arguments and renaming accross files
-
-![rename](./imgs/gifs/rename.gif)          
-
-### Signleton Variables warning and action
-![singleton_variable_action](./imgs/gifs/singleton_variable_action.gif)
-
-###  Cyclic consults warnings
-![Cyclic consults](./imgs/gifs/cyclic_consults.gif)
-
-###  PLS working in Neovim and File Not Found for consutls and use_modules
-
-![Cyclic consults](./imgs/gifs/file_not_found_consult_module.gif)
-
-
-
-
-##  Full Feature List
-
-### 🔍 Language Navigation
-
-- **Go to Definition** – Jump to where a predicate is defined
-- **Find References** – Find all usages of a predicate
-- **Hover** – View quick documentation or PlDoc comments, for predicates and operators
-- **Autocomplete** – Suggest predicates,operators, atoms, variables.
-- **Rename** – Refactor predicate names across the codebase
-    - Predicate names
-    - Predicate arguments
-    - Predicate variables
-- **Signature Help** – Show argument list and modes for predicates
-- **Document Link** – Navigate to consulted files or consulted modules
-
----
-
-### 🚨 Diagnostics
-
-Provides real-time feedback on common Prolog issues:
-
-- **Syntax Errors**
-- **Duplicated Module Declarations**
-- **Undefined Predicate** : for predicates and operators
-- **Consulted Path Does Not Exist**
-- **Consulted Module Does Not Exist**
-- **Cyclic Consults**
-- **Singleton Variable Warnings**
-- **Imported Module Does Not Export Predicate**
-- **Naming Convention Violations**
-  - Predicate names should be in `snake_case`
-  - Variable names should use `CamelCase` / `_CamelCase`
-- **Single Element `append/3` Usage**
-- **Empty List `append/3` Usage**
-- **Nested List Constructs**
-- **Explicit Unification Style**
-- **Unnecessary Wrapper Predicates**
-- **Invalid `is/2` Usage** (non-arithmetic use)
-- **Line Length Limit**
-- **Indentation Consistency**
-- **Argument List Formatting**
-- **Too Many Predicate Arguments**
-- **PlDoc Argument Mismatch**
-- **Clause Length Limit**
-- **Multiple Subgoals on the Same Line**
-- **Clause Head Length**
-
----
-
-### 🛠️ Code Actions
-
-Quick fixes and refactorings directly from the editor:
-
-- **Fix Singleton Variable**  
-  Replace with `_` or prepend with `_` (e.g. `_Var`)
-  
-- **Export Predicates**
-  - Export all currently defined predicates in the module
-  - Export a specific predicate not yet listed in the module's export list
-
-- **Generate PlDoc Template**
-  - Insert a structured documentation comment for a predicate
-
-- **Rename to Follow Naming Convention**
-  - Renames predicate/variable references to suggested style
-
-- **Refactor Single Element `append/3`**
-  - Rewrites to `[Element|List]` style
-
-- **Remove Redundant Empty List `append/3`**
-
-- **Refactor Nested List Construct**
-
-- **Refactor Explicit Unification**
-
-- **Remove Wrapper Predicate and Replace Calls**
-
-- **Convert Indentation**
-  - Tabs to spaces
-  - Spaces to tabs
-
-- **Refactor Argument List Formatting**
-
-- **Refactor Clause Head to Reduce Length**
-
-
---- 
-### Other Features
-
-
-- **Semantic Highlighting**
-- **Highlighting of pldoc comments**
+If you find a bug or want a feature, please [open an issue](https://github.com/pfpo/pls/issues).
